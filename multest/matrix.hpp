@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include "cuda_transpose.cuh"
 
 namespace base {
 	template <class _Ty, bool _Is_cuda>
@@ -70,7 +71,7 @@ namespace base {
 			}
 			_Rows = _Other._Rows;
 			_Cols = _Other._Cols;
-			//_Copy_matrix(_Other);
+			_Copy_matrix(_Other);
 			
 			return *this;
 		}
@@ -131,7 +132,12 @@ namespace base {
 		template <allocator_t _Other_all, bool _T2>
 		inline void _Copy_matrix(const matrix<_Ty, _Other_all, _T2>& _M) {
 			if constexpr (_M.is_transposed()) {
-				
+				if constexpr (_Al.is_cuda()) {
+					_Copy_to_cuda_transposed(_M);
+				}
+				else {
+					static_assert(_Always_false<matrix>, "not implemented!");
+				}
 				return;
 			}
 			if constexpr (_Al.is_cuda())
@@ -154,6 +160,14 @@ namespace base {
 				cuda::memcpy(_Other._Data, _Data, _Rows * _Cols, DeviceToHost);
 			else
 				cuda::memcpy(_Other._Data, _Data, _Rows * _Cols, HostToHost);
+		}
+
+		template <allocator_t _Other_all, bool _T2>
+		constexpr void _Copy_to_cuda_transposed(const matrix<_Ty, _Other_all, _T2>& _Other) {
+			if constexpr (_Other._Al.is_cuda())
+				cuda::matrix_copy_transposed(_Other, *this);
+			else
+				static_assert(_Always_false<matrix>, "not implemented!");
 		}
 	};
 }

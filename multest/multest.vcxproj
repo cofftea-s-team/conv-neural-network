@@ -87,6 +87,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <CudaCompile Include="cuda_mul_shared.cu" />
+    <CudaCompile Include="cuda_transpose.cu" />
     <CudaCompile Include="kernel.cu" />
   </ItemGroup>
   <ItemGroup>
@@ -95,6 +96,7 @@
   <ItemGroup>
     <ClInclude Include="cuda_matrix.cuh" />
     <ClInclude Include="cuda_mul_shared.cuh" />
+    <ClInclude Include="cuda_transpose.cuh" />
     <ClInclude Include="cuda_utils.cuh" />
     <ClInclude Include="host_matrix.cuh" />
     <ClInclude Include="includes.hpp" />

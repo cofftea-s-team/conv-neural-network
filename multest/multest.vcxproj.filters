@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CudaCompile Include="kernel.cu" />
+    <CudaCompile Include="cuda_mul_shared.cu">
+      <Filter>Algebra</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_transpose.cu">
+      <Filter>Algebra</Filter>
+    </CudaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cuda_matrix.cuh" />
+    <ClInclude Include="cuda_utils.cuh" />
+    <ClInclude Include="host_matrix.cuh" />
+    <ClInclude Include="includes.hpp" />
+    <ClInclude Include="kernel.cuh" />
+    <ClInclude Include="matrix.hpp" />
+    <ClInclude Include="matrix_view.hpp" />
+    <ClInclude Include="cuda_transpose.cuh">
+      <Filter>Algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_mul_shared.cuh">
+      <Filter>Algebra</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Algebra">
+      <UniqueIdentifier>{f83dec39-fe8d-4a5e-aa39-b9fd9745b8fb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

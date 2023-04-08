@@ -65,7 +65,7 @@ namespace cuda {
     
     template <class _Ty, bool _T1, bool _T2>
     void _matrix_multiply(const _Ty* A, const _Ty* B, _Ty* C, size_t N, size_t M1, size_t M2) {
-       matrix_shared_multiply<_T1, _T2>(A, B, C, N, M1, M2);
+        matrix_shared_multiply<_T1, _T2>(A, B, C, N, M1, M2);
     }
     
 	template void _matrix_multiply<double, false, false>(const double* A, const double* B, double* C, size_t N, size_t M1, size_t M2);
