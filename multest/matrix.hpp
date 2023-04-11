@@ -1,8 +1,28 @@
 #pragma once
 #include <iostream>
-#include "cuda_transpose.cuh"
+#include "cuda/algebra/matrix_transpose.cuh"
+#include "cuda/utils.hpp"
+#include "host/utils.hpp"
 
 namespace base {
+	struct shape
+		: public std::pair<size_t, size_t>
+	{
+		using _Mybase = std::pair<size_t, size_t>;
+		using _Mybase::_Mybase;
+		inline size_t rows() const {
+			return _Mybase::first;
+		}
+		inline size_t cols() const {
+			return _Mybase::second;
+		}
+
+		inline friend std::ostream& operator<<(std::ostream& _Ostr, const shape& _Shape) {
+			return _Ostr << "(" << _Shape.rows() << ", " << _Shape.cols() << ")";
+		}
+	};
+	
+
 	template <class _Ty, bool _Is_cuda>
 	struct allocator {
 		using value_type = _Ty;
@@ -11,7 +31,6 @@ namespace base {
 		static constexpr bool is_cuda() {
 			return _Is_cuda;
 		}
-
 	};
 
 	// write concept for allocator
@@ -26,11 +45,19 @@ namespace base {
 		template <class _Ty2, allocator_t _All2, bool _T2>
 		friend class matrix;
 
+
 		inline matrix(size_t _N, size_t _M) 
 			: _Rows(_N), _Cols(_M) 
 		{
 			_Data = _Al.alloc(_N * _M);
+			if constexpr (std::is_same_v<_Ty, float>) {
+				assert(_Rows % 16 == 0 && _Cols % 16 == 0);
+			}
 		}
+
+		inline matrix(const shape& _Shape)
+			: matrix(_Shape.rows(), _Shape.cols())
+		{ }
 		
 		template <allocator_t _Other_all, bool _T2>
 		inline matrix(const matrix<_Ty, _Other_all, _T2>& _Other) {
@@ -92,6 +119,10 @@ namespace base {
 			return _Cols;
 		}
 
+		inline shape shape() const {
+			return { _Rows, _Cols };
+		}
+
 		inline size_t size() const {
 			return _Rows * _Cols;
 		}
@@ -128,16 +159,15 @@ namespace base {
 		size_t _Cols;
 		bool _Is_owner = true;
 		constexpr static _Alloc _Al = {};
+		
 	private:
 		template <allocator_t _Other_all, bool _T2>
 		inline void _Copy_matrix(const matrix<_Ty, _Other_all, _T2>& _M) {
 			if constexpr (_M.is_transposed()) {
-				if constexpr (_Al.is_cuda()) {
+				if constexpr (_Al.is_cuda())
 					_Copy_to_cuda_transposed(_M);
-				}
-				else {
-					static_assert(_Always_false<matrix>, "not implemented!");
-				}
+				else
+					_Copy_to_host_transposed(_M);
 				return;
 			}
 			if constexpr (_Al.is_cuda())
@@ -169,5 +199,14 @@ namespace base {
 			else
 				static_assert(_Always_false<matrix>, "not implemented!");
 		}
+		
+		template <allocator_t _Other_all, bool _T2>	
+		constexpr void _Copy_to_host_transposed(const matrix<_Ty, _Other_all, _T2>& _Other) {
+			if constexpr (_Other._Al.is_cuda())
+				static_assert(_Always_false<matrix>, "not implemented!");
+			else
+				host::copy_and_transpose(_Other._Data, _Data, _Rows, _Cols);
+		}
+
 	};
 }

@@ -94,23 +94,29 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CudaCompile Include="cuda_mul_shared.cu" />
-    <CudaCompile Include="cuda_transpose.cu" />
-    <CudaCompile Include="kernel.cu" />
+    <CudaCompile Include="cuda\algebra\matrix_mul.cu" />
+    <CudaCompile Include="cuda\algebra\matrix_transpose.cu" />
+    <CudaCompile Include="cuda\activations\activation.cu" />
+    <CudaCompile Include="cuda\algebra\matrix_add.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cuda_matrix.cuh" />
-    <ClInclude Include="cuda_mul_shared.cuh" />
-    <ClInclude Include="cuda_transpose.cuh" />
-    <ClInclude Include="cuda_utils.cuh" />
-    <ClInclude Include="host_matrix.cuh" />
+    <ClInclude Include="activations.hpp" />
+    <ClInclude Include="cuda\activations\activation.cuh" />
+    <ClInclude Include="cuda\algebra\matrix_add.cuh" />
+    <ClInclude Include="cuda\matrix.hpp" />
+    <ClInclude Include="cuda\algebra\matrix_mul.cuh" />
+    <ClInclude Include="cuda\algebra\matrix_transpose.cuh" />
+    <ClInclude Include="cuda\utils.hpp" />
+    <ClInclude Include="host\avx2_algebra.hpp" />
+    <ClInclude Include="host\matrix.hpp" />
+    <ClInclude Include="host\utils.hpp" />
     <ClInclude Include="includes.hpp" />
-    <ClInclude Include="kernel.cuh" />
+    <ClInclude Include="types.hpp" />
     <ClInclude Include="matrix.hpp" />
-    <ClInclude Include="matrix_view.hpp" />
+    <ClInclude Include="utils.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
