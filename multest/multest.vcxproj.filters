@@ -32,4 +32,7 @@
       <UniqueIdentifier>{f83dec39-fe8d-4a5e-aa39-b9fd9745b8fb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
+  </ItemGroup>
 </Project>
