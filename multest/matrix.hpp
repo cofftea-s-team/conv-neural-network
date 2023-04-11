@@ -17,6 +17,14 @@ namespace base {
 			return _Mybase::second;
 		}
 
+		inline constexpr shape transposed() const {
+			return shape(cols(), rows());
+		}
+
+		inline constexpr shape T() const {
+			return shape(cols(), rows());
+		}
+
 		inline friend std::ostream& operator<<(std::ostream& _Ostr, const shape& _Shape) {
 			return _Ostr << "(" << _Shape.rows() << ", " << _Shape.cols() << ")";
 		}
@@ -67,6 +75,13 @@ namespace base {
 			_Copy_matrix(_Other);
 		}
 
+		inline matrix(const matrix& _Other) {
+			_Rows = _Other._Rows;
+			_Cols = _Other._Cols;
+			_Data = _Al.alloc(_Rows * _Cols);
+			_Copy_matrix(_Other);
+		}
+
 		inline matrix(matrix&& _Other) noexcept {
 			_Rows = _Other._Rows;
 			_Cols = _Other._Cols;
@@ -102,6 +117,19 @@ namespace base {
 			
 			return *this;
 		}
+
+		inline matrix& operator=(matrix&& _Other) noexcept {
+			if (_Is_owner) {
+				_Al.free(_Data);
+			}
+			_Rows = _Other._Rows;
+			_Cols = _Other._Cols;
+			_Data = _Other._Data;
+			_Is_owner = _Other._Is_owner;
+			_Other._Is_owner = false;
+			_Other._Data = nullptr;
+			return *this;
+		}
 		
 		inline _Ty* data() {
 			return _Data;
@@ -116,7 +144,7 @@ namespace base {
 		}
 
 		inline size_t cols() const {
-			return _Cols;
+ 			return _Cols;
 		}
 
 		inline shape shape() const {

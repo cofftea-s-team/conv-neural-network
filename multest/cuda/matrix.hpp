@@ -2,6 +2,7 @@
 #include "utils.hpp"
 #include "algebra/matrix_mul.cuh"
 #include "algebra/matrix_add.cuh"
+#include "algebra/matrix_sub.cuh"
 #include "activations/activation.cuh"
 #include "../activations.hpp"
 #include "../matrix.hpp"
@@ -42,6 +43,7 @@ namespace cuda {
 		using _Mybase::_Rows;
 		using _Mybase::_Cols;
 		using _Mybase::_Data;
+		using _Mybase::_Al;
 	public:
 		using _Mybase::_Mybase;
 		using iterator = cuda_to_host_matrix_iterator<_Ty>;
@@ -73,6 +75,16 @@ namespace cuda {
 			cuda::matrix_add(*this, _Other, *this);
 			return *this;
 		}
+
+		template <bool _T>
+		inline matrix& operator-=(const base::matrix<_Ty, cuda::allocator<_Ty>, _T>& _Other) {
+#ifdef DEBUG
+			_STL_ASSERT(_Mybase::cols() == _Other.cols() && _Mybase::rows() == _Other.rows(), "matrix subtraction: cols != cols || rows != rows");
+#endif // DEBUG
+			cuda::matrix_sub(*this, _Other, *this);
+			return *this;
+		}
+
 		template <activation_fn_t _Fn>
 		inline void activate() {
 			cuda::activation_apply<_Fn>(*this);

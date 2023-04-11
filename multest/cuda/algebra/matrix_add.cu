@@ -1,11 +1,13 @@
 #include "matrix_add.cuh"
 
+#define BLOCKDIM 32
+
 namespace cuda {
 	template <bool _T1, bool _T2, class _Ty>
 	__global__ void matrix_add_kernel(const _Ty* A, const _Ty* B, _Ty* C, size_t N, size_t M) {
-		int i = blockIdx.x * blockDim.x + threadIdx.x;
-		int j = blockIdx.y * blockDim.y + threadIdx.y;
-
+		int i = blockIdx.y * BLOCKDIM + threadIdx.y;
+		int j = blockIdx.x * BLOCKDIM + threadIdx.x;
+		
 		if (i < N && j < M) {
 			if constexpr (_T1 && _T2) {
 				C[i * M + j] = A[j * N + i] + B[j * N + i];
@@ -24,8 +26,8 @@ namespace cuda {
 	
 	template <bool _T1, bool _T2, class _Ty>
 	void _matrix_add(const _Ty* A, const _Ty* B, _Ty* C, size_t N, size_t M) {
-		const dim3 blockDim(32, 32);
-		const dim3 gridDim((N - 1) / 32 + 1, (M - 1) / 32 + 1);
+		const dim3 blockDim(BLOCKDIM, BLOCKDIM);
+		const dim3 gridDim((N - 1) / BLOCKDIM + 1, (M - 1) / BLOCKDIM + 1);
 
 		matrix_add_kernel<_T1, _T2>
 			<<<gridDim, blockDim>>>(A, B, C, N, M);

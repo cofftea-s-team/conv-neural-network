@@ -1,45 +1,60 @@
+#define DEBUG
+#include "cuda/matrix.hpp"
+#include "host/matrix.hpp"
+#include "cuda/dual_matrix.hpp"
+
 #include <iostream>
 #include <iomanip>
 #include <Algorithms.h>
 #include <chrono>
 #include <random>
-#include "host/utils.hpp"
-#define DEBUG
-#include "includes.hpp"
+#include <vector.h>
 
 using std::cout;
 using std::endl;
 using namespace std::chrono;
 
 using namespace pipeline;
-#include "cuda/activations/activation.cuh"
 #include "utils.hpp"
 
 using namespace base;
 
+inline auto force_load_cuda() {
+	cout << "Loading..." << endl;
+	cuda::matrix<float> f(16, 16);
+	fill_normal_distribution(f);
+	auto x = f.mul(transposed(f)).to_host() | sum;
+	cout << "Cuda loaded!" << endl;
+	return x;
+}
+
 int main() {
+
+
 	std::ios_base::sync_with_stdio(false);
 	std::cout << std::setprecision(3) << std::fixed;
+	force_load_cuda();
 
-	host::matrix<bfloat16> _A(3, 3);
-	fill(_A.begin(), _A.end(), 1.);
+	auto sh1 = shape(16, 32);
+	auto sh2 = shape(32, 64);
 
-
-	cuda::matrix<bfloat16> A = _A;
-
-	_A.data()[2] = 2.;
-	_A.data()[1] = 2.;
-	cuda::matrix<bfloat16> B = _A;
 	
+	cuda::dual_matrix<float> A(sh1);
+	cuda::matrix<float> B(sh2);
 	
-	//A += transposed(B);
-	A += B;
+	shape res_sh = get_mul_shape(A, B);
 
-	cout << A << endl;
+	cout << "A: " << A.shape() << endl;
+	cout << "B: " << B.shape() << endl;
+	cout << "AxB: " << res_sh << endl;
 
-	cout << A.mul(B) << endl;
+	A.alloc_result(res_sh);
+
+	auto res = A.mul(B);
+	auto res2 = static_cast<cuda::matrix<float>>(A).mul(B);
 	
-	
+	cout << "AxB: " << res.shape() << endl;
+	cout << "AxB: " << res2.shape() << endl;
 
 	
 }

@@ -1,6 +1,5 @@
 #include "matrix_mul.cuh"
-#include <cublas_v2.h>
-#include <cuda_runtime.h>
+
 
 #define TILE_SIZE 32
 
@@ -16,13 +15,12 @@ __global__ void matrix_mul_kernel(const _Ty* A, const _Ty* B, _Ty* C, size_t M1,
 
     _Ty _Sum = 0.0;
 
-    for (size_t i = 0; i < (N - 1) / TILE_SIZE + 1; i++) {
+    for (size_t i = 0; i < (N - 1) / TILE_SIZE + 1; ++i) {
         if (row < M1 && i * TILE_SIZE + threadIdx.x < N) {
             if constexpr (!_T1) 
                 _Shared_A[threadIdx.y][threadIdx.x] = A[row * N + i * TILE_SIZE + threadIdx.x];
             else 
                 _Shared_A[threadIdx.y][threadIdx.x] = A[i * M1 + row * TILE_SIZE + threadIdx.x];
-            
         }
         else {
             _Shared_A[threadIdx.y][threadIdx.x] = 0.0;
@@ -40,7 +38,7 @@ __global__ void matrix_mul_kernel(const _Ty* A, const _Ty* B, _Ty* C, size_t M1,
 
         __syncthreads();
 
-        for (size_t j = 0; j < TILE_SIZE; j++) {
+        for (size_t j = 0; j < TILE_SIZE; ++j) {
             _Sum =  _Sum + _Shared_A[threadIdx.y][j] * _Shared_B[j][threadIdx.x];
         }
 

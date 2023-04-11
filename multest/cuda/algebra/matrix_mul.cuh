@@ -1,7 +1,7 @@
 #pragma once
-#include <cuda_runtime.h>
-#include <device_launch_parameters.h>
-#include <cuda_bf16.h>
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
+#include "cuda_bf16.h"
 
 using bfloat16 = nv_bfloat16;
 
@@ -10,8 +10,8 @@ namespace cuda {
 	void _matrix_multiply(const _Ty* A, const _Ty* B, _Ty* C, size_t N, size_t M1, size_t M2);
 
 
-	template <class _Mat, class _Mat2>
-	inline void matrix_multiply(const _Mat& A, const _Mat2& B, _Mat& C) {
+	template <class _Mat, class _Mat2, class _Mat3>
+	inline void matrix_multiply(const _Mat& A, const _Mat2& B, _Mat3& C) {
 		using _Ty = typename _Mat::value_type;
 		
 		size_t N = A.cols();

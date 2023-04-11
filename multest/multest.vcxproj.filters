@@ -13,6 +13,12 @@
     <CudaCompile Include="cuda\algebra\matrix_add.cu">
       <Filter>cuda\algebra</Filter>
     </CudaCompile>
+    <CudaCompile Include="cuda\algebra\matrix_sub.cu">
+      <Filter>cuda\algebra</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda\utils_cuda.cu">
+      <Filter>cuda</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -49,6 +55,15 @@
     <ClInclude Include="activations.hpp" />
     <ClInclude Include="cuda\algebra\matrix_add.cuh">
       <Filter>cuda\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda\algebra\matrix_sub.cuh">
+      <Filter>cuda\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda\utils_cuda.cuh">
+      <Filter>cuda</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda\dual_matrix.hpp">
+      <Filter>cuda</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
