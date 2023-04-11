@@ -47,6 +47,14 @@ namespace cuda {
 	}
 
 	template <class _Ty>
+	inline void memcpy_transpose(const _Ty* _Src, _Ty* _Dst, size_t _Rows, size_t _Cols, cudaOperationKind _Kind) {
+		size_t src_pitch = _Cols * sizeof(_Ty);
+		size_t dst_pitch = _Rows * sizeof(_Ty);
+
+		cudaMemcpy2D(_Dst, dst_pitch, _Src, src_pitch, _Cols * sizeof(_Ty), _Rows, (cudaMemcpyKind)_Kind);
+	}
+
+	template <class _Ty>
 	inline _Ty* alloc_paged(size_t _Count) {
 		_Ty* _Allocated_block;
 		auto _Status = cudaMallocHost((void**)&_Allocated_block, _Count * sizeof(_Ty));
@@ -74,6 +82,11 @@ namespace cuda {
 		_Ty _Res;
 		cuda::memcpy(_Val, &_Res, 1, DeviceToHost);
 		return _Res;
+	}
+
+	template <class _Ty>
+	inline void to_cuda(const _Ty* _Val, _Ty* _Dst) {
+		cuda::memcpy(_Val, _Dst, 1, HostToDevice);
 	}
 };
 

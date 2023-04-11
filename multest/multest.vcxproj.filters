@@ -1,35 +1,68 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CudaCompile Include="kernel.cu" />
-    <CudaCompile Include="cuda_mul_shared.cu">
-      <Filter>Algebra</Filter>
+    <CudaCompile Include="cuda\algebra\matrix_transpose.cu">
+      <Filter>cuda\algebra</Filter>
     </CudaCompile>
-    <CudaCompile Include="cuda_transpose.cu">
-      <Filter>Algebra</Filter>
+    <CudaCompile Include="cuda\algebra\matrix_mul.cu">
+      <Filter>cuda\algebra</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda\activations\activation.cu">
+      <Filter>cuda\activations</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda\algebra\matrix_add.cu">
+      <Filter>cuda\algebra</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cuda_matrix.cuh" />
-    <ClInclude Include="cuda_utils.cuh" />
-    <ClInclude Include="host_matrix.cuh" />
     <ClInclude Include="includes.hpp" />
-    <ClInclude Include="kernel.cuh" />
+    <ClInclude Include="types.hpp" />
     <ClInclude Include="matrix.hpp" />
-    <ClInclude Include="matrix_view.hpp" />
-    <ClInclude Include="cuda_transpose.cuh">
-      <Filter>Algebra</Filter>
+    <ClInclude Include="cuda\utils.hpp">
+      <Filter>cuda</Filter>
     </ClInclude>
-    <ClInclude Include="cuda_mul_shared.cuh">
-      <Filter>Algebra</Filter>
+    <ClInclude Include="cuda\matrix.hpp">
+      <Filter>cuda</Filter>
+    </ClInclude>
+    <ClInclude Include="host\avx2_algebra.hpp">
+      <Filter>host</Filter>
+    </ClInclude>
+    <ClInclude Include="host\matrix.hpp">
+      <Filter>host</Filter>
+    </ClInclude>
+    <ClInclude Include="host\utils.hpp">
+      <Filter>host</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda\algebra\matrix_transpose.cuh">
+      <Filter>cuda\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda\algebra\matrix_mul.cuh">
+      <Filter>cuda\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.hpp" />
+    <ClInclude Include="cuda\activations\activation.cuh">
+      <Filter>cuda\activations</Filter>
+    </ClInclude>
+    <ClInclude Include="activations.hpp" />
+    <ClInclude Include="cuda\algebra\matrix_add.cuh">
+      <Filter>cuda\algebra</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Algebra">
-      <UniqueIdentifier>{f83dec39-fe8d-4a5e-aa39-b9fd9745b8fb}</UniqueIdentifier>
+    <Filter Include="cuda">
+      <UniqueIdentifier>{1b78e72d-5c11-4315-9ddd-5f5c2adbe13b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="host">
+      <UniqueIdentifier>{4f66ca00-a4f8-4324-a0fe-5f5267b7c283}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cuda\algebra">
+      <UniqueIdentifier>{5da30f20-2cd0-49d6-a339-5edb92b06425}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cuda\activations">
+      <UniqueIdentifier>{0a2012de-72c3-4a26-9370-ee32f530ac8b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
