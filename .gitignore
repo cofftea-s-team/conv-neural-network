@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/multest/pybind11-2.10.4
+/multest/DataStructures
+/multest/.vscode
+/multest/msvcp140d.dll

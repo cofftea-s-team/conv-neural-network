@@ -80,4 +80,7 @@
       <UniqueIdentifier>{0a2012de-72c3-4a26-9370-ee32f530ac8b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
+  </ItemGroup>
 </Project>
