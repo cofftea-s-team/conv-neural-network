@@ -90,6 +90,14 @@ namespace base {
 			_Other._Is_owner = false;
 			_Other._Data = nullptr;
 		}
+
+		template <bool _T2>
+		inline matrix(const matrix<_Ty, _Alloc, _T2>& _Other) {
+			_Rows = _Other._Rows;
+			_Cols = _Other._Cols;
+			_Data = _Al.alloc(_Rows * _Cols);
+			_Copy_matrix(_Other);
+		}
 		
 		virtual ~matrix() {
 			if (_Is_owner) {

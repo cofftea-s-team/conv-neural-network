@@ -35,26 +35,20 @@ int main() {
 	std::cout << std::setprecision(3) << std::fixed;
 	force_load_cuda();
 
-	auto sh1 = shape(16, 32);
-	auto sh2 = shape(32, 64);
+	auto sh1 = shape(16, 16);
+	auto sh2 = shape(16, 16);
 
-	
 	cuda::dual_matrix<float> A(sh1);
 	cuda::matrix<float> B(sh2);
 	
-	shape res_sh = get_mul_shape(A, B);
+	A.alloc_result(get_mul_shape(A, B));
 
-	cout << "A: " << A.shape() << endl;
-	cout << "B: " << B.shape() << endl;
-	cout << "AxB: " << res_sh << endl;
+	auto C = A.mul(B);
 
-	A.alloc_result(res_sh);
-
-	auto res = A.mul(B);
-	auto res2 = static_cast<cuda::matrix<float>>(A).mul(B);
+	A = A.mul(C);
 	
-	cout << "AxB: " << res.shape() << endl;
-	cout << "AxB: " << res2.shape() << endl;
-
+	auto C1 = A.mul(transposed(A));
+	
+	A = A.mul(C1);
 	
 }

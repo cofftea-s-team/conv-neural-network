@@ -14,11 +14,11 @@ namespace cuda {
 	template <class _Activation_class, class _Ty>
 	void _activation_apply(_Ty* _Data, size_t N) {
 		
-		const dim3 threadsPerBlock(256);
-		const dim3 numBlocks((N + threadsPerBlock.x - 1) / threadsPerBlock.x);
+		const dim3 threads(256);
+		const dim3 blocks((N + threads.x - 1) / threads.x);
 
 		activation_apply_kernel<_Activation_class>
-			<<<numBlocks, threadsPerBlock>>>(_Data, N);
+			<<<blocks, threads>>>(_Data, N);
 
 	}
 

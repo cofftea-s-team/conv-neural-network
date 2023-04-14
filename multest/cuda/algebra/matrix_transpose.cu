@@ -1,5 +1,6 @@
 #include "matrix_transpose.cuh"
 
+#define BLOCK_DIM 32
 
 namespace cuda {
 
@@ -16,11 +17,10 @@ namespace cuda {
 	template<class _Ty>
 	void _matrix_transpose(const _Ty* _Src, _Ty* _Dst, size_t _Rows, size_t _Cols)
 	{
-        const dim3 threadsPerBlock(32, 32);
-        const dim3 numBlocks((_Rows + threadsPerBlock.x - 1) / threadsPerBlock.x,
-            (_Cols + threadsPerBlock.y - 1) / threadsPerBlock.y);
+		const dim3 threads(BLOCKDIM, BLOCKDIM);
+		const dim3 blocks((N - 1) / BLOCKDIM + 1, (M - 1) / BLOCKDIM + 1);
 
-        transpose_kernel<<<numBlocks, threadsPerBlock>>>(_Src, _Dst, _Rows, _Cols);
+        transpose_kernel<<<blocks, threads>>>(_Src, _Dst, _Rows, _Cols);
 	}
 	
 	template void _matrix_transpose(const double* _Src, double* _Dst, size_t _Rows, size_t _Cols);
