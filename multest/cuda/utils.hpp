@@ -12,6 +12,11 @@ enum cudaOperationKind {
 	DeviceToDevice = cudaMemcpyDeviceToDevice
 };
 
+namespace base {
+	template <class _Ty, bool>
+	struct allocator;
+}
+
 namespace cuda {
 
 	template <class _Ty>
@@ -28,8 +33,8 @@ namespace cuda {
 	}
 	 
 	template <class _Ty>
-	inline void free(_Ty* ptr) {
-		auto _Status = cudaFree((void*)ptr);
+	inline void free(_Ty* _Ptr) {
+		auto _Status = cudaFree((void*)_Ptr);
 
 		if (_Status != cudaSuccess) {
 			std::cout << "Cuda deallocation failed!" << std::endl;
@@ -38,21 +43,26 @@ namespace cuda {
 	}
 	
 	template <class _Ty>
+	struct allocator
+		: public base::allocator<_Ty, true>
+	{
+		constexpr _Ty* alloc(size_t _Count) const override {
+			return cuda::alloc<_Ty>(_Count);
+		}
+
+		constexpr void free(_Ty* _Ptr) const override {
+			cuda::free<_Ty>(_Ptr);
+		}
+	};
+
+	template <class _Ty>
 	inline void memcpy(const _Ty* _Src, _Ty* _Dst, size_t _Count, cudaOperationKind _Kind) {
-		auto _Status = cudaMemcpy(_Dst, _Src, _Count * sizeof(_Ty), (cudaMemcpyKind)_Kind);
+		auto _Status = cudaMemcpy((void*)_Dst, (const void*)_Src, _Count * sizeof(_Ty), (cudaMemcpyKind)_Kind);
 
 		if (_Status != cudaSuccess) {
 			std::cout << "Copying memory failed!" << std::endl;
 			throw std::exception("Copying memory failed!");
 		}
-	}
-
-	template <class _Ty>
-	inline void memcpy_transpose(const _Ty* _Src, _Ty* _Dst, size_t _Rows, size_t _Cols, cudaOperationKind _Kind) {
-		size_t src_pitch = _Cols * sizeof(_Ty);
-		size_t dst_pitch = _Rows * sizeof(_Ty);
-
-		cudaMemcpy2D(_Dst, dst_pitch, _Src, src_pitch, _Cols * sizeof(_Ty), _Rows, (cudaMemcpyKind)_Kind);
 	}
 
 	template <class _Ty>
@@ -69,8 +79,8 @@ namespace cuda {
 	}
 	
 	template <class _Ty>
-	inline void free_paged(_Ty* ptr) {
-		auto _Status = cudaFreeHost((void*)ptr);
+	inline void free_paged(_Ty* _Ptr) {
+		auto _Status = cudaFreeHost((void*)_Ptr);
 
 		if (_Status != cudaSuccess) {
 			std::cout << "Cuda deallocation failed!" << std::endl;
@@ -89,5 +99,7 @@ namespace cuda {
 	inline void to_cuda(const _Ty* _Val, _Ty* _Dst) {
 		cuda::memcpy(_Val, _Dst, 1, HostToDevice);
 	}
+
+
 };
 

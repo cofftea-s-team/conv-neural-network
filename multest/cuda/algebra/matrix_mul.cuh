@@ -6,6 +6,7 @@
 using bfloat16 = nv_bfloat16;
 
 namespace cuda {
+
 	template <class _Ty, bool _T1, bool _T2>
 	void _matrix_multiply(const _Ty* A, const _Ty* B, _Ty* C, size_t N, size_t M1, size_t M2);
 

@@ -1,14 +1,14 @@
 #include "utils_cuda.cuh"
 
 namespace cuda {
-#define BLOCK_SIZE 1024
+#define BLOCK_SIZE 512
 
 	template <RAND_MODE _Mode, class _Ty>
 	__global__ void random_kernel(_Ty* _Data, size_t N, curandState* _State) {
 		int i = blockIdx.x * BLOCK_SIZE + threadIdx.x;
 		if (i < N) {
 			size_t _State_idx = i & (BLOCK_SIZE - 1);
-			curand_init(1337, _State_idx, 0, &_State[_State_idx]);
+			curand_init(threadIdx.x, _State_idx, 0, &_State[_State_idx]);
 			
 			if constexpr (_Mode == UNIFORM) {
 				_Data[i] = curand_uniform(&_State[_State_idx]);

@@ -19,12 +19,23 @@
     <CudaCompile Include="cuda\utils_cuda.cu">
       <Filter>cuda</Filter>
     </CudaCompile>
+    <CudaCompile Include="cuda\algebra\matrix_add_vector.cu">
+      <Filter>cuda\algebra</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda\algebra\matrix_sub_vector.cu">
+      <Filter>cuda\algebra</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda\algebra\matrix_scalar_mul.cu">
+      <Filter>cuda\algebra</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda\algebra\matrix_add_scalar.cu">
+      <Filter>cuda\algebra</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="includes.hpp" />
     <ClInclude Include="types.hpp" />
     <ClInclude Include="matrix.hpp" />
     <ClInclude Include="cuda\utils.hpp">
@@ -64,6 +75,27 @@
     </ClInclude>
     <ClInclude Include="cuda\dual_matrix.hpp">
       <Filter>cuda</Filter>
+    </ClInclude>
+    <ClInclude Include="matrix_view.hpp" />
+    <ClInclude Include="cuda\vector.hpp">
+      <Filter>cuda</Filter>
+    </ClInclude>
+    <ClInclude Include="vector.hpp" />
+    <ClInclude Include="cuda\algebra\matrix_add_vector.cuh">
+      <Filter>cuda\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="host\vector.hpp">
+      <Filter>host</Filter>
+    </ClInclude>
+    <ClInclude Include="vector_view.hpp" />
+    <ClInclude Include="cuda\algebra\matrix_sub_vector.cuh">
+      <Filter>cuda\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda\algebra\matrix_add_scalar.cuh">
+      <Filter>cuda\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda\algebra\matrix_scalar_mul.cuh">
+      <Filter>cuda\algebra</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

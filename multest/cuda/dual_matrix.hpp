@@ -16,6 +16,12 @@ namespace cuda {
 	public:
 		using _Mybase::_Mybase;
 		
+		template <base::allocator_t _Other_all, bool _T2>
+		inline dual_matrix& operator=(const base::matrix<_Ty, _Other_all, _T2>& _Other) {
+			_Mybase::operator=(_Other);
+			return *this;
+		}
+
 		inline void alloc_result(size_t _Count) {
 			_Mul_result = _Al.alloc(_Count);
 		}

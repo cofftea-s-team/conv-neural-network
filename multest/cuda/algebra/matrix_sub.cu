@@ -1,13 +1,13 @@
 #include "matrix_sub.cuh"
 
-#define BLOCKDIM 32
+#define BLOCK_DIM 32
 
 namespace cuda {
 	
 	template <bool _T1, bool _T2, class _Ty>
 	__global__ void matrix_sub_kernel(const _Ty* A, const _Ty* B, _Ty* C, size_t N, size_t M) {
-		int i = blockIdx.x * blockDim.x + threadIdx.x;
-		int j = blockIdx.y * blockDim.y + threadIdx.y;
+		int i = blockIdx.y * BLOCK_DIM + threadIdx.y;
+		int j = blockIdx.x * BLOCK_DIM + threadIdx.x;
 
 		if (i < N && j < M) {
 			if constexpr (_T1 && _T2) {
@@ -24,11 +24,11 @@ namespace cuda {
 			}
 		}
 	}
-	
+
 	template <bool _T1, bool _T2, class _Ty>
 	void _matrix_sub(const _Ty* A, const _Ty* B, _Ty* C, size_t N, size_t M) {
-		const dim3 threads(BLOCKDIM, BLOCKDIM);
-		const dim3 blocks((N - 1) / BLOCKDIM + 1, (M - 1) / BLOCKDIM + 1);
+		const dim3 threads(BLOCK_DIM, BLOCK_DIM);
+		const dim3 blocks((N - 1) / BLOCK_DIM + 1, (M - 1) / BLOCK_DIM + 1);
 
 		matrix_sub_kernel<_T1, _T2>
 			<<<blocks, threads>>>(A, B, C, N, M);

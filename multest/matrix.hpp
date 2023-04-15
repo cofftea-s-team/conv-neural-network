@@ -41,9 +41,11 @@ namespace base {
 		}
 	};
 
-	// write concept for allocator
 	template <typename T>
 	concept allocator_t = std::is_base_of_v<allocator<typename T::value_type, T::is_cuda()>, T>;
+
+	template <class _Ty, allocator_t, bool>
+	class vector;
 	
 	template <class _Ty, allocator_t _Alloc, bool _T>
 	class matrix {
@@ -58,9 +60,6 @@ namespace base {
 			: _Rows(_N), _Cols(_M) 
 		{
 			_Data = _Al.alloc(_N * _M);
-			if constexpr (std::is_same_v<_Ty, float>) {
-				assert(_Rows % 16 == 0 && _Cols % 16 == 0);
-			}
 		}
 
 		inline matrix(const shape& _Shape)
@@ -83,12 +82,7 @@ namespace base {
 		}
 
 		inline matrix(matrix&& _Other) noexcept {
-			_Rows = _Other._Rows;
-			_Cols = _Other._Cols;
-			_Data = _Other._Data;
-			_Is_owner = _Other._Is_owner;
-			_Other._Is_owner = false;
-			_Other._Data = nullptr;
+			_Move(std::move(_Other));
 		}
 
 		template <bool _T2>
@@ -115,6 +109,9 @@ namespace base {
 
 		template <allocator_t _Other_all, bool _T2>
 		inline matrix& operator=(const matrix<_Ty, _Other_all, _T2>& _Other) {
+			if (this == &_Other) {
+				return *this;
+			}
 			if (_Rows * _Cols != _Other._Rows * _Other._Cols) {
 				_Al.free(_Data);
 				_Data = _Al.alloc(_Other._Rows * _Other._Cols);
@@ -126,18 +123,42 @@ namespace base {
 			return *this;
 		}
 
-		inline matrix& operator=(matrix&& _Other) noexcept {
+		template <allocator_t _Other_all>
+		inline matrix& operator=(matrix<_Ty, _Other_all, _T>&& _Other) {
+			if (this == &_Other) {
+				return *this;
+			}
 			if (_Is_owner) {
 				_Al.free(_Data);
 			}
-			_Rows = _Other._Rows;
-			_Cols = _Other._Cols;
-			_Data = _Other._Data;
-			_Is_owner = _Other._Is_owner;
-			_Other._Is_owner = false;
-			_Other._Data = nullptr;
+			_Move(std::move(_Other));
 			return *this;
 		}
+
+		inline matrix& operator=(const matrix& _Other) {
+			if (_Rows * _Cols != _Other._Rows * _Other._Cols) {
+				_Al.free(_Data);
+				_Data = _Al.alloc(_Other._Rows * _Other._Cols);
+			}
+			_Rows = _Other._Rows;
+			_Cols = _Other._Cols;
+			_Copy_matrix(_Other);
+
+			return *this;
+		}
+
+		inline matrix& operator=(matrix&& _Other) noexcept {
+			if (this == &_Other) {
+				return *this;
+			}
+			if (_Is_owner) {
+				_Al.free(_Data);
+			}
+			_Move(std::move(_Other));
+			return *this;
+		}
+		
+		
 		
 		inline _Ty* data() {
 			return _Data;
@@ -244,5 +265,14 @@ namespace base {
 				host::copy_and_transpose(_Other._Data, _Data, _Rows, _Cols);
 		}
 
+		template<allocator_t _Other_all, bool _T2>
+		constexpr void _Move(base::matrix<base::matrix<_Ty, _Alloc, _T>::value_type, _Other_all, _T2>&& _Other) noexcept {
+			_Rows = _Other._Rows;
+			_Cols = _Other._Cols;
+			_Data = _Other._Data;
+			_Is_owner = _Other._Is_owner;
+			_Other._Is_owner = false;
+			_Other._Data = nullptr;
+		}
 	};
 }

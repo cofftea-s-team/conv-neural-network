@@ -1,6 +1,7 @@
 #pragma once
 #include "../matrix.hpp"
 #include "../cuda/utils.hpp"
+#include "utils.hpp"
 #include <iostream>
 
 namespace cuda {
@@ -12,18 +13,6 @@ namespace host {
 	using std::cout;
 	using std::endl;
 	using std::ostream;
-	template <class _Ty>
-	struct allocator 
-		: public base::allocator<_Ty, false> 
-	{
-		constexpr _Ty* alloc(size_t _Count) const override  {
-			return cuda::alloc_paged<_Ty>(_Count);
-		}
-
-		constexpr void free(_Ty* ptr) const override {
-			cuda::free_paged<_Ty>(ptr);
-		}
-	};
 
 	template <class _Ty>
 	class matrix 
@@ -40,13 +29,22 @@ namespace host {
 		using _Mybase::_Data;
 		
 		template <base::allocator_t _Other_all, bool _T2>
+		inline matrix(const base::matrix<_Ty, _Other_all, _T2>& _Other)
+			: _Mybase(_Other)
+		{
+			if constexpr (std::is_same_v<_Ty, float>) {
+				assert(_Rows % 16 == 0 && _Cols % 16 == 0);
+			}
+		}
+
+		template <base::allocator_t _Other_all, bool _T2>
 		inline matrix& operator=(const base::matrix<_Ty, _Other_all, _T2>& _Other) {
 			_Mybase::operator=(_Other);
 			return *this;
 		}
 
 		template <bool _T>
-		inline matrix mul(const base::matrix<_Ty, host::allocator<_Ty>, _T>& _Other) const {
+		inline matrix mul(const base::matrix<_Ty, allocator<_Ty>, _T>& _Other) const {
 #ifdef DEBUG
 			assert(_Cols == _Other.rows());
 #endif // !DEBUG
@@ -55,12 +53,24 @@ namespace host {
 			return _Res;
 		}
 
-		template <bool _T, class _Num_ty>
-		inline matrix& operator*(const _Num_ty& _Val) {
-			
-			for (int i = 0; i < _Rows * _Cols; ++i) {
-				_Data[i] *= _Val;
-			}
+		template <bool _T>
+		inline matrix& operator+=(const base::vector<_Ty, host::allocator<_Ty>, _T>& _Other) {
+			host::matrix_add_vector(*this, _Other, *this);
+			return *this;
+		}
+
+		inline matrix& operator+=(const _Ty& _Val) {
+			host::matrix_add_scalar(*this, *this, _Val);
+			return *this;
+		}
+		
+		inline matrix& operator-=(const _Ty& _Val) {
+			host::matrix_add_scalar(*this, *this, -_Val);
+			return *this;
+		}
+
+		inline matrix& operator*=(const _Ty& _Val) {
+			host::matrix_mul_scalar(*this, *this, _Val);
 			return *this;
 		}
 
@@ -69,16 +79,16 @@ namespace host {
 		}
 
 		inline friend ostream& operator<<(ostream& _Os, const matrix& _M) {
-			cout << "[HOST]\n[" << _M.rows() << "x" << _M.cols() << "] (rows x cols) {\n";
+			_Os << "[HOST]\n[" << _M.rows() << "x" << _M.cols() << "] (rows x cols) {\n";
 			const _Ty* _Ptr = _M.data();
 			for (int i = 0; i < _M.rows(); ++i) {
-				cout << "    ";
+				_Os << "    ";
 				for (int j = 0; j < _M.cols(); ++j) {
 					_Os << _Ptr[i * _M.cols() + j] << " ";
 				}
 				_Os << endl;
 			}
-			cout << "}" << endl;
+			_Os << "}" << endl;
 			
 			return _Os;
 		}

@@ -1,8 +1,13 @@
 #pragma once
+#include <iostream>
 #include "utils.hpp"
+#include "vector.hpp"
 #include "algebra/matrix_mul.cuh"
 #include "algebra/matrix_add.cuh"
 #include "algebra/matrix_sub.cuh"
+#include "algebra/matrix_add_vector.cuh"
+#include "algebra/matrix_sub_vector.cuh"
+#include "algebra/matrix_add_scalar.cuh"
 #include "activations/activation.cuh"
 #include "../activations.hpp"
 #include "../matrix.hpp"
@@ -18,18 +23,6 @@ namespace cuda {
 	using std::cout;
 	using std::endl;
 	using std::ostream;
-	template <class _Ty>
-	struct allocator
-		: public base::allocator<_Ty, true> 
-	{
-		constexpr _Ty* alloc(size_t _Count) const override {
-			return cuda::alloc<_Ty>(_Count);
-		}
-
-		constexpr void free(_Ty* ptr) const override {
-			cuda::free<_Ty>(ptr);
-		}
-	};
 
 	template <class _Ty>
 	struct cuda_to_host_matrix_iterator;
@@ -84,6 +77,26 @@ namespace cuda {
 			cuda::matrix_sub(*this, _Other, *this);
 			return *this;
 		}
+		
+		//
+		// vector operations
+		
+		template <bool _T>
+		inline matrix& operator+=(const base::vector<_Ty, cuda::allocator<_Ty>, _T>& _Other) {
+			cuda::matrix_add_vector(*this, _Other, *this);
+			return *this;
+		}
+
+		template <bool _T>
+		inline matrix& operator-=(const base::vector<_Ty, cuda::allocator<_Ty>, _T>& _Other) {
+			cuda::matrix_sub_vector(*this, _Other, *this);
+			return *this;
+		}
+
+		inline matrix& operator+=(const _Ty& _Val) {
+			cuda::matrix_add_scalar(*this, *this, _Val);
+			return *this;
+		}
 
 		template <activation_fn_t _Fn>
 		inline void activate() {
@@ -91,16 +104,16 @@ namespace cuda {
 		}
 
 		inline friend ostream& operator<<(ostream& _Os, const matrix& _M) {
-			cout << "[CUDA]\n[" << _M.rows() << "x" << _M.cols() << "] (rows x cols) {\n";
+			_Os << "[CUDA]\n[" << _M.rows() << "x" << _M.cols() << "] (rows x cols) {\n";
 			const _Ty* _Ptr = _M.data();
 			for (int i = 0; i < _M.rows(); ++i) {
-				cout << "    ";
+				_Os << "    ";
 				for (int j = 0; j < _M.cols(); ++j) {
 					_Os << cuda::from_cuda(&_Ptr[i * _M.cols() + j]) << " ";
 				}
 				_Os << endl;
 			}
-			cout << "}" << endl;
+			_Os << "}" << endl;
 
 			return _Os;
 		}

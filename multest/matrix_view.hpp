@@ -23,7 +23,6 @@ namespace base {
 		using _Mybase::_Is_owner;
 		using _Mybase::_Al;
 
-		template <class _Ty, allocator_t _Alloc>
 		inline matrix_view(matrix<_Ty, _Alloc, false>& _Matrix) {
 			_Data = _Matrix.data();
 			_Cols = _Matrix.rows();
@@ -65,13 +64,13 @@ namespace base {
 
 		inline friend ostream& operator<<(ostream& _Os, const matrix_view& _M) {
 			if constexpr (_Al.is_cuda())
-				cout << "[CUDA]\n[" << _M.rows() << "x" << _M.cols() << "] (rows x cols) {\n";
+				_Os << "[CUDA]\n[" << _M.rows() << "x" << _M.cols() << "] (rows x cols) {\n";
 			else
-				cout << "[HOST]\n[" << _M.rows() << "x" << _M.cols() << "] (rows x cols) {\n";
+				_Os << "[HOST]\n[" << _M.rows() << "x" << _M.cols() << "] (rows x cols) {\n";
 			
 			const _Ty* _Ptr = _M.data();
 			for (int j = 0; j < _M.rows(); ++j) {
-				cout << "    ";
+				_Os << "    ";
 				for (int i = 0; i < _M.cols(); ++i) {
 					if constexpr (_Al.is_cuda())
 						_Os << cuda::from_cuda(&_Ptr[i * _M.rows() + j]) << " ";
@@ -80,7 +79,7 @@ namespace base {
 				}
 				_Os << endl;
 			}
-			cout << "}" << endl;
+			_Os << "}" << endl;
 
 			return _Os;
 		}
@@ -89,5 +88,10 @@ namespace base {
 	template <class _Ty, allocator_t _Alloc>
 	inline auto transposed(matrix<_Ty, _Alloc, false>& _Matrix) {
 		return matrix_view<_Ty, _Alloc, true>(_Matrix);
+	}
+
+	template <class _Ty, allocator_t _Alloc, bool _T>
+	inline auto create_view(matrix<_Ty, _Alloc, _T>& _Matrix) {
+		return matrix_view<_Ty, _Alloc, _T>(_Matrix);
 	}
 }
