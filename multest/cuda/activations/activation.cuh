@@ -10,7 +10,7 @@ using bfloat16 = nv_bfloat16;
 
 namespace cuda {
 	template <class _Activation_class, class _Ty>
-	void _activation_apply(_Ty* _Data, size_t N);
+	void _activation_apply(_Ty* _Data, size_t N, size_t M);
 
 	template <class _Activation_class, class _Mat>
 	inline void activation_apply(_Mat& _Matrix) {

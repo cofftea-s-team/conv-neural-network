@@ -91,6 +91,7 @@ namespace cuda {
 			assert(_Mybase::cols() == _Other.cols() && _Mybase::rows() == _Other.rows());
 #endif // DEBUG
 			cuda::matrix_scalar_mul(*this, _Other, *this);
+			return *this;
 		}
 
 		template <bool _T>

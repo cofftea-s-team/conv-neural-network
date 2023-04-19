@@ -48,28 +48,24 @@ namespace cuda {
 			<<<blocks, threads>>>(_Data, N * M);
 	}
 
-	template void _activation_apply<base::relu, double>(double*, size_t);
-	template void _activation_apply<base::relu, float>(float*, size_t);
-	template void _activation_apply<base::relu, nv_bfloat16>(nv_bfloat16*, size_t);
+	template void _activation_apply<base::relu, double>(double*, size_t, size_t);
+	template void _activation_apply<base::relu, float>(float*, size_t, size_t);
+	template void _activation_apply<base::relu, nv_bfloat16>(nv_bfloat16*, size_t, size_t);
 
-	template void _activation_apply<base::sigmoid, double>(double*, size_t);
-	template void _activation_apply<base::sigmoid, float>(float*, size_t);
-	template void _activation_apply<base::sigmoid, nv_bfloat16>(nv_bfloat16*, size_t);
+	template void _activation_apply<base::sigmoid, double>(double*, size_t, size_t);
+	template void _activation_apply<base::sigmoid, float>(float*, size_t, size_t);
+	template void _activation_apply<base::sigmoid, nv_bfloat16>(nv_bfloat16*, size_t, size_t);
 
-	template void _activation_apply<base::tanh, double>(double*, size_t);
-	template void _activation_apply<base::tanh, float>(float*, size_t);
-	template void _activation_apply<base::tanh, nv_bfloat16>(nv_bfloat16*, size_t);
+	template void _activation_apply<base::bsigmoid, double>(double*, size_t, size_t);
+	template void _activation_apply<base::bsigmoid, float>(float*, size_t, size_t);
+	template void _activation_apply<base::bsigmoid, nv_bfloat16>(nv_bfloat16*, size_t, size_t);
 
-	template void _activation_apply<base::softmax, double>(double*, size_t);
-	template void _activation_apply<base::softmax, float>(float*, size_t);
-	template void _activation_apply<base::softmax, nv_bfloat16>(nv_bfloat16*, size_t);
+	template void _activation_apply<base::tanh, double>(double*, size_t, size_t);
+	template void _activation_apply<base::tanh, float>(float*, size_t, size_t);
+	template void _activation_apply<base::tanh, nv_bfloat16>(nv_bfloat16*, size_t, size_t);
 
-	template void _activation_apply<base::leaky_relu, double>(double*, size_t);
-	template void _activation_apply<base::leaky_relu, float>(float*, size_t);
-	template void _activation_apply<base::leaky_relu, nv_bfloat16>(nv_bfloat16*, size_t);
-
-	template void _activation_apply<base::softmax, double>(double*, size_t);
-	template void _activation_apply<base::softmax, float>(float*, size_t);
-	template void _activation_apply<base::softmax, nv_bfloat16>(nv_bfloat16*, size_t);
+	template void _activation_apply<base::leaky_relu, double>(double*, size_t, size_t);
+	template void _activation_apply<base::leaky_relu, float>(float*, size_t, size_t);
+	template void _activation_apply<base::leaky_relu, nv_bfloat16>(nv_bfloat16*, size_t, size_t);
 	
 }

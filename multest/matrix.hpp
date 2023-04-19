@@ -257,13 +257,13 @@ namespace base {
 			if constexpr (_Other._Al.is_cuda())
 				cuda::matrix_copy_transposed(_Other, *this);
 			else
-				static_assert(_Always_false<matrix>, "not implemented!");
+				static_assert(std::_Always_false<matrix>, "not implemented!");
 		}
 		
 		template <allocator_t _Other_all, bool _T2>	
 		constexpr void _Copy_to_host_transposed(const matrix<_Ty, _Other_all, _T2>& _Other) {
 			if constexpr (_Other._Al.is_cuda())
-				static_assert(_Always_false<matrix>, "not implemented!");
+				static_assert(std::_Always_false<matrix>, "not implemented!");
 			else
 				host::matrix_transpose(_Other, *this);
 		}
