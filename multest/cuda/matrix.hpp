@@ -5,9 +5,11 @@
 #include "algebra/matrix_mul.cuh"
 #include "algebra/matrix_add.cuh"
 #include "algebra/matrix_sub.cuh"
+#include "algebra/matrix_scalar_mul.cuh"
 #include "algebra/matrix_add_vector.cuh"
 #include "algebra/matrix_sub_vector.cuh"
 #include "algebra/matrix_add_scalar.cuh"
+#include "algebra/range_reduce.cuh"
 #include "activations/activation.cuh"
 #include "../activations.hpp"
 #include "../matrix.hpp"
@@ -49,17 +51,21 @@ namespace cuda {
 			return *this;
 		}
 
+		//
+		// matrix multiplication
+		
 		template <bool _T>
 		inline matrix mul(const base::matrix<_Ty, cuda::allocator<_Ty>, _T>& _Other) {
 #ifdef DEBUG
 			assert(_Mybase::cols() == _Other.rows());
 #endif // DEBUG
 			matrix _Result(_Mybase::rows(), _Other.cols());
-			//cuda::matrix_multiply(_Mybase::data(), _Other.data(), _Result.data(), _Mybase::cols(), _Mybase::rows(), _Other.cols());
-			using base_type = base::matrix<_Ty, cuda::allocator<_Ty>, false>&;
 			cuda::matrix_multiply(*this, _Other, _Result);
 			return _Result;
 		}
+		
+		//
+		// matrix operations
 
 		template <bool _T>
 		inline matrix& operator+=(const base::matrix<_Ty, cuda::allocator<_Ty>, _T>& _Other) {
@@ -78,7 +84,45 @@ namespace cuda {
 			cuda::matrix_sub(*this, _Other, *this);
 			return *this;
 		}
+
+		template <bool _T>
+		inline matrix& operator*=(const base::matrix<_Ty, cuda::allocator<_Ty>, _T>&_Other) {
+#ifdef DEBUG
+			assert(_Mybase::cols() == _Other.cols() && _Mybase::rows() == _Other.rows());
+#endif // DEBUG
+			cuda::matrix_scalar_mul(*this, _Other, *this);
+		}
+
+		template <bool _T>
+		inline matrix operator+(const base::matrix<_Ty, cuda::allocator<_Ty>, _T>& _Other) const {
+#ifdef DEBUG
+			assert(_Mybase::cols() == _Other.cols() && _Mybase::rows() == _Other.rows());
+#endif // DEBUG
+			matrix _Res(_Mybase::shape());
+			cuda::matrix_add(*this, _Other, _Res);
+			return _Res;
+		}
+
+		template <bool _T>
+		inline matrix operator-(const base::matrix<_Ty, cuda::allocator<_Ty>, _T>& _Other) const {
+#ifdef DEBUG
+			assert(_Mybase::cols() == _Other.cols() && _Mybase::rows() == _Other.rows());
+#endif // DEBUG
+			matrix _Res(_Mybase::shape());
+			cuda::matrix_sub(*this, _Other, _Res);
+			return _Res;
+		}
 		
+		template <bool _T>
+		inline matrix operator*(const base::matrix<_Ty, cuda::allocator<_Ty>, _T>& _Other) const {
+#ifdef DEBUG
+			assert(_Mybase::cols() == _Other.cols() && _Mybase::rows() == _Other.rows());
+#endif // DEBUG
+			matrix _Res(_Mybase::shape());
+			cuda::matrix_scalar_mul(*this, _Other, _Res);
+			return _Res;
+		}
+
 		//
 		// vector operations
 		
@@ -94,9 +138,49 @@ namespace cuda {
 			return *this;
 		}
 
+		template <bool _T>
+		inline matrix operator+(const base::vector<_Ty, cuda::allocator<_Ty>, _T>& _Other) const {
+#ifdef DEBUG
+			assert(_Mybase::cols() == _Other.size() || _Mybase::rows() == _Other.size());
+#endif // DEBUG
+			matrix _Res(_Mybase::shape());
+			cuda::matrix_add_vector(*this, _Other, _Res);
+			return _Res;
+		}
+
+		template <bool _T>
+		inline matrix operator-(const base::vector<_Ty, cuda::allocator<_Ty>, _T>& _Other) const {
+#ifdef DEBUG
+			assert(_Mybase::cols() == _Other.size() || _Mybase::rows() == _Other.size());
+#endif // DEBUG
+			matrix _Res(_Mybase::shape());
+			cuda::matrix_sub_vector(*this, _Other, _Res);
+			return _Res;
+		}
+
+		//
+		// scalar operations
+
 		inline matrix& operator+=(const _Ty& _Val) {
 			cuda::matrix_add_scalar(*this, *this, _Val);
 			return *this;
+		}
+
+		inline matrix& operator-=(const _Ty& _Val) {
+			cuda::matrix_add_scalar(*this, *this, -_Val);
+			return *this;
+		}
+
+		inline matrix operator+(const _Ty& _Val) const {
+			matrix _Res(_Mybase::shape());
+			cuda::matrix_add_scalar(*this, _Res, _Val);
+			return _Res;
+		}
+
+		inline matrix operator-(const _Ty& _Val) const {
+			matrix _Res(_Mybase::shape());
+			cuda::matrix_add_scalar(*this, _Res, _Val);
+			return _Res;
 		}
 
 		template <activation_fn_t _Fn>

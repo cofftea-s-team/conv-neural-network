@@ -23,21 +23,43 @@ namespace host::algebra {
 		return _Sum;
 	}
 
-	template <bool _T1, bool _T2, class _Ty>
-	inline constexpr void matrix_multiply_par(const _Ty* A, const _Ty* B, _Ty* C, size_t N, size_t M, size_t N2) {
-		parallel_for (M, [&](uint32_t i) {
-			for (size_t j = 0; j < N2; ++j) {
-				C[i * N2 + j] = dot_product<_T1, _T2>(A, B, C, N, M, N2, i, j);
-			}
-		});
+	namespace parallel {
+		
+		template <bool _T1, bool _T2, class _Ty>
+		inline constexpr void matrix_multiply(const _Ty* A, const _Ty* B, _Ty* C, size_t N, size_t M, size_t N2) {
+			parallel_for(M, [&](uint32_t i) {
+				for (size_t j = 0; j < N2; ++j) {
+					C[i * N2 + j] = host::algebra::dot_product<_T1, _T2>(A, B, C, N, M, N2, i, j);
+				}
+			});
+		}
 	}
 
 	template <bool _T1, bool _T2, class _Ty>
 	inline constexpr void matrix_multiply(const _Ty* A, const _Ty* B, _Ty* C, size_t N, size_t M, size_t N2) {
 		for (size_t i = 0; i < M; ++i) {
 			for (size_t j = 0; j < N2; ++j) {
-				C[i * N2 + j] = dot_product<_T1, _T2>(A, B, C, N, M, N2, i, j);
+				C[i * N2 + j] = host::algebra::dot_product<_T1, _T2>(A, B, C, N, M, N2, i, j);
 			}
+		}
+	}
+}
+
+namespace host {
+	
+	template <class _Mat, class _Mat2, class _Mat3>
+	inline constexpr void matrix_multiply(const _Mat& A, const _Mat2& B, _Mat3& C) {
+		constexpr bool _T1 = A.is_transposed();
+		constexpr bool _T2 = B.is_transposed();
+		size_t N = A.cols();
+		size_t M = A.rows();
+		size_t N2 = B.cols();
+
+		if (N * N2 <= 2048 || M < 32) {
+			algebra::matrix_multiply<_T1, _T2>(A.data(), B.data(), C.data(), N, M, N2);
+		}
+		else {
+			algebra::parallel::matrix_multiply<_T1, _T2>(A.data(), B.data(), C.data(), N, M, N2);
 		}
 	}
 }

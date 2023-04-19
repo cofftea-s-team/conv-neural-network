@@ -14,10 +14,6 @@ namespace cuda {
 	public:
 		using _Mybase::_Mybase;
 
-		inline void T() {
-			return base::transposed(*this);
-		}
-
 		inline friend std::ostream& operator<<(std::ostream& _Os, const vector& _V) {
 			_Os << "[CUDA]\n[ " << _V.rows() << " ] (rows) [\n";
 			for (size_t i = 0; i < _V.rows(); ++i) {

@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include "cuda/algebra/matrix_transpose.cuh"
+#include "host/algebra/matrix_transpose.hpp"
 #include "cuda/utils.hpp"
 #include "host/utils.hpp"
 
@@ -59,8 +60,8 @@ namespace base {
 		friend class matrix;
 
 
-		inline matrix(size_t _N, size_t _M) 
-			: _Rows(_N), _Cols(_M) 
+		inline matrix(size_t _M, size_t _N) 
+			: _Rows(_M), _Cols(_N) 
 		{
 			_Data = _Al.alloc(_N * _M);
 		}
@@ -161,8 +162,6 @@ namespace base {
 			_Move(std::move(_Other));
 			return *this;
 		}
-		
-		
 		
 		inline _Ty* data() {
 			return _Data;
@@ -266,11 +265,14 @@ namespace base {
 			if constexpr (_Other._Al.is_cuda())
 				static_assert(_Always_false<matrix>, "not implemented!");
 			else
-				host::copy_and_transpose(_Other._Data, _Data, _Rows, _Cols);
+				host::matrix_transpose(_Other, *this);
 		}
 
 		template<allocator_t _Other_all, bool _T2>
 		constexpr void _Move(base::matrix<base::matrix<_Ty, _Alloc, _T>::value_type, _Other_all, _T2>&& _Other) noexcept {
+			if (this == &_Other) {
+				return;
+			}
 			_Rows = _Other._Rows;
 			_Cols = _Other._Cols;
 			_Data = _Other._Data;
