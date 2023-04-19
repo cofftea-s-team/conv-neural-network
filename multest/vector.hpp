@@ -2,6 +2,9 @@
 #include "matrix.hpp"
 
 namespace base {
+	template <class, allocator_t, bool>
+	class vector_view;
+
 	template <class _Ty, allocator_t _All, bool _T>
 	class vector
 		: public matrix<_Ty, _All, _T>
@@ -14,6 +17,10 @@ namespace base {
 		inline vector() = default;
 	
 	public:
+
+		inline auto T() {
+			return vector_view<_Ty, _All, !_T>(*this);
+		}
 
 		inline vector(size_t _Rows)
 			: _Mybase(_Rows, 1)

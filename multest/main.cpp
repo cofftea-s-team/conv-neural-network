@@ -35,7 +35,7 @@ inline void preload() {
 	std::cout << std::setprecision(3) << std::fixed;
 	cuda::matrix<float> f(16, 16);
 	f.mul(transposed(f));
-	host::algebra::details::indices;
+	host::algebra::parallel::details::indices;
 
 	cout << " done!" << endl;
 }
@@ -60,24 +60,22 @@ int main(int argc, const char* const argv[]) {
 #pragma endregion
 
 
+// current implementation limits cuda::matrix to 2048*2048 elements
+
 #define TIMER_START(x) auto _s##x = high_resolution_clock::now(); auto _1s##x = clock();
 #define TIMER_END(x) auto _s2##x = high_resolution_clock::now(); auto _1s2##x = clock();
 #define TIMER_RESULT(x, pre) auto count1##x = duration_cast<milliseconds>(_s2##x - _s##x).count(); auto count2##x = (_1s2##x - _1s##x); cout << '[' << ##pre << "]\n" << "user time: " << count1##x << "ms\nsys time: " << count2##x << "ms\n" << endl;
 
 int _main(std::span<std::string_view> args) {
 
-	host::matrix<float> m(16, 8);
-	utils::generate_uniform(m);
+	host::matrix<float> m(8, 4);
+	
+	auto enumerate = [&, id = 0]<class _Ty>(_Ty& _Val) mutable { return std::pair<size_t, _Ty&>(id++, _Val); };
+	for (auto&& [i, val] : m | stdrv::transform(enumerate)) {
+		val = i % m.cols();
+	}
 
-	cout << m << endl;
-
-	auto t1 = m.T();
-
-	cout << t1 << endl;
-
-	auto t2 = t1.T();
-
-	cout << t2 << endl;
+	auto a = m.to_cuda();
 
 	return 0;
 }

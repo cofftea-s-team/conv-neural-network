@@ -5,13 +5,6 @@
 #include <stdio.h>
 #include <iostream>
 
-enum cudaOperationKind {
-	HostToDevice = cudaMemcpyHostToDevice,
-	HostToHost = cudaMemcpyHostToHost,
-	DeviceToHost = cudaMemcpyDeviceToHost,
-	DeviceToDevice = cudaMemcpyDeviceToDevice
-};
-
 namespace base {
 	template <class _Ty, bool>
 	struct allocator;
@@ -19,29 +12,6 @@ namespace base {
 
 namespace cuda {
 
-	template <class _Ty>
-	inline _Ty* alloc(size_t _Count) {
-		_Ty* _Allocated_block;
-		auto _Status = cudaMalloc((void**)&_Allocated_block, _Count * sizeof(_Ty));
-
-		if (_Status != cudaSuccess) {
-			std::cout << "Cuda allocation failed!" << std::endl;
-			throw std::bad_alloc();
-		}
-
-		return _Allocated_block;
-	}
-	 
-	template <class _Ty>
-	inline void free(_Ty* _Ptr) {
-		auto _Status = cudaFree((void*)_Ptr);
-
-		if (_Status != cudaSuccess) {
-			std::cout << "Cuda deallocation failed!" << std::endl;
-			throw std::bad_alloc();
-		}
-	}
-	
 	template <class _Ty>
 	struct allocator
 		: public base::allocator<_Ty, true>
@@ -54,16 +24,6 @@ namespace cuda {
 			cuda::free<_Ty>(_Ptr);
 		}
 	};
-
-	template <class _Ty>
-	inline void memcpy(const _Ty* _Src, _Ty* _Dst, size_t _Count, cudaOperationKind _Kind) {
-		auto _Status = cudaMemcpy((void*)_Dst, (const void*)_Src, _Count * sizeof(_Ty), (cudaMemcpyKind)_Kind);
-
-		if (_Status != cudaSuccess) {
-			std::cout << "Copying memory failed!" << std::endl;
-			throw std::exception("Copying memory failed!");
-		}
-	}
 
 	template <class _Ty>
 	inline _Ty* alloc_paged(size_t _Count) {

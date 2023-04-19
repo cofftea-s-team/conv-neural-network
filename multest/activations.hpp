@@ -51,5 +51,17 @@ namespace base {
 			return x > 0. ? 1. : 0.01;
 		}
 	};
+
+	struct softmax {
+		template <class _Ty>
+		__device__ __host__ inline static _Ty forward(_Ty x, _Ty sum) {
+			return exp(x) / sum;
+		}
+
+		template <class _Ty>
+		__device__ __host__ inline static _Ty backward(_Ty x) {
+			return x * (1. - x);
+		}
+	};
 	
 }

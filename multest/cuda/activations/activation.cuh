@@ -2,6 +2,7 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include "cuda_bf16.h"
+#include "../algebra/range_reduce.cuh"
 #include "../../activations.hpp"
 //#include "../../utils.hpp"
 
@@ -13,6 +14,6 @@ namespace cuda {
 
 	template <class _Activation_class, class _Mat>
 	inline void activation_apply(_Mat& _Matrix) {
-		_activation_apply<_Activation_class>(_Matrix.data(), _Matrix.size());
+		_activation_apply<_Activation_class>(_Matrix.data(), _Matrix.cols(), _Matrix.rows());
 	}
 }

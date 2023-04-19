@@ -24,36 +24,6 @@ namespace host {
 			cuda::free_paged<_Ty>(ptr);
 		}
 	};
-
-	template <class _Ty>
-    inline constexpr void copy_and_transpose(const _Ty* _Src, _Ty* _Dst, size_t _New_rows, size_t _New_cols) {
-		for (size_t i = 0; i < _New_rows; ++i) {
-			for (size_t j = 0; j < _New_cols; ++j) {
-				_Dst[i * _New_cols + j] = _Src[j * _New_rows + i];
-			}
-		}
-    }
-
-	template <>
-	inline void copy_and_transpose<float>(const float* _Src, float* _Dst, size_t _New_rows, size_t _New_cols) {
-		avx2_transpose(_Src, _Dst, _New_rows, _New_cols);
-	}
-
-
-
-	template <class _Mat, class _Mat2, class _Mat3>
-	inline constexpr void matrix_multiply(const _Mat& A, const _Mat2& B, _Mat3& C) {
-		constexpr bool _T1 = A.is_transposed();
-		constexpr bool _T2 = B.is_transposed();
-		size_t N = A.cols();
-		size_t M = A.rows();
-		size_t N2 = B.cols();
-		
-		if (N * N2 <= 2048 || M < 32)
-			algebra::matrix_multiply<_T1, _T2>(A.data(), B.data(), C.data(), N, M, N2);
-		else
-			algebra::matrix_multiply_par<_T1, _T2>(A.data(), B.data(), C.data(), N, M, N2);
-	}
 	
 	template <bool _T1, bool _T2, class _Ty>
 	inline constexpr void _matrix_add_vector(const _Ty* A, const _Ty* V, _Ty* B, size_t N, size_t M) {
@@ -62,7 +32,7 @@ namespace host {
 			
 		}
 		else {
-			avx2_add_vector<_T1, _T2>(A, V, B, N, M);
+			avx2_add_vector<_T1, _T2, true>(A, V, B, N, M);
 		}
 	}
 
@@ -72,15 +42,6 @@ namespace host {
 		for (size_t i = 0; i < _M.size(); ++i) {
 			_Data[i] = _Activ_fn::forward(_Data[i]);
 		}
-	}
-
-	template <class _Mat1, class _Vec, class _Mat2>
-	inline constexpr void matrix_add_vector(const _Mat1& A, const _Vec& B, _Mat2& C) {
-		constexpr bool _T1 = A.is_transposed();
-		constexpr bool _T2 = B.is_transposed();
-		size_t N = A.cols();
-		size_t M = A.rows();
-		_matrix_add_vector<_T1, _T2>(A.data(), B.data(), C.data(), N, M);
 	}
 
 	template <class _Mat1, class _Mat2, class _Ty>
