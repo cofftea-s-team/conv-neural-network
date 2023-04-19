@@ -2,6 +2,7 @@
 #include "utils.hpp"
 #include "vector.hpp"
 
+
 namespace base {
 	template <class _Ty, allocator_t _Alloc, bool _T = true>
 	class vector_view
@@ -15,13 +16,14 @@ namespace base {
 		using _Mybase::_Is_owner;
 		using _Mybase::_Al;
 	public:
+
 		template <class _Ty2, allocator_t _Alloc2, bool _T2>
 		friend class vector_view;
 
-		inline vector_view(vector<_Ty, _Alloc, false>& _Vec) {
+		inline vector_view(vector<_Ty, _Alloc, !_T>& _Vec) {
 			_Data = _Vec.data();
 			_Cols = _Vec.rows();
-			_Rows = 1;
+			_Rows = _Vec.cols();
 			_Is_owner = false;
 		}
 
@@ -41,8 +43,8 @@ namespace base {
 			_Other._Data = nullptr;
 		}
 
-		inline ~vector_view() override {
-
+		inline auto T() {
+			return vector_view<_Ty, _Alloc, !_T>(*this);
 		}
 
 		inline friend ostream& operator<<(ostream& _Os, const vector_view& _M) {
@@ -74,15 +76,16 @@ namespace base {
 				else
 					_Os << '\n';
 			}
-			_Os << "\n]" << endl;
+			if constexpr (_M.is_transposed()) _Os << '\n';
+			_Os << "]" << endl;
 
 			return _Os;
 		}
 	};
 
-	template <class _Ty, allocator_t _Alloc>
-	inline auto transposed(vector<_Ty, _Alloc, false>& _V) {
-		return vector_view<_Ty, _Alloc, true>(_V);
+	template <class _Ty, allocator_t _Alloc, bool _T>
+	inline auto transposed(vector<_Ty, _Alloc, _T>& _V) {
+		return vector_view<_Ty, _Alloc, !_T>(_V);
 	}
 
 	template <class _Ty, allocator_t _Alloc, bool _T>

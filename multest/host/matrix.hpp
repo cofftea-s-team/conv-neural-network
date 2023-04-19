@@ -1,6 +1,7 @@
 #pragma once
 #include "../matrix.hpp"
 #include "../cuda/utils.hpp"
+#include "../matrix_view.hpp"
 #include "utils.hpp"
 #include <iostream>
 
@@ -74,6 +75,15 @@ namespace host {
 			return *this;
 		}
 
+		template <activation_fn_t _Fn>
+		inline void activate() {
+			host::activation_apply<_Fn>(*this);
+		}
+
+		inline auto T() {
+			return base::transposed(*this);
+		}
+		
 		inline auto to_cuda() {
 			return cuda::matrix<_Ty>(*this);
 		}

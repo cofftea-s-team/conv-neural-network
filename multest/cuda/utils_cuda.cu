@@ -11,7 +11,7 @@ namespace cuda {
 			curand_init(threadIdx.x, _State_idx, 0, &_State[_State_idx]);
 			
 			if constexpr (_Mode == UNIFORM) {
-				_Data[i] = curand_uniform(&_State[_State_idx]);
+				_Data[i] = curand_uniform(&_State[_State_idx]) * 2 - 1;
 			}
 			else if constexpr (_Mode == NORMAL) {
 				_Data[i] = curand_normal(&_State[_State_idx]);

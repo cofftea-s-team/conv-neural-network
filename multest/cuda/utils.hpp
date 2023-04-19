@@ -94,12 +94,112 @@ namespace cuda {
 		cuda::memcpy(_Val, &_Res, 1, DeviceToHost);
 		return _Res;
 	}
-
+	
 	template <class _Ty>
 	inline void to_cuda(const _Ty* _Val, _Ty* _Dst) {
 		cuda::memcpy(_Val, _Dst, 1, HostToDevice);
 	}
 
+	template <class _Ty>
+	struct cuda_to_host_matrix_iterator {
+		struct element {
+			inline element(_Ty* _Ptr)
+				: _Ptr(_Ptr)
+			{ }
 
+			inline element& operator=(const _Ty& _Val) {
+				cuda::to_cuda(&_Val, _Ptr);
+				return *this;
+			}
+
+			inline operator _Ty() const {
+				return cuda::from_cuda(_Ptr);
+			}
+
+			inline friend std::ostream& operator<<(std::ostream& _Os, const element& _El) {
+				_Os << cuda::from_cuda(_El._Ptr);
+				return _Os;
+			}
+
+			_Ty* _Ptr;
+		};
+		inline cuda_to_host_matrix_iterator(_Ty* _Ptr)
+			: _Ptr(_Ptr)
+		{}
+
+		inline cuda_to_host_matrix_iterator& operator++() {
+			++_Ptr;
+			return *this;
+		}
+
+		inline cuda_to_host_matrix_iterator operator++(int) {
+			cuda_to_host_matrix_iterator _Tmp = *this;
+			++_Ptr;
+			return _Tmp;
+		}
+
+		inline cuda_to_host_matrix_iterator& operator--() {
+			--_Ptr;
+			return *this;
+		}
+
+		inline cuda_to_host_matrix_iterator operator--(int) {
+			cuda_to_host_matrix_iterator _Tmp = *this;
+			--_Ptr;
+			return _Tmp;
+		}
+
+		inline cuda_to_host_matrix_iterator& operator+=(int _Off) {
+			_Ptr += _Off;
+			return *this;
+		}
+
+		inline cuda_to_host_matrix_iterator& operator-=(int _Off) {
+			_Ptr -= _Off;
+			return *this;
+		}
+
+		inline cuda_to_host_matrix_iterator operator+(int _Off) const {
+			return cuda_to_host_matrix_iterator(_Ptr + _Off);
+		}
+
+		inline cuda_to_host_matrix_iterator operator-(int _Off) const {
+			return cuda_to_host_matrix_iterator(_Ptr - _Off);
+		}
+
+		inline int operator-(const cuda_to_host_matrix_iterator& _Other) const {
+			return _Ptr - _Other._Ptr;
+		}
+
+		inline bool operator==(const cuda_to_host_matrix_iterator& _Other) const {
+			return _Ptr == _Other._Ptr;
+		}
+
+		inline bool operator!=(const cuda_to_host_matrix_iterator& _Other) const {
+			return _Ptr != _Other._Ptr;
+		}
+
+		inline bool operator<(const cuda_to_host_matrix_iterator& _Other) const {
+			return _Ptr < _Other._Ptr;
+		}
+
+		inline bool operator>(const cuda_to_host_matrix_iterator& _Other) const {
+			return _Ptr > _Other._Ptr;
+		}
+
+		inline bool operator<=(const cuda_to_host_matrix_iterator& _Other) const {
+			return _Ptr <= _Other._Ptr;
+		}
+
+		inline bool operator>=(const cuda_to_host_matrix_iterator& _Other) const {
+			return _Ptr >= _Other._Ptr;
+		}
+
+		inline element operator*() const {
+			return element(_Ptr);
+		}
+	private:
+		_Ty* _Ptr;
+	};
 };
 

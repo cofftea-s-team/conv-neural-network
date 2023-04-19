@@ -51,6 +51,9 @@ namespace base {
 	class matrix {
 	public:
 		using value_type = _Ty;
+		using alloc = _Alloc;
+		using iterator = std::conditional_t<_Alloc::is_cuda(), cuda::cuda_to_host_matrix_iterator<_Ty>, _Ty*>;
+		using const_iterator = std::conditional_t<_Alloc::is_cuda(), cuda::cuda_to_host_matrix_iterator<const _Ty>, const _Ty*>;
 
 		template <class _Ty2, allocator_t _All2, bool _T2>
 		friend class matrix;
@@ -93,9 +96,10 @@ namespace base {
 			_Copy_matrix(_Other);
 		}
 		
-		virtual ~matrix() {
+		inline ~matrix() {
 			if (_Is_owner) {
 				_Al.free(_Data);
+				_Data = nullptr;
 			}
 		}
 
@@ -184,20 +188,20 @@ namespace base {
 			return _Rows * _Cols;
 		}
 
-		inline _Ty* begin() {
-			return _Data;
+		inline iterator begin() {
+			return iterator(_Data);
 		}
 
-		inline const _Ty* begin() const {
-			return _Data;
+		inline const_iterator begin() const {
+			return const_iterator(_Data);
 		}
 
-		inline _Ty* end() {
-			return _Data + _Rows * _Cols;
+		inline iterator end() {
+			return iterator(_Data + _Rows * _Cols);
 		}
 
-		inline const _Ty* end() const {
-			return _Data + _Rows * _Cols;
+		inline const_iterator end() const {
+			return const_iterator(_Data + _Rows * _Cols);
 		}
 		
 		constexpr static _Alloc get_allocator() {

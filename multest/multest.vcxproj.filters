@@ -44,9 +44,6 @@
     <ClInclude Include="cuda\matrix.hpp">
       <Filter>cuda</Filter>
     </ClInclude>
-    <ClInclude Include="host\avx2_algebra.hpp">
-      <Filter>host</Filter>
-    </ClInclude>
     <ClInclude Include="host\matrix.hpp">
       <Filter>host</Filter>
     </ClInclude>
@@ -97,6 +94,19 @@
     <ClInclude Include="cuda\algebra\matrix_scalar_mul.cuh">
       <Filter>cuda\algebra</Filter>
     </ClInclude>
+    <ClInclude Include="host\algebra\matrix_mul.hpp">
+      <Filter>host\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="host\algebra\utils.hpp">
+      <Filter>host\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="host\algebra\avx2_algebra.hpp">
+      <Filter>host\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="host\dual_matrix.hpp">
+      <Filter>host</Filter>
+    </ClInclude>
+    <ClInclude Include="dual_matrix.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="cuda">
@@ -110,6 +120,9 @@
     </Filter>
     <Filter Include="cuda\activations">
       <UniqueIdentifier>{0a2012de-72c3-4a26-9370-ee32f530ac8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="host\algebra">
+      <UniqueIdentifier>{1ecd6bdf-0a4d-4f4a-9d51-bfc61131ae12}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

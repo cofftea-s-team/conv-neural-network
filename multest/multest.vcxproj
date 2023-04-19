@@ -123,7 +123,11 @@
     <ClInclude Include="cuda\algebra\matrix_transpose.cuh" />
     <ClInclude Include="cuda\utils.hpp" />
     <ClInclude Include="cuda\utils_cuda.cuh" />
-    <ClInclude Include="host\avx2_algebra.hpp" />
+    <ClInclude Include="dual_matrix.hpp" />
+    <ClInclude Include="host\algebra\matrix_mul.hpp" />
+    <ClInclude Include="host\algebra\utils.hpp" />
+    <ClInclude Include="host\algebra\avx2_algebra.hpp" />
+    <ClInclude Include="host\dual_matrix.hpp" />
     <ClInclude Include="host\matrix.hpp" />
     <ClInclude Include="host\utils.hpp" />
     <ClInclude Include="host\vector.hpp" />

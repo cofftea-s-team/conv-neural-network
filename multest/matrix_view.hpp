@@ -23,12 +23,14 @@ namespace base {
 		using _Mybase::_Is_owner;
 		using _Mybase::_Al;
 
-		inline matrix_view(matrix<_Ty, _Alloc, false>& _Matrix) {
+		inline matrix_view(matrix<_Ty, _Alloc, !_T>& _Matrix) {
 			_Data = _Matrix.data();
 			_Cols = _Matrix.rows();
 			_Rows = _Matrix.cols();
 			_Is_owner = false;
 		}
+		
+
 
 		inline matrix_view(size_t _N, size_t _M, _Ty* _Ptr) {
 			_Is_owner = false;
@@ -45,23 +47,11 @@ namespace base {
 			_Other._Is_owner = false;
 			_Other._Data = nullptr;
 		}
-	
-		inline ~matrix_view() override {
-			
-		}
 
-		_Ty& operator()(size_t _I, size_t _J) override {
-			return _Data[_J * _Rows + _I];
+		inline auto T() {
+			return matrix_view<_Ty, _Alloc, !_T>(*this);
 		}
 		
-		const _Ty& operator()(size_t _I, size_t _J) const override {
-			return _Data[_J * _Rows + _I];
-		}
-
-		constexpr static bool is_transposed() {
-			return _T;
-		}
-
 		inline friend ostream& operator<<(ostream& _Os, const matrix_view& _M) {
 			if constexpr (_Al.is_cuda())
 				_Os << "[CUDA]\n[" << _M.rows() << "x" << _M.cols() << "] (rows x cols) {\n";
@@ -85,9 +75,9 @@ namespace base {
 		}
 	};
 
-	template <class _Ty, allocator_t _Alloc>
-	inline auto transposed(matrix<_Ty, _Alloc, false>& _Matrix) {
-		return matrix_view<_Ty, _Alloc, true>(_Matrix);
+	template <class _Ty, allocator_t _Alloc, bool _T>
+	inline auto transposed(matrix<_Ty, _Alloc, _T>& _Matrix) {
+		return matrix_view<_Ty, _Alloc, !_T>(_Matrix);
 	}
 
 	template <class _Ty, allocator_t _Alloc, bool _T>
