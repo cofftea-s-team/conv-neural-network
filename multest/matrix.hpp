@@ -160,10 +160,11 @@ namespace base {
 			if (this == &_Other) {
 				return *this;
 			}
-			if (_Is_owner) {
+			if (_Is_owner && _Data != nullptr) {
 				_Al.free(_Data);
 			}
 			_Move(std::move(_Other));
+
 			return *this;
 		}
 		
@@ -218,7 +219,7 @@ namespace base {
 	protected:
 		inline matrix() = default;
 
-		_Ty* _Data;
+		_Ty* _Data = nullptr;
 		size_t _Rows;
 		size_t _Cols;
 		bool _Is_owner = true;

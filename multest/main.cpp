@@ -70,11 +70,21 @@ int main(int argc, const char* const argv[]) {
 template<class _Ty>
 _Ty mse_loss(cuda::matrix <_Ty> _Output, cuda::matrix <_Ty> _Target) {
 	_Ty loss = 0;
-	for (int i = 0; i < _Output.size(); ++i) {
-		loss += (_Output.data()[i] - _Target.data()[i]) * (_Output.data()[i] - _Target.data()[i]);
+
+	auto _Error = _Output - _Target;
+	_Error *= _Error;
+	auto _ErrorSumMat = _Error.to_host();
+	
+	for (auto&& e : _ErrorSumMat) {
+		loss += e;
 	}
+
 	return loss / _Output.size();
 }
+
+struct proxy {
+	// linear<_Ty>
+};
 
 template<class _Ty>
 class linear {
@@ -85,12 +95,29 @@ class linear {
 			utils::generate_normal(w);
 			utils::generate_normal(b);
 	}
-		auto operator()(cuda::matrix<_Ty> _Input) {
-			return _Input.mul(w) + b;
+		auto operator()(cuda::matrix<_Ty>& _Input) {
+			last_input = _Input;
+			return _Input.mul(w);// +b;
 	}
+		auto backward(cuda::matrix<_Ty>& _Error) {
+			auto _ErrorGrad = _Error.mul(transposed(w));
+			auto _WGrad = transposed(last_input).mul(_Error);
+			auto _BGrad = host::vector<_Ty>(b.size());
+			auto _ErrorHost = _Error.to_host();
+			for (int i = 0; i < _Error.size(); ++i) {
+				_BGrad.data()[i % b.size()] += _ErrorHost.data()[i];
+			}
+			cuda::vector<_Ty> _BGradCuda = _BGrad;
+			w -= _WGrad * 0.1;
+			//cuda::matrix_mul_scalar(_BGradCuda, _BGradCuda, 0.01f);
+			//cuda::matrix_sub(b, _BGradCuda, b);
+			return _ErrorGrad;
+		}
+
 private:
 	cuda::matrix<_Ty> w;
 	cuda::vector<_Ty> b;
+	cuda::matrix<_Ty> last_input;
 };
 
 template<class _Ty>
@@ -98,27 +125,43 @@ class nn {
 public:
 	using matrix = cuda::matrix<_Ty>;
 	using vector = cuda::vector<_Ty>;
-	template<class... _TArgs>
-	nn(_TArgs... _Args) {
-		// create layers
-		((layers.emplace_back(_Args)), ...);
+	nn() {
+		layers.emplace_back(2, 4);
+		layers.emplace_back(4, 1);
 	}
-	
+	void train(int _Epochs, matrix _Input, matrix _Target) {
+		for (int i = 0; i < _Epochs; ++i) {
+			auto output = _Input;
+			for (auto&& layer : layers) {
+				output = layer(output);
+				output.activate<sigmoid>();
+			}
+			auto loss = mse_loss(output, _Target);
+			if (i % 1000 == 0)
+				cout << "loss: " << loss << endl;
+			auto error = output - _Target;
+			for (auto&& layer : std::views::reverse(layers)) {
+				error = layer.backward(error);
+			}
+			
+		}
+	}
+	auto predict(matrix _Input) {
+		auto output = _Input;
+		for (auto&& layer : layers) {
+			output = layer(output);
+			output.activate<sigmoid>();
+		}
+		return output;
+	}
 
 private:
-	
+	std::vector<linear<_Ty>> layers;
 };
 
-template<class _Ty>
-class moonsModel
-	: public nn<_Ty> {
-	using base = nn<_Ty>;
-	moonsModel() 
-		: base
-};
 
 int _main(std::span<std::string_view> args) {
-	nn<float> nn(2, 3, 1);
+	nn<float> model;
 	host::matrix<float> input(8, 2);
 	host::matrix<float> output(8, 1);
 
@@ -132,7 +175,7 @@ int _main(std::span<std::string_view> args) {
 	cout << input << endl;
 	cout << output << endl;
 
-	nn.train(1000, input, output);
+	model.train(10000, input, output);
 
 	// create a new input
 	input = host::matrix<float>(4, 2);
@@ -142,7 +185,7 @@ int _main(std::span<std::string_view> args) {
 	}
 	cout << input << endl;
 
-	cout << nn.predict(input) << endl;
+	cout << model.predict(input) << endl;
 
 	return 0;
 }
