@@ -1,6 +1,16 @@
 #pragma once
 #include "matrix.hpp"
 
+namespace cuda {
+	template <class _Ty, bool _T>
+	class matrix;
+}
+
+namespace host {
+	template <class _Ty, bool _T>
+	class matrix;
+}
+
 namespace base {
 	using std::cout;
 	using std::endl;
@@ -8,9 +18,9 @@ namespace base {
 
 	template <class _Ty, allocator_t _Alloc, bool _T = true>
 	class matrix_view
-		: public matrix<_Ty, _Alloc, _T>
+		: public std::conditional_t<_Alloc::is_cuda(), cuda::matrix<_Ty, _T>, host::matrix<_Ty, _T>>
 	{
-		using _Mybase = matrix<_Ty, _Alloc, _T>;
+		using _Mybase = std::conditional_t<_Alloc::is_cuda(), cuda::matrix<_Ty, _T>, host::matrix<_Ty, _T>>;
 		
 
 	public:
@@ -30,8 +40,6 @@ namespace base {
 			_Is_owner = false;
 		}
 		
-
-
 		inline matrix_view(size_t _N, size_t _M, _Ty* _Ptr) {
 			_Is_owner = false;
 			_Data = _Ptr;

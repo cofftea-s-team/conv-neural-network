@@ -2,28 +2,40 @@
 
 namespace cuda {
 	
-	template <class _Activation_class, class _Ty>
-	__global__ void activation_apply_kernel(_Ty* _Data, size_t N) {
+	template <class _Applier, class _Ty, class... _TArgs>
+	__global__ void activation_apply_kernel(_Ty* _Data, size_t N, _TArgs... _Args) {
 		const size_t i = blockIdx.x * blockDim.x + threadIdx.x;
 
 		if (i < N) {
-			_Data[i] = _Activation_class::forward(_Data[i]);
+			_Data[i] = _Applier::apply(_Data[i], _Args...);
 		}
 	}
 
 	template <class _Activation_class, class _Ty>
-	void _activation_apply(_Ty* _Data, size_t N, size_t M) {
+	void _forward_apply(_Ty* _Data, size_t N, size_t M) {
 		if constexpr (std::is_same_v<_Activation_class, base::softmax>) {
 			_softmax_apply(_Data, N, M);
 		}
 		else {
-			const dim3 threads(256);
+			using applier = forwarder<_Activation_class>;
+
+			const dim3 threads(512);
 			const dim3 blocks((N + threads.x - 1) / threads.x);
 
-			activation_apply_kernel<_Activation_class>
+			activation_apply_kernel<applier>
 				<<<blocks, threads>>>(_Data, N * M);
 		}
+	}
 
+	template <class _Activation_class, class _Ty>
+	void _backward_apply(_Ty* _Data, size_t N, size_t M) {
+		using applier = backwarder<_Activation_class>;
+
+		const dim3 threads(512);
+		const dim3 blocks((N + threads.x - 1) / threads.x);
+
+		activation_apply_kernel<applier>
+			<< <blocks, threads >> > (_Data, N * M);
 	}
 
 	struct _exp {
@@ -39,37 +51,31 @@ namespace cuda {
 		const dim3 threads(256);
 		const dim3 blocks((N + threads.x - 1) / threads.x);
 
-		activation_apply_kernel<_exp>
+		using exponent = forwarder<_exp>;
+
+		activation_apply_kernel<exponent>
 			<<<blocks, threads>>>(_Data, N * M);
 
 		_Ty sum = _range_reduce(_Data, N, M);
 
-		activation_apply_kernel<base::softmax>
-			<<<blocks, threads>>>(_Data, N * M);
+		using applier = forwarder<base::softmax>;
+		activation_apply_kernel<applier>
+			<<<blocks, threads>>>(_Data, N * M, sum);
 	}
 
-	template void _activation_apply<base::relu, double>(double*, size_t);
-	template void _activation_apply<base::relu, float>(float*, size_t);
-	template void _activation_apply<base::relu, nv_bfloat16>(nv_bfloat16*, size_t);
+#define INSTANTIATE_ONE(_Fn, _Type) \
+	template void _forward_apply<_Fn, _Type>(_Type*, size_t, size_t);\
+	template void _backward_apply<_Fn, _Type>(_Type*, size_t, size_t);
 
-	template void _activation_apply<base::sigmoid, double>(double*, size_t);
-	template void _activation_apply<base::sigmoid, float>(float*, size_t);
-	template void _activation_apply<base::sigmoid, nv_bfloat16>(nv_bfloat16*, size_t);
+#define INSTANTIATE_ACTIVATION_APPLY(_Fn) \
+	INSTANTIATE_ONE(_Fn, float);\
+	INSTANTIATE_ONE(_Fn, double);\
+	INSTANTIATE_ONE(_Fn, bfloat16);
 
-	template void _activation_apply<base::tanh, double>(double*, size_t);
-	template void _activation_apply<base::tanh, float>(float*, size_t);
-	template void _activation_apply<base::tanh, nv_bfloat16>(nv_bfloat16*, size_t);
-
-	template void _activation_apply<base::softmax, double>(double*, size_t);
-	template void _activation_apply<base::softmax, float>(float*, size_t);
-	template void _activation_apply<base::softmax, nv_bfloat16>(nv_bfloat16*, size_t);
-
-	template void _activation_apply<base::leaky_relu, double>(double*, size_t);
-	template void _activation_apply<base::leaky_relu, float>(float*, size_t);
-	template void _activation_apply<base::leaky_relu, nv_bfloat16>(nv_bfloat16*, size_t);
-
-	template void _activation_apply<base::softmax, double>(double*, size_t);
-	template void _activation_apply<base::softmax, float>(float*, size_t);
-	template void _activation_apply<base::softmax, nv_bfloat16>(nv_bfloat16*, size_t);
-	
+	INSTANTIATE_ACTIVATION_APPLY(base::relu);
+	INSTANTIATE_ACTIVATION_APPLY(base::sigmoid);
+	INSTANTIATE_ACTIVATION_APPLY(base::tanh);
+	INSTANTIATE_ACTIVATION_APPLY(base::softmax);
+	INSTANTIATE_ACTIVATION_APPLY(base::leaky_relu);
+	INSTANTIATE_ACTIVATION_APPLY(base::log);
 }

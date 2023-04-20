@@ -97,6 +97,7 @@
     <CudaCompile Include="cuda\algebra\matrix_add_scalar.cu" />
     <CudaCompile Include="cuda\algebra\matrix_add_vector.cu" />
     <CudaCompile Include="cuda\algebra\matrix_mul.cu" />
+    <CudaCompile Include="cuda\algebra\matrix_mul_scalar.cu" />
     <CudaCompile Include="cuda\algebra\matrix_scalar_mul.cu" />
     <CudaCompile Include="cuda\algebra\matrix_sub.cu" />
     <CudaCompile Include="cuda\algebra\matrix_sub_vector.cu" />
@@ -115,6 +116,7 @@
     <ClInclude Include="cuda\algebra\matrix_add.cuh" />
     <ClInclude Include="cuda\algebra\matrix_add_scalar.cuh" />
     <ClInclude Include="cuda\algebra\matrix_add_vector.cuh" />
+    <ClInclude Include="cuda\algebra\matrix_mul_scalar.cuh" />
     <ClInclude Include="cuda\algebra\matrix_scalar_mul.cuh" />
     <ClInclude Include="cuda\algebra\matrix_sub.cuh" />
     <ClInclude Include="cuda\algebra\matrix_sub_vector.cuh" />
@@ -130,6 +132,7 @@
     <ClInclude Include="host\algebra\matrix_add.hpp" />
     <ClInclude Include="host\algebra\matrix_add_vector.hpp" />
     <ClInclude Include="host\algebra\matrix_mul.hpp" />
+    <ClInclude Include="host\algebra\matrix_scalar_mul.hpp" />
     <ClInclude Include="host\algebra\matrix_transpose.hpp" />
     <ClInclude Include="host\algebra\utils.hpp" />
     <ClInclude Include="host\algebra\avx2_algebra.hpp" />

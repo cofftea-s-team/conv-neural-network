@@ -9,6 +9,7 @@
 #include "algebra/matrix_add_vector.cuh"
 #include "algebra/matrix_sub_vector.cuh"
 #include "algebra/matrix_add_scalar.cuh"
+#include "algebra/matrix_mul_scalar.cuh"
 #include "algebra/range_reduce.cuh"
 #include "activations/activation.cuh"
 #include "../activations.hpp"
@@ -17,7 +18,7 @@
 #include "../matrix_view.hpp"
 
 namespace host {
-	template <class _Ty>
+	template <class _Ty, bool>
 	class matrix;
 }
 
@@ -30,12 +31,12 @@ namespace cuda {
 	template <class _Ty>
 	struct cuda_to_host_matrix_iterator;
 
-	template <class _Ty>
+	template <class _Ty, bool _Tr = false>
 	class matrix 
-		: public base::matrix<_Ty, cuda::allocator<_Ty>, false> 
+		: public base::matrix<_Ty, cuda::allocator<_Ty>, _Tr> 
 	{
 	protected:
-		using _Mybase = base::matrix<_Ty, cuda::allocator<_Ty>, false>;
+		using _Mybase = base::matrix<_Ty, cuda::allocator<_Ty>, _Tr>;
 		using _Mybase::_Rows;
 		using _Mybase::_Cols;
 		using _Mybase::_Data;
@@ -91,6 +92,7 @@ namespace cuda {
 			assert(_Mybase::cols() == _Other.cols() && _Mybase::rows() == _Other.rows());
 #endif // DEBUG
 			cuda::matrix_scalar_mul(*this, _Other, *this);
+			return *this;
 		}
 
 		template <bool _T>
@@ -171,6 +173,11 @@ namespace cuda {
 			return *this;
 		}
 
+		inline matrix& operator*=(const _Ty& _Val) {
+			cuda::matrix_mul_scalar(*this, *this, _Val);
+			return *this;
+		}
+
 		inline matrix operator+(const _Ty& _Val) const {
 			matrix _Res(_Mybase::shape());
 			cuda::matrix_add_scalar(*this, _Res, _Val);
@@ -183,9 +190,20 @@ namespace cuda {
 			return _Res;
 		}
 
+		inline matrix operator*(const _Ty& _Val) const {
+			matrix _Res(_Mybase::shape());
+			cuda::matrix_mul_scalar(*this, _Res, _Val);
+			return _Res;
+		}
+
 		template <activation_fn_t _Fn>
 		inline void activate() {
-			cuda::activation_apply<_Fn>(*this);
+			cuda::forward_apply<_Fn>(*this);
+		}
+
+		template <activation_fn_t _Fn>
+		inline void backward() {
+			cuda::backward_apply<_Fn>(*this);
 		}
 
 		inline auto T() {

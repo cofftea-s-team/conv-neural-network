@@ -9,11 +9,36 @@
 using bfloat16 = nv_bfloat16;
 
 namespace cuda {
+	
+	template <class _Activation_class>
+	struct forwarder {
+		template <class _Ty, class... _TArgs>
+		__device__ inline static _Ty apply(const _Ty& _Val, _TArgs... _Args) {
+			return _Activation_class::forward(_Val, _Args...);
+		}
+	};
+
+	template <class _Activation_class>
+	struct backwarder {
+		template <class _Ty, class... _TArgs>
+		__device__ inline static _Ty apply(const _Ty& _Val, _TArgs... _Args) {
+			return _Activation_class::backward(_Val, _Args...);
+		}
+	};
+
 	template <class _Activation_class, class _Ty>
-	void _activation_apply(_Ty* _Data, size_t N);
+	void _forward_apply(_Ty* _Data, size_t N, size_t M);
+
+	template <class _Activation_class, class _Ty>
+	void _backward_apply(_Ty* _Data, size_t N, size_t M);
 
 	template <class _Activation_class, class _Mat>
-	inline void activation_apply(_Mat& _Matrix) {
-		_activation_apply<_Activation_class>(_Matrix.data(), _Matrix.cols(), _Matrix.rows());
+	inline void forward_apply(_Mat& _Matrix) {
+		_forward_apply<_Activation_class>(_Matrix.data(), _Matrix.cols(), _Matrix.rows());
+	}
+
+	template <class _Activation_class, class _Mat>
+	inline void backward_apply(_Mat& _Matrix) {
+		_backward_apply<_Activation_class>(_Matrix.data(), _Matrix.cols(), _Matrix.rows());
 	}
 }

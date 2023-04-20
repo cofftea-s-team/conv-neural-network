@@ -89,6 +89,10 @@ namespace base {
 			_Move(std::move(_Other));
 		}
 
+		inline matrix(_Ty* _Data, size_t _Rows, size_t _Cols)
+			: _Rows(_Cols), _Cols(_Rows), _Data(_Data), _Is_owner(false)
+		{ }
+
 		template <bool _T2>
 		inline matrix(const matrix<_Ty, _Alloc, _T2>& _Other) {
 			_Rows = _Other._Rows;
@@ -257,13 +261,13 @@ namespace base {
 			if constexpr (_Other._Al.is_cuda())
 				cuda::matrix_copy_transposed(_Other, *this);
 			else
-				static_assert(_Always_false<matrix>, "not implemented!");
+				static_assert(std::_Always_false<matrix>, "not implemented!");
 		}
 		
 		template <allocator_t _Other_all, bool _T2>	
 		constexpr void _Copy_to_host_transposed(const matrix<_Ty, _Other_all, _T2>& _Other) {
 			if constexpr (_Other._Al.is_cuda())
-				static_assert(_Always_false<matrix>, "not implemented!");
+				static_assert(std::_Always_false<matrix>, "not implemented!");
 			else
 				host::matrix_transpose(_Other, *this);
 		}

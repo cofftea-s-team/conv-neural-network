@@ -66,17 +66,33 @@ int main(int argc, const char* const argv[]) {
 #define TIMER_END(x) auto _s2##x = high_resolution_clock::now(); auto _1s2##x = clock();
 #define TIMER_RESULT(x, pre) auto count1##x = duration_cast<milliseconds>(_s2##x - _s##x).count(); auto count2##x = (_1s2##x - _1s##x); cout << '[' << ##pre << "]\n" << "user time: " << count1##x << "ms\nsys time: " << count2##x << "ms\n" << endl;
 
+
 int _main(std::span<std::string_view> args) {
 
-	host::matrix<float> m(8, 4);
-	
-	auto enumerate = [&, id = 0]<class _Ty>(_Ty& _Val) mutable { return std::pair<size_t, _Ty&>(id++, _Val); };
+	host::matrix<float> m(4, 4);
+	host::vector<float> v(4);
+
+	auto enumerate = [&, id = 0]<class _Ty>(_Ty & _Val) mutable { return std::pair<size_t, _Ty&>(id++, _Val); };
 	for (auto&& [i, val] : m | stdrv::transform(enumerate)) {
 		val = i % m.cols();
 	}
+	for (auto&& [i, val] : v | stdrv::transform(enumerate)) {
+		val = i % m.cols();
+	}
+	
+	using matrix = cuda::matrix<float>;
+	using vector = cuda::vector<float>;
 
-	auto a = m.to_cuda();
+	matrix a(m);
+	vector b(v);
 
+	cout << a.T() << endl;
+	cout << b.T() << endl;
+
+	cout << (a.T() + b.T()) << endl;
+
+	
+	
 	return 0;
 }
 

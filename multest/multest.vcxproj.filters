@@ -34,6 +34,9 @@
     <CudaCompile Include="cuda\algebra\range_reduce.cu">
       <Filter>cuda\algebra</Filter>
     </CudaCompile>
+    <CudaCompile Include="cuda\algebra\matrix_mul_scalar.cu">
+      <Filter>cuda\algebra</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -124,6 +127,12 @@
     </ClInclude>
     <ClInclude Include="host\algebra\matrix_add_vector.hpp">
       <Filter>host\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="host\algebra\matrix_scalar_mul.hpp">
+      <Filter>host\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda\algebra\matrix_mul_scalar.cuh">
+      <Filter>cuda\algebra</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

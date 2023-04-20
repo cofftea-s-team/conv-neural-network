@@ -4,11 +4,12 @@
 #include "../matrix_view.hpp"
 #include "algebra/matrix_add.hpp"
 #include "algebra/matrix_add_vector.hpp"
+#include "algebra/matrix_scalar_mul.hpp"
 #include "utils.hpp"
 #include <iostream>
 
 namespace cuda {
-	template <class _Ty>
+	template <class _Ty, bool>
 	class matrix;
 }
 
@@ -17,11 +18,11 @@ namespace host {
 	using std::endl;
 	using std::ostream;
 
-	template <class _Ty>
+	template <class _Ty, bool _Tr = false>
 	class matrix 
-		: public base::matrix<_Ty, allocator<_Ty>, false> 
+		: public base::matrix<_Ty, allocator<_Ty>, _Tr>
 	{
-		using _Mybase = base::matrix<_Ty, allocator<_Ty>, false>;
+		using _Mybase = base::matrix<_Ty, allocator<_Ty>, _Tr>;
 	public:
 		using iterator = _Ty*;
 		using const_iterator = const _Ty*;
@@ -73,6 +74,12 @@ namespace host {
 			host::matrix_add<std::minus<_Ty>>(*this, _Other, *this);
 			return *this;
 		}
+		
+		template <bool _T>
+		inline matrix& operator*=(const base::matrix<_Ty, allocator<_Ty>, _T>& _Other) {
+			host::matrix_scalar_mul(*this, _Other, *this);
+			return *this;
+		}
 
 		template <bool _T>
 		inline matrix operator+(const base::matrix<_Ty, allocator<_Ty>, _T>& _Other) const {
@@ -85,6 +92,13 @@ namespace host {
 		inline matrix operator-(const base::matrix<_Ty, allocator<_Ty>, _T>& _Other) const {
 			matrix _Res(_Rows, _Cols);
 			host::matrix_add<std::minus<_Ty>>(*this, _Other, _Res);
+			return _Res;
+		}
+
+		template <bool _T>
+		inline matrix operator*(const base::matrix<_Ty, allocator<_Ty>, _T>& _Other) const {
+			matrix _Res(_Rows, _Cols);
+			host::matrix_scalar_mul(*this, _Other, _Res);
 			return _Res;
 		}
 
@@ -133,6 +147,24 @@ namespace host {
 		inline matrix& operator*=(const _Ty& _Val) {
 			host::matrix_mul_scalar(*this, *this, _Val);
 			return *this;
+		}
+
+		inline matrix operator+(const _Ty& _Val) const {
+			matrix _Res(_Rows, _Cols);
+			host::matrix_add_scalar(*this, _Res, _Val);
+			return _Res;
+		}
+
+		inline matrix operator-(const _Ty& _Val) const {
+			matrix _Res(_Rows, _Cols);
+			host::matrix_add_scalar(*this, _Res, -_Val);
+			return _Res;
+		}
+
+		inline matrix operator*(const _Ty& _Val) const {
+			matrix _Res(_Rows, _Cols);
+			host::matrix_mul_scalar(*this, _Res, _Val);
+			return _Res;
 		}
 
 		template <activation_fn_t _Fn>

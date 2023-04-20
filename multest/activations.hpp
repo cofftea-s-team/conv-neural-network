@@ -55,7 +55,7 @@ namespace base {
 	struct softmax {
 		template <class _Ty>
 		__device__ __host__ inline static _Ty forward(_Ty x, _Ty sum) {
-			return exp(x) / sum;
+			return ::exp(x) / sum;
 		}
 
 		template <class _Ty>
@@ -63,5 +63,16 @@ namespace base {
 			return x * (1. - x);
 		}
 	};
-	
+
+	struct log {
+		template <class _Ty>
+		__device__ __host__ inline static _Ty forward(_Ty x) {
+			return ::log(x);
+		}
+
+		template <class _Ty>
+		__device__ __host__ inline static _Ty backward(_Ty x) {
+			return 1. / x;
+		}
+	};
 }
