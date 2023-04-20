@@ -76,56 +76,45 @@ _Ty mse_loss(cuda::matrix <_Ty> _Output, cuda::matrix <_Ty> _Target) {
 	return loss / _Output.size();
 }
 
-
+template<class _Ty>
+class linear {
+	public:
+		linear(int _InputSize, int _OutputSize) {
+			w = cuda::matrix<_Ty>(_InputSize, _OutputSize);
+			b = cuda::vector<_Ty>(_OutputSize);
+			utils::generate_normal(w);
+			utils::generate_normal(b);
+	}
+		auto operator()(cuda::matrix<_Ty> _Input) {
+			return _Input.mul(w) + b;
+	}
+private:
+	cuda::matrix<_Ty> w;
+	cuda::vector<_Ty> b;
+};
 
 template<class _Ty>
 class nn {
 public:
 	using matrix = cuda::matrix<_Ty>;
 	using vector = cuda::vector<_Ty>;
-	nn(size_t _In, size_t _Hid, size_t _Out) {
-		w1 = matrix(_In, _Hid);
-		utils::generate_normal(w1);
-		w2 = matrix(_Hid, _Out);
-		utils::generate_normal(w2);
+	template<class... _TArgs>
+	nn(_TArgs... _Args) {
+		// create layers
+		((layers.emplace_back(_Args)), ...);
 	}
-	void train(int _Epochs, matrix _Input, matrix _Output) {
-		host::matrix<_Ty> lrm(_Output.shape());
-		for (int i = 0; i < lrm.size(); ++i) {
-			lrm.data()[i] = lr;
-		}
-		auto lrm2 = lrm.to_cuda();
-		for (int i = 0; i < _Epochs; ++i) {
-			auto h1 = _Input.mul(w1);
-			h1.activate<sigmoid>();
-			auto h2 = h1.mul(w2);
-			
-			auto e = _Output - h2;
-			e *= lrm2;
-			/*auto loss = mse_loss(h2, _Output);
-			if (i % 1000 == 0) {
-				cout << "loss: " << loss << endl;
-			}*/
-			matrix h1t = h1.T();
-			w2 += h1t.mul(e);
-			auto dhr = e.mul(transposed(w2));
-			matrix dh = h1;
-			dh.activate<bsigmoid>();
-			dhr *= dh;
-			matrix dwt = _Input.T();
-			w1 += dwt.mul(dhr);
-		}
-	}
-	auto predict(matrix _Input) {
-		auto h1 = _Input.mul(w1);
-		h1.activate<sigmoid>();
-		auto h2 = h1.mul(w2);
-		return h2;
-	}
+	
 
 private:
-	_Ty lr = 0.1;
-	matrix w1 { 1, 1 }, w2 {1, 1};
+	
+};
+
+template<class _Ty>
+class moonsModel
+	: public nn<_Ty> {
+	using base = nn<_Ty>;
+	moonsModel() 
+		: base
 };
 
 int _main(std::span<std::string_view> args) {
@@ -134,7 +123,7 @@ int _main(std::span<std::string_view> args) {
 	host::matrix<float> output(8, 1);
 
 	// xor
-	for (int i = 0; i < 4; ++i) {
+	for (int i = 0; i < 8; ++i) {
 		input.data()[i * 2] = i & 1;
 		input.data()[i * 2 + 1] = (i >> 1) & 1;
 		output.data()[i] = (i & 1) ^ ((i >> 1) & 1);
