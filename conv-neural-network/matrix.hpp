@@ -163,7 +163,14 @@ namespace base {
 			if (_Is_owner) {
 				_Al.free(_Data);
 			}
-			_Move(std::move(_Other));
+			if (_Other._Is_owner)
+				_Move(std::move(_Other));
+			else {
+				_Rows = _Other._Rows;
+				_Cols = _Other._Cols;
+				_Copy_matrix(_Other);
+			}
+			
 			return *this;
 		}
 		

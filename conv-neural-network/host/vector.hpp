@@ -1,6 +1,9 @@
 #pragma once
 #include "../vector.hpp"
 #include "../vector_view.hpp"
+#include "algebra/matrix_add.hpp"
+#include "algebra/matrix_add_vector.hpp"
+#include "algebra/matrix_scalar_mul.hpp"
 
 namespace host {
 	
@@ -16,6 +19,11 @@ namespace host {
 
 		inline auto T() {
 			return base::transposed(*this);
+		}
+
+		inline vector& operator+=(const vector& _Other) {
+			algebra::matrix_add_vector(*this, _Other, *this);
+			return *this;
 		}
 
 		inline friend std::ostream& operator<<(std::ostream& _Os, const vector& _V) {

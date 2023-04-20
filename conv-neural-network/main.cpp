@@ -66,7 +66,6 @@ int main(int argc, const char* const argv[]) {
 #define TIMER_END(x) auto _s2##x = high_resolution_clock::now(); auto _1s2##x = clock();
 #define TIMER_RESULT(x, pre) auto count1##x = duration_cast<milliseconds>(_s2##x - _s##x).count(); auto count2##x = (_1s2##x - _1s##x); cout << '[' << ##pre << "]\n" << "user time: " << count1##x << "ms\nsys time: " << count2##x << "ms\n" << endl;
 
-
 int _main(std::span<std::string_view> args) {
 
 	host::matrix<float> m(4, 4);
@@ -81,18 +80,21 @@ int _main(std::span<std::string_view> args) {
 	}
 	
 	using matrix = cuda::matrix<float>;
-	using vector = cuda::vector<float>;
+	using vector = cuda::vector<float>;;
 
-	matrix a(m);
-	vector b(v);
+	host::matrix<float> a(m.shape());
+	auto b = m;
 
-	cout << a.T() << endl;
+
+	cout << b << endl;
 	cout << b.T() << endl;
 
-	cout << (a.T() + b.T()) << endl;
+	host::matrix<float> at = a.T();
 
-	
-	
+	cout << (a.T() + b).T() << endl;
+
+	cout << (at + b).T() << endl;
+
 	return 0;
 }
 

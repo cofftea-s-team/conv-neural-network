@@ -12,7 +12,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{CC655613-D2EA-4FCF-9FB6-A62BD1A52D6F}</ProjectGuid>
-    <RootNamespace>multest</RootNamespace>
+    <RootNamespace>conv-neural-network</RootNamespace>
     <ProjectName>CNN</ProjectName>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
