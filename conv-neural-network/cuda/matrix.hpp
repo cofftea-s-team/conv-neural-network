@@ -96,11 +96,11 @@ namespace cuda {
 		}
 
 		template <bool _T>
-		inline matrix operator+(const base::matrix<_Ty, cuda::allocator<_Ty>, _T>& _Other) const {
+		inline matrix<_Ty, false> operator+(const base::matrix<_Ty, cuda::allocator<_Ty>, _T>& _Other) const {
 #ifdef DEBUG
 			assert(_Mybase::cols() == _Other.cols() && _Mybase::rows() == _Other.rows());
 #endif // DEBUG
-			matrix _Res(_Mybase::shape());
+			matrix<_Ty, false> _Res(_Mybase::shape());
 			cuda::matrix_add(*this, _Other, _Res);
 			return _Res;
 		}

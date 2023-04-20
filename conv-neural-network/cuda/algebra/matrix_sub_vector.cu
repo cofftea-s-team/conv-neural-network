@@ -5,20 +5,24 @@
 namespace cuda {
 
 	template <bool _T1, bool _T2, class _Ty>
-	__global__ void matrix_sub_vector_kernel(const _Ty* _Src1, const _Ty* _Src2, _Ty* _Dst, size_t N, size_t M)
+	__global__ void matrix_sub_vector_kernel(const _Ty* A, const _Ty* V, _Ty* B, size_t N, size_t M)
 	{
 		int i = blockIdx.y * blockDim.y + threadIdx.y;
 		int j = blockIdx.x * blockDim.x + threadIdx.x;
 
-		if (i < N && j < M) {
-			if constexpr (_T1 && _T2)
-				_Dst[i * M + j] = _Src1[i * M + j] - _Src2[i];
-			else if constexpr (_T1 && !_T2)
-				_Dst[i * M + j] = _Src1[i * M + j] - _Src2[j];
-			else if constexpr (!_T1 && _T2)
-				_Dst[j * N + i] = _Src1[j * N + i] - _Src2[i];
-			else
-				_Dst[j * N + i] = _Src1[j * N + i] - _Src2[j];
+		if (i < M && j < N) {
+			if constexpr (_T1 && _T2) {
+				B[i * N + j] = A[j * M + i] - V[i];
+			}
+			else if constexpr (_T1 && !_T2) {
+				B[i * N + j] = A[j * M + i] - V[j];
+			}
+			else if constexpr (!_T1 && _T2) {
+				B[i * N + j] = A[i * N + j] - V[i];
+			}
+			else {
+				B[i * N + j] = A[i * N + j] - V[j];
+			}
 		}
 	}
 

@@ -68,12 +68,13 @@ int main(int argc, const char* const argv[]) {
 
 int _main(std::span<std::string_view> args) {
 
-	host::matrix<float> m(4, 4);
+	host::matrix<float> m(6, 4);
+	host::matrix<float> m2(4, 6);
 	host::vector<float> v(4);
 
 	auto enumerate = [&, id = 0]<class _Ty>(_Ty & _Val) mutable { return std::pair<size_t, _Ty&>(id++, _Val); };
 	for (auto&& [i, val] : m | stdrv::transform(enumerate)) {
-		val = i % m.cols();
+		val = i % m.cols() + 1;
 	}
 	for (auto&& [i, val] : v | stdrv::transform(enumerate)) {
 		val = i % m.cols();
@@ -82,19 +83,29 @@ int _main(std::span<std::string_view> args) {
 	using matrix = cuda::matrix<float>;
 	using vector = cuda::vector<float>;;
 
-	host::matrix<float> a(m.shape());
-	auto b = m;
+	for (auto&& [i, val] : m2 | stdrv::transform(enumerate)) {
+		val = 1;
+		if (i + 1 == m2.cols()) break;
+	}
+	cuda::matrix<float> a(m2);
+	
+	auto b = m.to_cuda();
+	cuda::vector<float> v1(v);
+
+	cout << "A: " << a << endl;
+	cout << "B: " << v.T() << endl;
 
 
-	cout << b << endl;
-	cout << b.T() << endl;
+	cout << "sums" << endl;
+	cuda::matrix<float>  a1 = a;
+	a1 -= v1.T();
+	cout << a1 << endl;
 
-	host::matrix<float> at = a.T();
+	cout << (a - v1.T()) << endl;
+	
+	
 
-	cout << (a.T() + b).T() << endl;
-
-	cout << (at + b).T() << endl;
-
+	
 	return 0;
 }
 

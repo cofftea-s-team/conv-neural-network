@@ -59,6 +59,24 @@ namespace base {
 		inline auto T() {
 			return matrix_view<_Ty, _Alloc, !_T>(*this);
 		}
+
+		template <bool _T2>
+		inline auto& operator+=(const base::matrix<_Ty, _Alloc, _T2>& _Other) {
+			static_assert(std::_Always_false<matrix_view>, "Cannot add to matrix_view (not implemented)");
+			return *this;
+		}
+
+		template <bool _T2>
+		inline auto& operator-=(const base::matrix<_Ty, _Alloc, _T2>& _Other) {
+			static_assert(std::_Always_false<matrix_view>, "Cannot substract to matrix_view (not implemented)");
+			return *this;
+		}
+
+		template <bool _T2>
+		inline auto& operator*=(const base::matrix<_Ty, _Alloc, _T2>& _Other) {
+			static_assert(std::_Always_false<matrix_view>, "Cannot mul with matrix_view (not implemented)");
+			return *this;
+		}
 		
 		inline friend ostream& operator<<(ostream& _Os, const matrix_view& _M) {
 			if constexpr (_Al.is_cuda())

@@ -9,18 +9,18 @@ namespace cuda {
 		int i = blockIdx.y * BLOCK_DIM + threadIdx.y;
 		int j = blockIdx.x * BLOCK_DIM + threadIdx.x;
 
-		if (i < N && j < M) {
+		if (i < M && j < N) {
 			if constexpr (_T1 && _T2) {
-				C[i * M + j] = A[j * N + i] * B[j * N + i];
+				C[i * N + j] = A[j * M + i] * B[j * M + i];
 			}
 			else if constexpr (_T1 && !_T2) {
-				C[i * M + j] = A[j * N + i] * B[i * M + j];
+				C[i * N + j] = A[j * M + i] * B[i * N + j];
 			}
 			else if constexpr (!_T1 && _T2) {
-				C[i * M + j] = A[i * M + j] * B[j * N + i];
+				C[i * N + j] = A[i * N + j] * B[j * M + i];
 			}
 			else {
-				C[i * M + j] = A[i * M + j] * B[i * M + j];
+				C[i * N + j] = A[i * N + j] * B[i * N + j];
 			}
 		}
 	}

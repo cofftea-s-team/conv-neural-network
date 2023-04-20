@@ -9,8 +9,8 @@ namespace cuda {
 	template <bool _T1, bool _T2, class _Ty>
 	void _matrix_add(const _Ty* _Src1, const _Ty* _Src2, _Ty* _Dst, size_t N, size_t M);
 
-	template <class _Mat, class _Mat2>
-	inline void matrix_add(const _Mat& _Src1, const _Mat2& _Src2, _Mat& _Dst) {
+	template <class _Mat, class _Mat2, class _Mat3>
+	inline void matrix_add(const _Mat& _Src1, const _Mat2& _Src2, _Mat3& _Dst) {
 		constexpr bool _T1 = _Src1.is_transposed();
 		constexpr bool _T2 = _Src2.is_transposed();
 
