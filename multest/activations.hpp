@@ -40,6 +40,18 @@ namespace base {
 		}
 	};
 
+	struct bsigmoid {
+		template <class _Ty>
+		__device__ __host__ inline static _Ty forward(_Ty x) {
+			return x * (1. - x);
+		}
+
+		template <class _Ty>
+		__device__ __host__ inline static _Ty backward(_Ty x) {
+			return x * (1. - x);
+		}
+	};
+
 	struct leaky_relu {
 		template <class _Ty>
 		__device__ __host__ inline static _Ty forward(_Ty x) {

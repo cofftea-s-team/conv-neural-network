@@ -17,6 +17,7 @@
 #include <span>
 #include <algorithm>
 #include "utils.hpp"
+//#include "python.hpp"
 
 using std::cout;
 using std::endl;
@@ -32,7 +33,7 @@ inline void preload() {
 	cout << "Loading...";
 
 	std::ios_base::sync_with_stdio(false);
-	std::cout << std::setprecision(3) << std::fixed;
+	std::cout << std::setprecision(15) << std::fixed;
 	cuda::matrix<float> f(16, 16);
 	f.mul(transposed(f));
 	host::algebra::parallel::details::indices;
@@ -66,33 +67,83 @@ int main(int argc, const char* const argv[]) {
 #define TIMER_END(x) auto _s2##x = high_resolution_clock::now(); auto _1s2##x = clock();
 #define TIMER_RESULT(x, pre) auto count1##x = duration_cast<milliseconds>(_s2##x - _s##x).count(); auto count2##x = (_1s2##x - _1s##x); cout << '[' << ##pre << "]\n" << "user time: " << count1##x << "ms\nsys time: " << count2##x << "ms\n" << endl;
 
+template<class _Ty>
+_Ty mse_loss(cuda::matrix <_Ty> _Output, cuda::matrix <_Ty> _Target) {
+	_Ty loss = 0;
+	for (int i = 0; i < _Output.size(); ++i) {
+		loss += (_Output.data()[i] - _Target.data()[i]) * (_Output.data()[i] - _Target.data()[i]);
+	}
+	return loss / _Output.size();
+}
+
+template<class _Ty>
+class linear {
+	public:
+		linear(int _InputSize, int _OutputSize) {
+			w = cuda::matrix<_Ty>(_InputSize, _OutputSize);
+			b = cuda::vector<_Ty>(_OutputSize);
+			utils::generate_normal(w);
+			utils::generate_normal(b);
+	}
+		auto operator()(cuda::matrix<_Ty> _Input) {
+			return _Input.mul(w) + b;
+	}
+private:
+	cuda::matrix<_Ty> w;
+	cuda::vector<_Ty> b;
+};
+
+template<class _Ty>
+class nn {
+public:
+	using matrix = cuda::matrix<_Ty>;
+	using vector = cuda::vector<_Ty>;
+	template<class... _TArgs>
+	nn(_TArgs... _Args) {
+		// create layers
+		((layers.emplace_back(_Args)), ...);
+	}
+	
+
+private:
+	
+};
+
+template<class _Ty>
+class moonsModel
+	: public nn<_Ty> {
+	using base = nn<_Ty>;
+	moonsModel() 
+		: base
+};
 
 int _main(std::span<std::string_view> args) {
+	nn<float> nn(2, 3, 1);
+	host::matrix<float> input(8, 2);
+	host::matrix<float> output(8, 1);
 
-	host::matrix<float> m(4, 4);
-	host::vector<float> v(4);
-
-	auto enumerate = [&, id = 0]<class _Ty>(_Ty & _Val) mutable { return std::pair<size_t, _Ty&>(id++, _Val); };
-	for (auto&& [i, val] : m | stdrv::transform(enumerate)) {
-		val = i % m.cols();
+	// xor
+	for (int i = 0; i < 8; ++i) {
+		input.data()[i * 2] = i & 1;
+		input.data()[i * 2 + 1] = (i >> 1) & 1;
+		output.data()[i] = (i & 1) ^ ((i >> 1) & 1);
 	}
-	for (auto&& [i, val] : v | stdrv::transform(enumerate)) {
-		val = i % m.cols();
+	
+	cout << input << endl;
+	cout << output << endl;
+
+	nn.train(1000, input, output);
+
+	// create a new input
+	input = host::matrix<float>(4, 2);
+	for (int i = 0; i < 4; ++i) {
+		input.data()[i * 2 + 1] = 0;
+		input.data()[i * 2] = (i >> 1) & 1;
 	}
-	
-	using matrix = cuda::matrix<float>;
-	using vector = cuda::vector<float>;
+	cout << input << endl;
 
-	matrix a(m);
-	vector b(v);
+	cout << nn.predict(input) << endl;
 
-	cout << a.T() << endl;
-	cout << b.T() << endl;
-
-	cout << (a.T() + b.T()) << endl;
-
-	
-	
 	return 0;
 }
 

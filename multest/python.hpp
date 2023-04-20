@@ -15,8 +15,9 @@ using namespace std::chrono;
 #include "utils.hpp"
 
 using namespace base;
-#include <pybind11/pybind11.h>
-#include <pybind11/operators.h>
+#include "pybind11/pybind11.h"
+#include "pybind11/operators.h"
+#include "Python/Python.h"
 #include "train.hpp"
 
 namespace py = pybind11;
@@ -110,6 +111,8 @@ PYBIND11_MODULE(CNN, m) {
 		.def("__repr__", [](const host::matrix<nv_bfloat16>& _Mat) { std::stringstream s; s << _Mat; return s.str(); })
 		.def("__str__", [](const host::matrix<nv_bfloat16>& _Mat) { std::stringstream s; s << _Mat; return s.str(); })
 		;
+
+	py::class_<>
 	m.def("train", train<float>);
 	m.def("train", train<double>);
 	m.def("train", train<nv_bfloat16>);
