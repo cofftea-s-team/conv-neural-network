@@ -59,7 +59,7 @@ int main(int argc, const char* const argv[]) {
 }
 #pragma endregion
 
-
+#include <functional>
 // current implementation limits cuda::matrix to 2048*2048 elements
 
 #define TIMER_START(x) auto _s##x = high_resolution_clock::now(); auto _1s##x = clock();
@@ -68,13 +68,13 @@ int main(int argc, const char* const argv[]) {
 
 int _main(std::span<std::string_view> args) {
 
-	host::matrix<float> m(6, 4);
-	host::matrix<float> m2(4, 6);
-	host::vector<float> v(4);
+	host::matrix<float> m(8, 4);
+	host::matrix<float> m2(4, 8);
+	host::vector<float> v(8);
 
 	auto enumerate = [&, id = 0]<class _Ty>(_Ty & _Val) mutable { return std::pair<size_t, _Ty&>(id++, _Val); };
 	for (auto&& [i, val] : m | stdrv::transform(enumerate)) {
-		val = i % m.cols() + 1;
+		val = i % m.cols() + i / m.cols();
 	}
 	for (auto&& [i, val] : v | stdrv::transform(enumerate)) {
 		val = i % m.cols();
@@ -92,20 +92,11 @@ int _main(std::span<std::string_view> args) {
 	auto b = m.to_cuda();
 	cuda::vector<float> v1(v);
 
-	cout << "A: " << a << endl;
-	cout << "B: " << v.T() << endl;
+	cout << v1 << endl;
+	cout << b << endl;
+	v1 += b.sum0();
+	cout << v1 << endl;
 
-
-	cout << "sums" << endl;
-	cuda::matrix<float>  a1 = a;
-	a1 -= v1.T();
-	cout << a1 << endl;
-
-	cout << (a - v1.T()) << endl;
-	
-	
-
-	
 	return 0;
 }
 

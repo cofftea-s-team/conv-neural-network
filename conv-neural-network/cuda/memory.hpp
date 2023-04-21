@@ -17,4 +17,5 @@ namespace cuda {
 		}
 		return reinterpret_cast<_Ty*>(details::_Data);
 	}
+
 }

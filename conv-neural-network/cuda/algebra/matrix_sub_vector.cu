@@ -28,8 +28,8 @@ namespace cuda {
 
 	template <bool _T1, bool _T2, class _Ty>
 	void _matrix_sub_vector(const _Ty* _Src1, const _Ty* _Src2, _Ty* _Dst, size_t N, size_t M) {
-		dim3 blocks(BLOCK_DIM, BLOCK_DIM);
-		dim3 threads((N - 1) / BLOCK_DIM + 1, (M - 1) / BLOCK_DIM + 1);
+		dim3 threads(BLOCK_DIM, BLOCK_DIM);
+		dim3 blocks((N - 1) / BLOCK_DIM + 1, (M - 1) / BLOCK_DIM + 1);
 		
 		matrix_sub_vector_kernel<_T1, _T2>
 			<<<blocks, threads>>>(_Src1, _Src2, _Dst, N, M);

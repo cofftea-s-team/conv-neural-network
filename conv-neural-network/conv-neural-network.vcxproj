@@ -101,6 +101,7 @@
     <CudaCompile Include="cuda\algebra\matrix_scalar_mul.cu" />
     <CudaCompile Include="cuda\algebra\matrix_sub.cu" />
     <CudaCompile Include="cuda\algebra\matrix_sub_vector.cu" />
+    <CudaCompile Include="cuda\algebra\matrix_sum.cu" />
     <CudaCompile Include="cuda\algebra\matrix_transpose.cu" />
     <CudaCompile Include="cuda\activations\activation.cu" />
     <CudaCompile Include="cuda\algebra\matrix_add.cu" />
@@ -120,6 +121,7 @@
     <ClInclude Include="cuda\algebra\matrix_scalar_mul.cuh" />
     <ClInclude Include="cuda\algebra\matrix_sub.cuh" />
     <ClInclude Include="cuda\algebra\matrix_sub_vector.cuh" />
+    <ClInclude Include="cuda\algebra\matrix_sum.cuh" />
     <ClInclude Include="cuda\algebra\range_reduce.cuh" />
     <ClInclude Include="cuda\dual_matrix.hpp" />
     <ClInclude Include="cuda\matrix.hpp" />

@@ -1,5 +1,6 @@
 #pragma once
 #include "matrix.hpp"
+#include <type_traits>
 
 namespace base {
 	template <class, allocator_t, bool>
@@ -21,6 +22,14 @@ namespace base {
 		inline auto T() {
 			return vector_view<_Ty, _All, !_T>(*this);
 		}
+
+		inline auto T() const {
+			return vector_view<const _Ty, _All, !_T>(*this);
+		}
+
+		inline vector(shape _Shape)
+			: _Mybase(_Shape)
+		{ }
 
 		inline vector(size_t _Rows)
 			: _Mybase(_Rows, 1)

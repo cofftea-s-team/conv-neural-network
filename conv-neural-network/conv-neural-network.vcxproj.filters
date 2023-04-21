@@ -37,6 +37,9 @@
     <CudaCompile Include="cuda\algebra\matrix_mul_scalar.cu">
       <Filter>cuda\algebra</Filter>
     </CudaCompile>
+    <CudaCompile Include="cuda\algebra\matrix_sum.cu">
+      <Filter>cuda\algebra</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -132,6 +135,9 @@
       <Filter>host\algebra</Filter>
     </ClInclude>
     <ClInclude Include="cuda\algebra\matrix_mul_scalar.cuh">
+      <Filter>cuda\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda\algebra\matrix_sum.cuh">
       <Filter>cuda\algebra</Filter>
     </ClInclude>
   </ItemGroup>

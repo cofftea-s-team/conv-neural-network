@@ -2,14 +2,23 @@
 #include "utils.hpp"
 #include "vector.hpp"
 
+namespace cuda {
+	template <class, bool>
+	class vector;
+}
+
+namespace host {
+	template <class, bool>
+	class vector;
+}
 
 namespace base {
 	template <class _Ty, allocator_t _Alloc, bool _T = true>
 	class vector_view
-		: public vector<_Ty, _Alloc, _T>
+		: public std::conditional_t<_Alloc::is_cuda(), cuda::vector<_Ty, _T>, host::vector<_Ty, _T>>
 	{
-		using _Mybase = vector<_Ty, _Alloc, _T>;
-
+	protected:
+		using _Mybase = std::conditional_t<_Alloc::is_cuda(), cuda::vector<_Ty, _T>, host::vector<_Ty, _T>>;
 		using _Mybase::_Data;
 		using _Mybase::_Rows;
 		using _Mybase::_Cols;
@@ -21,6 +30,13 @@ namespace base {
 		friend class vector_view;
 
 		inline vector_view(vector<_Ty, _Alloc, !_T>& _Vec) {
+			_Data = _Vec.data();
+			_Cols = _Vec.rows();
+			_Rows = _Vec.cols();
+			_Is_owner = false;
+		}
+
+		inline vector_view(const vector<std::remove_const_t<_Ty>, _Alloc, !_T>& _Vec) {
 			_Data = _Vec.data();
 			_Cols = _Vec.rows();
 			_Rows = _Vec.cols();

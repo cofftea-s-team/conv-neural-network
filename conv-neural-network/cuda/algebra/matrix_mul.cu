@@ -53,10 +53,10 @@ __global__ void matrix_mul_kernel(const _Ty* A, const _Ty* B, _Ty* C, size_t M1,
 template <bool _T1, bool _T2, class _Ty>
 inline void matrix_shared_multiply(const _Ty* A, const _Ty* B, _Ty* C, size_t N, size_t M1, size_t M2)
 {
-    const dim3 blockDim(TILE_SIZE, TILE_SIZE);
-    const dim3 gridDim((M2 - 1) / TILE_SIZE + 1, (M1 - 1) / TILE_SIZE + 1);
+    const dim3 threads(TILE_SIZE, TILE_SIZE);
+    const dim3 blocks((M2 - 1) / TILE_SIZE + 1, (M1 - 1) / TILE_SIZE + 1);
 
-    matrix_mul_kernel<_T1, _T2><<<gridDim, blockDim>>>(A, B, C, M1, N, M2);
+    matrix_mul_kernel<_T1, _T2><<<blocks, threads >>>(A, B, C, M1, N, M2);
 }
 
 namespace cuda {

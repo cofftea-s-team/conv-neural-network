@@ -10,6 +10,7 @@
 #include "algebra/matrix_sub_vector.cuh"
 #include "algebra/matrix_add_scalar.cuh"
 #include "algebra/matrix_mul_scalar.cuh"
+#include "algebra/matrix_sum.cuh"
 #include "algebra/range_reduce.cuh"
 #include "activations/activation.cuh"
 #include "../activations.hpp"
@@ -24,6 +25,9 @@ namespace host {
 
 namespace cuda {
 	
+	template <class _Ty, bool>
+	class vector;
+
 	using std::cout;
 	using std::endl;
 	using std::ostream;
@@ -204,6 +208,12 @@ namespace cuda {
 		template <activation_fn_t _Fn>
 		inline void backward() {
 			cuda::backward_apply<_Fn>(*this);
+		}
+
+		inline vector<_Ty> sum0() const {
+			vector<_Ty> _Res(_Mybase::rows());
+			cuda::matrix_sum(*this, _Res);
+			return _Res;
 		}
 
 		inline auto T() {
