@@ -20,7 +20,7 @@ __global__ void matrix_mul_kernel(const _Ty* A, const _Ty* B, _Ty* C, size_t M1,
             if constexpr (!_T1) 
                 _Shared_A[threadIdx.y][threadIdx.x] = A[row * N + i * TILE_SIZE + threadIdx.x];
             else 
-                _Shared_A[threadIdx.y][threadIdx.x] = A[i * M1 + row * TILE_SIZE + threadIdx.x];
+				_Shared_A[threadIdx.y][threadIdx.x] = A[(i * TILE_SIZE + threadIdx.x) * M1 + row];       
         }
         else {
             _Shared_A[threadIdx.y][threadIdx.x] = 0.0;
