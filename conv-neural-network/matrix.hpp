@@ -59,7 +59,7 @@ namespace base {
 		template <class _Ty2, allocator_t _All2, bool _T2>
 		friend class matrix;
 
-
+		inline matrix() = default;
 		inline matrix(size_t _M, size_t _N) 
 			: _Rows(_M), _Cols(_N) 
 		{
@@ -223,8 +223,6 @@ namespace base {
 		}
 		
 	protected:
-		inline matrix() = default;
-
 		_Ty* _Data;
 		size_t _Rows;
 		size_t _Cols;

@@ -47,7 +47,7 @@
     <TargetExt>.pyd</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\Kuose\source\repos\CoffteaNeuralNetwork\multest\DataStructures;$(IncludePath)</IncludePath>
+    <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -77,7 +77,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;WIN64;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\Malve\Desktop\Kubs\repos\Data-Structures\DataStructures;%(AdditionalIncludeDirectories);$(CudaToolkitIncludeDir);C:\Users\Kuose\source\repos\CoffteaNeuralNetwork\multest\pybind11-2.10.4\include;C:\Users\Kuose\AppData\Local\Programs\Python\Python39\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(CudaToolkitIncludeDir);C:\Users\Kuose\source\repos\CoffteaNeuralNetwork\multest\pybind11-2.10.4\include;C:\Users\Kuose\AppData\Local\Programs\Python\Python39\include</AdditionalIncludeDirectories>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>

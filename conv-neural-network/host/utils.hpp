@@ -44,6 +44,14 @@ namespace host {
 		}
 	}
 
+	template <class _Activ_fn, class _Mat>
+	inline void backward_apply(_Mat& _M) {
+		auto _Data = _M.data();
+		for (size_t i = 0; i < _M.size(); ++i) {
+			_Data[i] = _Activ_fn::backward(_Data[i]);
+		}
+	}
+
 	template <class _Mat1, class _Mat2, class _Ty>
 	inline constexpr void matrix_add_scalar(const _Mat1& A, _Mat2& B, _Ty _Val) {
 		if constexpr (std::is_same_v<_Ty, bfloat16>) {

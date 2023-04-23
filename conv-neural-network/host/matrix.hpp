@@ -172,6 +172,11 @@ namespace host {
 			host::activation_apply<_Fn>(*this);
 		}
 
+		template <activation_fn_t _Fn>
+		inline void backward() {
+			host::backward_apply<_Fn>(*this);
+		}
+
 		inline auto T() {
 			return base::transposed(*this);
 		}
