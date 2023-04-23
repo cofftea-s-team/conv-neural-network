@@ -59,7 +59,10 @@ int main(int argc, const char* const argv[]) {
 	return exit_code;
 }
 #pragma endregion
- 
+
+
+// current implementation limits cuda::matrix to 2048*2048 elements
+
 #define TIMER_START(x) auto _s##x = high_resolution_clock::now(); auto _1s##x = clock();
 #define TIMER_END(x) auto _s2##x = high_resolution_clock::now(); auto _1s2##x = clock();
 #define TIMER_RESULT(x, pre) auto count1##x = duration_cast<milliseconds>(_s2##x - _s##x).count(); auto count2##x = (_1s2##x - _1s##x); cout << '[' << ##pre << "]\n" << "user time: " << count1##x << "ms\nsys time: " << count2##x << "ms\n" << endl;
@@ -76,7 +79,8 @@ inline auto loss(const typename settings::matrix& _Output, const typename settin
 
 	auto _Error = _Output - _Target;
 	_Error *= _Error;
-
+	auto _ErrorSumMat = _Error.to_host();
+	
 	for (auto&& e : _Error) {
 		loss += e;
 	}
@@ -84,8 +88,13 @@ inline auto loss(const typename settings::matrix& _Output, const typename settin
 	return loss / _Output.size();
 }
 
+struct proxy {
+	// linear<_Ty>
+};
+
+template<class _Ty>
 class linear {
-public:
+	public:
 	using value_type = typename settings::value_type;
 	using matrix = typename settings::matrix;
 	using vector = typename settings::vector;
@@ -103,6 +112,20 @@ public:
 	inline auto operator()(matrix& _Input) {
 		return _Input.mul(_Weights); // + _Bias;
 	}
+		auto backward(cuda::matrix<_Ty>& _Error) {
+			auto _ErrorGrad = _Error.mul(transposed(w));
+			auto _WGrad = transposed(last_input).mul(_Error);
+			auto _BGrad = host::vector<_Ty>(b.size());
+			auto _ErrorHost = _Error.to_host();
+			for (int i = 0; i < _Error.size(); ++i) {
+				_BGrad.data()[i % b.size()] += _ErrorHost.data()[i];
+			}
+			cuda::vector<_Ty> _BGradCuda = _BGrad;
+			w -= _WGrad * 0.1;
+			//cuda::matrix_mul_scalar(_BGradCuda, _BGradCuda, 0.01f);
+			//cuda::matrix_sub(b, _BGradCuda, b);
+			return _ErrorGrad;
+		}
 
 	matrix _Weights;
 	vector _Bias;
@@ -144,7 +167,7 @@ public:
 			
 			if (i % 500 == 0)
 				cout << "Epoch: " << i << " Loss: " << loss(_Output, _Target) << endl;
-		}
+	}
 	}
 
 	inline auto predict(matrix& _Input) {
@@ -163,7 +186,7 @@ public:
 		});
 
 		return _Outputs.back();
-	}
+			}
 
 private:
 	inline void _Train_once(matrix& _Input, matrix& _Target) {
@@ -185,13 +208,13 @@ private:
 
 		});
 		
-	}
-	
+			}
+			
 	inline void _Forward_linear(linear& _Layer) {
 		matrix& _Input = _Outputs.back();
 		matrix _Result = _Layer(_Input);
 		_Outputs.emplace_back(std::move(_Result));
-	}
+		}
 
 	template <activation_fn_t _Act_fn>
 	inline void _Forward_activation() {
@@ -208,7 +231,7 @@ private:
 		
 		_Prev_weights = &_Layer._Weights;
 		_Outputs.push_back(std::move(_Error));
-	}
+		}
 
 	template <activation_fn_t _Act_fn>
 	inline void _Backward_activation() {
@@ -239,8 +262,8 @@ int _main(std::span<std::string_view> args) {
 		linear(3, 2),
 		sigmoid(),
 		linear(2, 1)
-	};
-	
+};
+
 
 	const size_t batch_size = 4;
 	matrix input(batch_size, 2);
@@ -252,7 +275,7 @@ int _main(std::span<std::string_view> args) {
 		input.data()[i * 2 + 1] = (i >> 1) & 1;
 		output.data()[i] = (i & 1) ^ ((i >> 1) & 1);
 	}
-
+	
 	cout << input << endl;
 	cout << output << endl;
 
@@ -267,6 +290,8 @@ int _main(std::span<std::string_view> args) {
 
 	cout << model.predict(test) << endl;
 
-	
+	cout << model.predict(input) << endl;
+
 	return 0;
 }
+

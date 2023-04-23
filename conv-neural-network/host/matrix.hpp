@@ -35,11 +35,7 @@ namespace host {
 		template <base::allocator_t _Other_all, bool _T2>
 		inline matrix(const base::matrix<_Ty, _Other_all, _T2>& _Other)
 			: _Mybase(_Other)
-		{
-			if constexpr (std::is_same_v<_Ty, float>) {
-				assert(_Rows % 16 == 0 && _Cols % 16 == 0);
-			}
-		}
+		{}
 
 		template <base::allocator_t _Other_all, bool _T2>
 		inline matrix& operator=(const base::matrix<_Ty, _Other_all, _T2>& _Other) {

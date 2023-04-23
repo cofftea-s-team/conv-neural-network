@@ -94,10 +94,10 @@ namespace cuda {
 
 		inline friend std::ostream& operator<<(std::ostream& _Os, const vector& _V) {
 			if constexpr (!_Tr) {
-				_Os << "[CUDA]\n[ " << _V.rows() << " ] (rows) [\n";
-				for (size_t i = 0; i < _V.rows(); ++i) {
-					_Os << "    " << cuda::from_cuda(&_V._Data[i]) << '\n';
-				}
+			_Os << "[CUDA]\n[ " << _V.rows() << " ] (rows) [\n";
+			for (size_t i = 0; i < _V.rows(); ++i) {
+				_Os << "    " << cuda::from_cuda(&_V._Data[i]) << '\n';
+			}
 				_Os << "]" << std::endl;
 			}
 			else {
@@ -105,7 +105,7 @@ namespace cuda {
 				for (size_t i = 0; i < _V.cols(); ++i) {
 					_Os << cuda::from_cuda(&_V._Data[i]) << ' ';
 				}
-				_Os << "\n]" << std::endl;
+			_Os << "\n]" << std::endl;
 			}
 			return _Os;
 		}

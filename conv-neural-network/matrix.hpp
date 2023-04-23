@@ -160,7 +160,7 @@ namespace base {
 			if (this == &_Other) {
 				return *this;
 			}
-			if (_Is_owner) {
+			if (_Is_owner && _Data != nullptr) {
 				_Al.free(_Data);
 			}
 			if (_Other._Is_owner)

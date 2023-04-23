@@ -143,6 +143,8 @@
     <ClInclude Include="host\utils.hpp" />
     <ClInclude Include="host\vector.hpp" />
     <ClInclude Include="matrix_view.hpp" />
+    <ClInclude Include="python.hpp" />
+    <ClInclude Include="nn.hpp" />
     <ClInclude Include="types.hpp" />
     <ClInclude Include="matrix.hpp" />
     <ClInclude Include="utils.hpp" />
