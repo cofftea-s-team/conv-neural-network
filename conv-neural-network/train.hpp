@@ -1,108 +1,220 @@
-#pragma once
-#include "host/utils.hpp"
 #define DEBUG
+#include "host/matrix.hpp"
+#include "host/vector.hpp"
+#include "host/dual_matrix.hpp"
+
+#include "cuda/matrix.hpp"
+#include "cuda/vector.hpp"
+#include "cuda/dual_matrix.hpp"
+
+#include "vector_view.hpp"
+#include <iostream>
+#include <iomanip>
+
+#include <chrono>
+#include <random>
+#include <ranges>
+#include <span>
+#include <algorithm>
+#include "utils.hpp"
+#include <tuple>
 
 using std::cout;
 using std::endl;
-#include "cuda/activations/activation.cuh"
-#include "host/matrix.hpp"
-#include "cuda/matrix.hpp"
-#include "activations.hpp"
-#include "utils.hpp"
 
+namespace stdr = std::ranges;
+namespace stdrv = std::ranges::views;
+
+using namespace std::chrono;
 using namespace base;
 
-template<class _Ty>
-class NeuralNetwork {
-	private:
-	host::matrix<_Ty> _InputW;
-	host::matrix<_Ty> _OutputW;
-	host::matrix<_Ty> _HiddenW;
 
-	host::matrix<_Ty> _InputB;
-	host::matrix<_Ty> _OutputB;
-	host::matrix<_Ty> _HiddenB;
-public:
-	NeuralNetwork(int _InputSize, int _OutputSize, int _HiddenSize) {
-		_InputW = host::matrix<_Ty>(_InputSize, _HiddenSize);
-		_OutputW = host::matrix<_Ty>(_HiddenSize, _HiddenSize);
-		_HiddenW = host::matrix<_Ty>(_HiddenSize, _OutputSize);
-
-		_InputB = host::matrix<_Ty>(_InputSize, 1);
-		_OutputB = host::matrix<_Ty>(_HiddenSize, 1);
-		_HiddenB = host::matrix<_Ty>(_HiddenSize, 1);
-
-		utils::generate_normal(_InputW);
-		utils::generate_normal(_OutputW);
-		utils::generate_normal(_HiddenW);
-
-		utils::generate_normal(_InputB);
-		utils::generate_normal(_OutputB);
-		utils::generate_normal(_HiddenB);
-	}
-	auto forward(host::matrix<_Ty>& _Input) {
-		auto _Z1 = _Input.mul(_InputW);
-		_Z1 += _InputB;
-		_Z1.activate<sigmoid>();
-		auto _Z2 = _Z1.mul(_HiddenW);
-		_Z2 += _HiddenB;
-		_Z2.activate<sigmoid>();
-		auto _Z3 = _Z2.mul(_OutputW);
-		_Z3 += _OutputB;
-		_Z3.activate<sigmoid>();
-		return _Z3;
-	}
+struct settings {
+	using value_type = float;
+	using matrix = host::matrix<value_type>;
+	using vector = host::vector<value_type>;
+	using dual_matrix = host::dual_matrix<value_type>;
 };
 
-template<class _Ty>
-inline host::matrix<_Ty> predict(NeuralNetwork<_Ty>& _NN, host::matrix<_Ty>& _Input) {
-	return _NN.forward(_Input);
+inline auto loss(const typename settings::matrix& _Output, const typename settings::matrix& _Target) {
+	typename settings::value_type loss = 0.f;
+
+	auto _Error = _Output - _Target;
+	_Error *= _Error;
+
+	for (auto&& e : _Error) {
+		loss += e;
+	}
+
+	return loss / _Output.size();
 }
 
-template<class _Ty>
-inline NeuralNetwork<_Ty> train(host::matrix<_Ty>& _Input, host::matrix<_Ty>& _Labels) {
-	int epochs = 1000;
-	double learning_rate = 0.005;
-	// moon dataset
-	NeuralNetwork<_Ty> _NN(_Input.cols(), _Labels.cols(), 4);
+class linear {
+public:
+	using value_type = typename settings::value_type;
+	using matrix = typename settings::matrix;
+	using vector = typename settings::vector;
 
-	for (int i = 0; i < epochs; i++) {
-		auto _Output = _NN.forward(_Input);
-		// binary cross entropy
-		auto _OutputLog = _Output;
-		for (auto& val : _OutputLog) {
-			val = std::log(val);
-		}
-		auto _OutputLog1 = _Output;
-		for (auto& val : _OutputLog1) {
-			val = std::log(1 - val);
-		}
-		auto _1Labels = _Labels;
-		for (auto& val : _1Labels) {
-			val = 1 - val;
-		}
-		auto _Loss = _Labels.mul(_OutputLog);
-		_Loss += _1Labels.mul(_OutputLog1);
-		_Loss *= -1;
-		_Ty _LossSum = 0;
-		for (auto& val : _Loss) {
-			_LossSum += val;
-		}
-		// derivative
-		auto _dLoss = _Output;
-		_dLoss -= _Labels;
-		_dLoss *= learning_rate;
-		// update weights
-		_NN._OutputW -= _NN._HiddenW.mul(_dLoss);
-		_NN._HiddenW -= _NN._Z1.mul(_dLoss);
-		_NN._InputW -= _Input.mul(_dLoss);
-		// update biases
-		_NN._OutputB -= _dLoss;
-		_NN._HiddenB -= _dLoss;
-		_NN._InputB -= _dLoss;
-		if (i % 100 == 0) {
-			cout << "Epoch: " << i << " Loss: " << _LossSum << endl;
+	template <class... _TLayers>
+	friend class neural_network;
+
+	inline linear(size_t _InputSize, size_t _OutputSize)
+		: _Weights(_InputSize, _OutputSize), _Bias(_OutputSize)
+	{
+		utils::generate_uniform(_Weights);
+		utils::generate_uniform(_Bias);
+	}
+
+	inline auto operator()(matrix& _Input) {
+		return _Input.mul(_Weights); // + _Bias;
+	}
+
+	matrix _Weights;
+	vector _Bias;
+};
+
+
+enum class _Lt { _None, _Linear, _Activation };
+
+template <class _TLayer>
+consteval _Lt _Select_layer_type() {
+	if constexpr (std::is_same_v<_TLayer, linear>)
+		return _Lt::_Linear;
+	if constexpr (requires(_TLayer) { _TLayer::forward; })
+		return _Lt::_Activation;
+	else
+		return _Lt::_None;
+}
+
+
+template <class... _TLayers>
+class neural_network
+{
+public:
+	using value_type = typename settings::value_type;
+	using matrix = typename settings::matrix;
+	using vector = typename settings::vector;
+	using dual_matrix = typename settings::dual_matrix;
+
+	static constexpr value_type learning_rate = 0.1f;
+
+	constexpr neural_network(_TLayers&&... _Sequential) noexcept
+		: _Layers(std::forward<_TLayers>(_Sequential)...)
+	{ }
+
+	/*
+	constexpr neural_network(_TLayers&&... _Sequential) noexcept
+		: _Layers(std::forward<_TLayers>(_Sequential)...)
+	{ }
+	make a void function that takes initializer list
+	*/
+
+
+	inline void train(size_t _Epochs, matrix& _Input, matrix& _Target) {
+		for (size_t i = 0; i < _Epochs; ++i) {
+			_Train_once(_Input, _Target);
+			matrix _Output = predict(_Input);
+
+			if (i % 500 == 0)
+				cout << "Epoch: " << i << " Loss: " << loss(_Output, _Target) << endl;
 		}
 	}
-	return _NN;
-}
+
+	inline auto predict(matrix& _Input) {
+		_Outputs.clear();
+		_Outputs.emplace_back(_Input);
+		// forward pass
+		utils::for_each(_Layers, [&]<class _TLayer>(_TLayer & _Layer) {
+			constexpr auto _Sel = _Select_layer_type<_TLayer>();
+
+			if constexpr (_Sel == _Lt::_Linear)
+				_Forward_linear(_Layer);
+			else if constexpr (_Sel == _Lt::_Activation)
+				_Forward_activation<_TLayer>();
+			else
+				static_assert(std::_Always_false<_TLayer>, "Invalid layer type");
+		});
+
+		return _Outputs.back();
+	}
+
+private:
+	inline void _Train_once(matrix& _Input, matrix& _Target) {
+		predict(_Input);
+
+		auto _Error = (_Target - _Outputs.back()) * learning_rate;
+		_Outputs.pop_back();
+		_Outputs.emplace_back(std::move(_Error));
+
+		utils::rfor_each<sizeof...(_TLayers)>(_Layers, [&]<class _TLayer>(_TLayer & _Layer) {
+			constexpr auto _Sel = _Select_layer_type<_TLayer>();
+
+			if constexpr (_Sel == _Lt::_Linear)
+				_Backward_linear(_Layer);
+			else if constexpr (_Sel == _Lt::_Activation)
+				_Backward_activation<_TLayer>();
+			else
+				static_assert(std::_Always_false<_TLayer>, "Invalid layer type");
+
+		});
+
+	}
+
+	inline void _Forward_linear(linear& _Layer) {
+		matrix& _Input = _Outputs.back();
+		matrix _Result = _Layer(_Input);
+		_Outputs.emplace_back(std::move(_Result));
+	}
+
+	template <activation_fn_t _Act_fn>
+	inline void _Forward_activation() {
+		matrix& _Input = _Outputs.back();
+		_Input.activate<_Act_fn>();
+	}
+
+	inline void _Backward_linear(linear& _Layer) {
+		matrix _Error = std::move(_Outputs.back());
+		_Outputs.pop_back();
+		matrix& _Input = _Outputs.back();
+		matrix _Delta = _Input.T().mul(_Error);
+		_Layer._Weights += _Delta;
+
+		_Prev_weights = &_Layer._Weights;
+		_Outputs.push_back(std::move(_Error));
+	}
+
+	template <activation_fn_t _Act_fn>
+	inline void _Backward_activation() {
+		matrix _Error = std::move(_Outputs.back());
+		_Outputs.pop_back();
+		matrix _Input = std::move(_Outputs.back());
+		_Outputs.pop_back();
+		_Input.backward<_Act_fn>();
+
+		_Outputs.emplace_back(_Error.mul(_Prev_weights->T()) * _Input);
+	}
+
+	std::tuple<_TLayers...> _Layers;
+	std::vector<matrix> _Outputs;
+	matrix* _Prev_weights = nullptr;
+};
+
+neural_network model = {
+	linear(2, 4),
+	relu(),
+	linear(4, 1)
+};
+
+class py_nn {
+	using value_type = typename settings::value_type;
+	using matrix = typename settings::matrix;
+	using vector = typename settings::vector;
+	
+public:
+	inline void train(size_t _Epochs, matrix& _Input, matrix& _Target) {
+		model.train(_Epochs, _Input, _Target);
+	}
+	inline auto predict(matrix& _Input) {
+		return model.predict(_Input);
+	}
+};
