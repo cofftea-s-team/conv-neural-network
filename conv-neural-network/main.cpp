@@ -1,16 +1,17 @@
-#define DEBUG
-#include "host/matrix.hpp"
-#include "host/vector.hpp"
-#include "host/dual_matrix.hpp"
+#pragma comment(lib, "cudart.lib")
+#pragma comment(lib, "cudadevrt.lib")
 
-#include "cuda/matrix.hpp"
-#include "cuda/vector.hpp"
-#include "cuda/dual_matrix.hpp"
 
-#include "vector_view.hpp"
-#include "utils.hpp"
-#include "python.hpp"
+#include <iostream>
+#include <pybind11/pybind11.h>
 
-void main() {
+namespace py = pybind11;
 
+int add(int i, int j) {
+    return i + j;
+}
+PYBIND11_MODULE(pytest, m) {
+    m.doc() = "pybind11 example plugin"; // optional module docstring
+
+    m.def("add", &add, "A function that adds two numbers");
 }

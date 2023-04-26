@@ -21,12 +21,12 @@ namespace base {
 		: public std::conditional_t<_Alloc::is_cuda(), cuda::matrix<_Ty, _T>, host::matrix<_Ty, _T>>
 	{
 		using _Mybase = std::conditional_t<_Alloc::is_cuda(), cuda::matrix<_Ty, _T>, host::matrix<_Ty, _T>>;
-		
+
 
 	public:
 		template <class _Ty2, allocator_t _Alloc2, bool _T2>
 		friend class matrix_view;
-		
+
 		using _Mybase::_Data;
 		using _Mybase::_Rows;
 		using _Mybase::_Cols;
@@ -39,7 +39,7 @@ namespace base {
 			_Rows = _Matrix.cols();
 			_Is_owner = false;
 		}
-		
+
 		inline matrix_view(size_t _N, size_t _M, _Ty* _Ptr) {
 			_Is_owner = false;
 			_Data = _Ptr;
@@ -77,28 +77,8 @@ namespace base {
 			static_assert(std::_Always_false<matrix_view>, "Cannot mul with matrix_view (not implemented)");
 			return *this;
 		}
-		
-		inline friend ostream& operator<<(ostream& _Os, const matrix_view& _M) {
-			if constexpr (_Al.is_cuda())
-				_Os << "[CUDA]\n[" << _M.rows() << "x" << _M.cols() << "] (rows x cols) {\n";
-			else
-				_Os << "[HOST]\n[" << _M.rows() << "x" << _M.cols() << "] (rows x cols) {\n";
-			
-			const _Ty* _Ptr = _M.data();
-			for (int j = 0; j < _M.rows(); ++j) {
-				_Os << "    ";
-				for (int i = 0; i < _M.cols(); ++i) {
-					if constexpr (_Al.is_cuda())
-						_Os << cuda::from_cuda(&_Ptr[i * _M.rows() + j]) << " ";
-					else
-						_Os << _Ptr[i * _M.rows() + j] << " ";
-				}
-				_Os << endl;
-			}
-			_Os << "}" << endl;
 
-			return _Os;
-		}
+		
 	};
 
 	template <class _Ty, allocator_t _Alloc, bool _T>

@@ -63,40 +63,7 @@ namespace base {
 			return vector_view<_Ty, _Alloc, !_T>(*this);
 		}
 
-		inline friend ostream& operator<<(ostream& _Os, const vector_view& _M) {
-			if constexpr (_Al.is_cuda())
-				_Os << "[CUDA]";
-			else
-				_Os << "[HOST]";
-				
-			_Os << "\n[ " << _M.size() << " ] (";
-			if constexpr (_M.is_transposed())
-				_Os << "cols";
-			else 
-				_Os << "rows";
-
-			_Os << ") [\n";
-			if constexpr (_M.is_transposed()) _Os << "    ";
-			const _Ty* _Ptr = _M.data();
-			for (int i = 0; i < _M.size(); ++i) {
-				if constexpr (!_M.is_transposed())
-					_Os << "    ";
-				
-				if constexpr (_Al.is_cuda())
-					_Os << cuda::from_cuda(&_Ptr[i]);
-				else
-					_Os << _Ptr[i];
-
-				if constexpr (_M.is_transposed())
-					_Os << ' ';
-				else
-					_Os << '\n';
-			}
-			if constexpr (_M.is_transposed()) _Os << '\n';
-			_Os << "]" << endl;
-
-			return _Os;
-		}
+		
 	};
 
 	template <class _Ty, allocator_t _Alloc, bool _T>

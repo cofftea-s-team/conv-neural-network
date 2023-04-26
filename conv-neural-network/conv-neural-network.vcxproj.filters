@@ -43,6 +43,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="cuda\memory.cpp">
+      <Filter>cuda</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="types.hpp" />
@@ -140,6 +143,9 @@
     <ClInclude Include="cuda\algebra\matrix_sum.cuh">
       <Filter>cuda\algebra</Filter>
     </ClInclude>
+    <ClInclude Include="nn.hpp" />
+    <ClInclude Include="train.hpp" />
+    <ClInclude Include="python.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="cuda">
