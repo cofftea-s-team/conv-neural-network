@@ -36,10 +36,14 @@ namespace cuda {
 
 	template <class _Ty>
 	inline void free(_Ty* _Ptr) {
+		if (_Ptr == nullptr) {
+			return;
+		}
+
 		auto _Status = cudaFree((void*)_Ptr);
 
 		if (_Status != cudaSuccess) {
-			std::cout << "Cuda deallocation failed!" << std::endl;
+			std::cout << "Cuda deallocation failed! " << _Ptr << std::endl;
 			throw std::bad_alloc();
 		}
 	}

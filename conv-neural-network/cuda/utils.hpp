@@ -40,6 +40,10 @@ namespace cuda {
 	
 	template <class _Ty>
 	inline void free_paged(_Ty* _Ptr) {
+		if (_Ptr == nullptr) {
+			return;
+		}
+
 		auto _Status = cudaFreeHost((void*)_Ptr);
 
 		if (_Status != cudaSuccess) {

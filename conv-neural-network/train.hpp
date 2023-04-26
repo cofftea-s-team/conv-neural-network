@@ -62,8 +62,8 @@ public:
 	inline linear(size_t _InputSize, size_t _OutputSize)
 		: _Weights(_InputSize, _OutputSize), _Bias(_OutputSize)
 	{
-		utils::generate_uniform(_Weights);
-		utils::generate_uniform(_Bias);
+		utils::generate_normal(_Weights);
+		utils::generate_normal(_Bias);
 	}
 
 	inline auto operator()(matrix& _Input) {
@@ -71,7 +71,7 @@ public:
 	}
 
 	matrix _Weights;
-	vector _Bias;
+	host::vector<value_type, true> _Bias;
 };
 
 
@@ -97,7 +97,7 @@ public:
 	using vector = typename settings::vector;
 	using dual_matrix = typename settings::dual_matrix;
 
-	static constexpr value_type learning_rate = 0.1f;
+	value_type learning_rate = 1e-5f;
 
 	constexpr neural_network(_TLayers&&... _Sequential) noexcept
 		: _Layers(std::forward<_TLayers>(_Sequential)...)
@@ -116,8 +116,9 @@ public:
 			_Train_once(_Input, _Target);
 			matrix _Output = predict(_Input);
 
-			if (i % 500 == 0)
+			if (i % 500 == 0) {
 				cout << "Epoch: " << i << " Loss: " << loss(_Output, _Target) << endl;
+			}
 		}
 	}
 
@@ -198,24 +199,4 @@ private:
 	std::tuple<_TLayers...> _Layers;
 	std::vector<matrix> _Outputs;
 	matrix* _Prev_weights = nullptr;
-};
-
-neural_network model = {
-	linear(2, 4),
-	relu(),
-	linear(4, 1)
-};
-
-class py_nn {
-	using value_type = typename settings::value_type;
-	using matrix = typename settings::matrix;
-	using vector = typename settings::vector;
-	
-public:
-	inline void train(size_t _Epochs, matrix& _Input, matrix& _Target) {
-		model.train(_Epochs, _Input, _Target);
-	}
-	inline auto predict(matrix& _Input) {
-		return model.predict(_Input);
-	}
 };
