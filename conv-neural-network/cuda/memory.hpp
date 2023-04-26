@@ -5,9 +5,9 @@
 
 namespace cuda {
 	namespace details {
-		
+		 
 		constexpr size_t max_size = 8144 * 8144;
-		static void* const _Data = cuda::alloc<void*>(max_size);
+		static void* _Data;
 	}
 	
 	template <class _Ty>

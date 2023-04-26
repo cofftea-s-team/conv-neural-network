@@ -140,6 +140,9 @@
     <ClInclude Include="cuda\algebra\matrix_sum.cuh">
       <Filter>cuda\algebra</Filter>
     </ClInclude>
+    <ClInclude Include="python.hpp" />
+    <ClInclude Include="nn.hpp" />
+    <ClInclude Include="train.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="cuda">

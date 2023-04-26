@@ -1,3 +1,4 @@
+#pragma once
 #define DEBUG
 #include "host/matrix.hpp"
 #include "host/vector.hpp"

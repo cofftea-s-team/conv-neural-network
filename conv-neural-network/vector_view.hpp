@@ -1,6 +1,7 @@
 #pragma once
 #include "utils.hpp"
 #include "vector.hpp"
+#include <iostream>
 
 namespace cuda {
 	template <class, bool>
@@ -63,7 +64,7 @@ namespace base {
 			return vector_view<_Ty, _Alloc, !_T>(*this);
 		}
 
-		inline friend ostream& operator<<(ostream& _Os, const vector_view& _M) {
+		inline friend std::ostream& operator<<(std::ostream& _Os, const vector_view& _M) {
 			if constexpr (_Al.is_cuda())
 				_Os << "[CUDA]";
 			else

@@ -1,9 +1,10 @@
+#pragma once
 #include <iostream>
 #include <iomanip>
 
 #include <chrono>
 #include <random>
-#include "host/utils.hpp"
+
 #define DEBUG
 
 
@@ -11,22 +12,22 @@ using std::cout;
 using std::endl;
 using namespace std::chrono;
 
-#include "cuda/activations/activation.cuh"
-#include "utils.hpp"
 
-using namespace base;
+//#include "utils.hpp"
+
+//using namespace base;
 #include "pybind11/pybind11.h"
 #include "pybind11/operators.h"
 #include "Python.h"
-#include "train.hpp"
+//#include "train.hpp"
 
 namespace py = pybind11;
 
 namespace PYBIND11_NAMESPACE {
 	namespace detail {
-		template <> struct type_caster<nv_bfloat16> {
+		template <> struct type_caster<float> {
 		public:
-			PYBIND11_TYPE_CASTER(nv_bfloat16, const_name("nv_bfloat16"));
+			PYBIND11_TYPE_CASTER(float, const_name("float"));
 			bool load(handle _Source, bool) {
 				PyObject* _Src = _Source.ptr();
 				PyObject* _Tmp = PyNumber_Float(_Src);
@@ -36,13 +37,13 @@ namespace PYBIND11_NAMESPACE {
 				if (PyErr_Occurred()) return false;
 				return true;
 			}
-			static handle cast(nv_bfloat16 _Source, return_value_policy, handle) {
+			static handle cast(float _Source, return_value_policy, handle) {
 				return PyFloat_FromDouble(_Source);
 			}
 		};
 		template <> struct type_caster<double> {
 		public:
-			PYBIND11_TYPE_CASTER(double, const_name("nv_bfloat16"));
+			PYBIND11_TYPE_CASTER(double, const_name("float"));
 			bool load(handle _Source, bool) {
 				PyObject* _Src = _Source.ptr();
 				PyObject* _Tmp = PyNumber_Float(_Src);
@@ -59,6 +60,12 @@ namespace PYBIND11_NAMESPACE {
 	}
 }
 
+#include "cuda/memory.hpp"
+
 PYBIND11_MODULE(CNN, m) {
 	m.doc() = "pybind11 example plugin"; // optional module docstring
+	std::cout << "XD" << std::endl;
+	
+	cuda::details::_Data = cuda::alloc<void*>(cuda::details::max_size);
 }
+
