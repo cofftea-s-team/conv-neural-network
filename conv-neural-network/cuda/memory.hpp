@@ -11,6 +11,12 @@ namespace cuda {
 	}
 	
 	template <class _Ty>
-	inline _Ty* const get_memory(size_t N);
+	inline _Ty* const get_memory(size_t N) {
+		if (N > details::max_size) {
+			throw std::bad_alloc();
+		}
+
+		return reinterpret_cast<_Ty*>(details::_Data);
+	}
 
 }
