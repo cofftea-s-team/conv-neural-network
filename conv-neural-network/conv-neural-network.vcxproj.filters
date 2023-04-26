@@ -143,9 +143,18 @@
     <ClInclude Include="cuda\algebra\matrix_sum.cuh">
       <Filter>cuda\algebra</Filter>
     </ClInclude>
-    <ClInclude Include="python.hpp" />
-    <ClInclude Include="nn.hpp" />
-    <ClInclude Include="train.hpp" />
+    <ClInclude Include="host\algebra\matrix_sum.hpp">
+      <Filter>host\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="cnn\linear.hpp">
+      <Filter>cnn</Filter>
+    </ClInclude>
+    <ClInclude Include="cnn\config.hpp">
+      <Filter>cnn</Filter>
+    </ClInclude>
+    <ClInclude Include="cnn\neural_network.hpp">
+      <Filter>cnn</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="cuda">
@@ -162,6 +171,9 @@
     </Filter>
     <Filter Include="host\algebra">
       <UniqueIdentifier>{1ecd6bdf-0a4d-4f4a-9d51-bfc61131ae12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cnn">
+      <UniqueIdentifier>{6f07eaf4-7243-4db6-bacc-6ce620386c6e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

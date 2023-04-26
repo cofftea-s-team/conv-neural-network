@@ -6,14 +6,14 @@ namespace host::algebra {
 	namespace parallel {
 		namespace details {
 			template <size_t N>
-			inline constexpr auto range() {
-				std::array<uint32_t, N> _Array;
+			consteval auto range() {
+				std::array<size_t, N> _Array;
 				std::iota(_Array.begin(), _Array.end(), 0);
 				return _Array;
 			}
 
-			inline constexpr size_t max_indice = 16384;
-			inline static constexpr auto indices = range<max_indice>();
+			inline constexpr size_t max_indice = 16384 * 7;
+			inline constexpr auto indices = range<max_indice>();
 		}
 
 		template <class _Fn>

@@ -13,7 +13,7 @@ namespace cuda {
 
 	template <class _Activation_class, class _Ty>
 	void _forward_apply(_Ty* _Data, size_t N, size_t M) {
-		if constexpr (std::is_same_v<_Activation_class, base::softmax>) {
+		if constexpr (std::is_same_v<_Activation_class, cnn::softmax>) {
 			_softmax_apply(_Data, N, M);
 		}
 		else {
@@ -58,7 +58,7 @@ namespace cuda {
 
 		_Ty sum = _range_reduce(_Data, N, M);
 
-		using applier = forwarder<base::softmax>;
+		using applier = forwarder<cnn::softmax>;
 		activation_apply_kernel<applier>
 			<<<blocks, threads>>>(_Data, N * M, sum);
 	}
@@ -72,10 +72,10 @@ namespace cuda {
 	INSTANTIATE_ONE(_Fn, double);\
 	INSTANTIATE_ONE(_Fn, bfloat16);
 
-	INSTANTIATE_ACTIVATION_APPLY(base::relu);
-	INSTANTIATE_ACTIVATION_APPLY(base::sigmoid);
-	INSTANTIATE_ACTIVATION_APPLY(base::tanh);
-	INSTANTIATE_ACTIVATION_APPLY(base::softmax);
-	INSTANTIATE_ACTIVATION_APPLY(base::leaky_relu);
-	INSTANTIATE_ACTIVATION_APPLY(base::log);
+	INSTANTIATE_ACTIVATION_APPLY(cnn::relu);
+	INSTANTIATE_ACTIVATION_APPLY(cnn::sigmoid);
+	INSTANTIATE_ACTIVATION_APPLY(cnn::tanh);
+	INSTANTIATE_ACTIVATION_APPLY(cnn::softmax);
+	INSTANTIATE_ACTIVATION_APPLY(cnn::leaky_relu);
+	INSTANTIATE_ACTIVATION_APPLY(cnn::log);
 }

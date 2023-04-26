@@ -114,6 +114,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="activations.hpp" />
+    <ClInclude Include="cnn\config.hpp" />
+    <ClInclude Include="cnn\linear.hpp" />
+    <ClInclude Include="cnn\neural_network.hpp" />
     <ClInclude Include="cuda\activations\activation.cuh" />
     <ClInclude Include="cuda\algebra\matrix_add.cuh" />
     <ClInclude Include="cuda\algebra\matrix_add_scalar.cuh" />
@@ -136,6 +139,7 @@
     <ClInclude Include="host\algebra\matrix_add_vector.hpp" />
     <ClInclude Include="host\algebra\matrix_mul.hpp" />
     <ClInclude Include="host\algebra\matrix_scalar_mul.hpp" />
+    <ClInclude Include="host\algebra\matrix_sum.hpp" />
     <ClInclude Include="host\algebra\matrix_transpose.hpp" />
     <ClInclude Include="host\algebra\utils.hpp" />
     <ClInclude Include="host\algebra\avx2_algebra.hpp" />

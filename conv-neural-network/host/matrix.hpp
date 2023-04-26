@@ -5,8 +5,11 @@
 #include "algebra/matrix_add.hpp"
 #include "algebra/matrix_add_vector.hpp"
 #include "algebra/matrix_scalar_mul.hpp"
+#include "algebra/matrix_sum.hpp"
+#include "vector.hpp"
 #include "utils.hpp"
 #include <iostream>
+#include <concepts>
 
 namespace cuda {
 	template <class _Ty, bool>
@@ -171,6 +174,18 @@ namespace host {
 		template <activation_fn_t _Fn>
 		inline void backward() {
 			host::backward_apply<_Fn>(*this);
+		}
+
+		inline auto sum0() const {
+			vector<_Ty, false> _Res(_Rows);
+			host::matrix_sum0(*this, _Res);
+			return _Res;
+		}
+
+		inline auto sum1() const {
+			vector<_Ty, true> _Res{ base::shape(1, _Cols) };
+			host::matrix_sum1(*this, _Res);
+			return _Res;
 		}
 
 		inline auto T() {

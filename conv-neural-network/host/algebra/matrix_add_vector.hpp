@@ -3,47 +3,49 @@
 #include <immintrin.h>
 
 namespace host::algebra {
-	
+
 	namespace parallel {
-		
+
 		template <bool _T1, bool _T2, class _Ty, class _Pred>
 		inline constexpr void matrix_add_vector(const _Ty* A, const _Ty* V, _Ty* B, size_t N, size_t M, _Pred _Fn) {
-
+			parallel_for (M, [&](size_t i) {
+				for (size_t j = 0; j < N; ++j) {
+					if constexpr (_T1 && _T2) {
+						B[i * N + j] = _Fn(A[i * N + j], V[j]);
+					}
+					else if constexpr (_T1 && !_T2) {
+						B[i * N + j] = _Fn(A[i * N + j], V[i]);
+					}
+					else if constexpr (!_T1 && _T2) {
+						B[i * N + j] = _Fn(A[i * N + j], V[j]);
+					}
+					else {
+						B[i * N + j] = _Fn(A[i * N + j], V[i]);
+					}
+				}
+			});
 		}
 	}
 
 	template <bool _T1, bool _T2, class _Ty, class _Pred>
 	inline constexpr void matrix_add_vector(const _Ty* A, const _Ty* V, _Ty* B, size_t N, size_t M, _Pred _Fn) {
-		if constexpr (_T1 && _T2) {
-			for (size_t i = 0; i < M; ++i) {
-				for (size_t j = 0; j < N; ++j) {
+		for (size_t i = 0; i < M; ++i) {
+			for (size_t j = 0; j < N; ++j) {
+				if constexpr (_T1 && _T2) {
 					B[i * N + j] = _Fn(A[i * N + j], V[j]);
 				}
-			}
-		}
-		else if constexpr (_T1 && !_T2) {
-			for (size_t i = 0; i < M; ++i) {
-				for (size_t j = 0; j < N; ++j) {
+				else if constexpr (_T1 && !_T2) {
 					B[i * N + j] = _Fn(A[i * N + j], V[i]);
 				}
-			}
-		}
-		else if constexpr (!_T1 && _T2) {
-			for (size_t i = 0; i < M; ++i) {
-				for (size_t j = 0; j < N; ++j) {
+				else if constexpr (!_T1 && _T2) {
 					B[i * N + j] = _Fn(A[i * N + j], V[j]);
 				}
-			}
-		}
-		else {
-			for (size_t i = 0; i < M; ++i) {
-				for (size_t j = 0; j < N; ++j) {
+				else {
 					B[i * N + j] = _Fn(A[i * N + j], V[i]);
 				}
 			}
 		}
 	}
-	
 }
 
 namespace host {
