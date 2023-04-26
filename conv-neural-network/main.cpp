@@ -33,7 +33,7 @@ inline void preload() {
 	cout << "Loading...";
 
 	std::ios_base::sync_with_stdio(false);
-	std::cout << std::setprecision(3) << std::fixed;
+	std::cout << std::setprecision(5) << std::fixed;
 	cuda::matrix<float> f(16, 16);
 	f.mul(transposed(f));
 	host::algebra::parallel::details::indices;
@@ -74,7 +74,9 @@ struct settings {
 inline auto loss(const typename settings::matrix& _Output, const typename settings::matrix& _Target) {
 	typename settings::value_type loss = 0.f;
 
-	auto _Error = _Output - _Target;
+	using value_type = typename settings::value_type;
+
+	host::matrix<value_type> _Error = _Output - _Target;
 	_Error *= _Error;
 
 	for (auto&& e : _Error) {
@@ -96,18 +98,37 @@ public:
 	inline linear(size_t _InputSize, size_t _OutputSize)
 		: _Weights(_InputSize, _OutputSize), _Bias(_OutputSize)
 	{
-		utils::generate_uniform(_Weights);
-		utils::generate_uniform(_Bias);
+		utils::generate_normal(_Weights);
+		utils::generate_normal(_Bias);
 	}
 	
 	inline auto operator()(matrix& _Input) {
-		return _Input.mul(_Weights); // + _Bias;
+		return _Input.mul(_Weights) + _Bias;
 	}
 
 	matrix _Weights;
-	vector _Bias;
+	host::vector<value_type, true> _Bias;
 };
 
+
+class dropout {
+public:
+	using value_type = typename settings::value_type;
+	using matrix = typename settings::matrix;
+	using vector = typename settings::vector;
+
+	inline dropout(value_type _Val) 
+		: _Probability(_Val)
+	{ }
+
+	inline void operator()(matrix& _Input) {
+		
+	}
+private:
+
+
+	const value_type _Probability;
+};
 
 enum class _Lt { _None, _Linear, _Activation };
 
@@ -131,7 +152,7 @@ public:
 	using vector = typename settings::vector;
 	using dual_matrix = typename settings::dual_matrix;
 	
-	static constexpr value_type learning_rate = 0.1f;
+	value_type learning_rate = 0.00001f;
 
 	constexpr neural_network(_TLayers&&... _Sequential) noexcept
 		: _Layers(std::forward<_TLayers>(_Sequential)...)
@@ -142,8 +163,10 @@ public:
 			_Train_once(_Input, _Target);
 			matrix _Output = predict(_Input);
 			
-			if (i % 500 == 0)
+			if (i % 1000 == 0) {
 				cout << "Epoch: " << i << " Loss: " << loss(_Output, _Target) << endl;
+				learning_rate *= 1.1;
+			}
 		}
 	}
 
@@ -151,7 +174,7 @@ public:
 		_Outputs.clear();
 		_Outputs.emplace_back(_Input);
 		// forward pass
-		utils::for_each(_Layers, [&]<class _TLayer>(_TLayer & _Layer) {
+		utils::for_each(_Layers, [&]<class _TLayer>(_TLayer& _Layer) {
 			constexpr auto _Sel = _Select_layer_type<_TLayer>();
 
 			if constexpr (_Sel == _Lt::_Linear)
@@ -204,7 +227,9 @@ private:
 		_Outputs.pop_back();
 		matrix& _Input = _Outputs.back();
 		matrix _Delta = _Input.T().mul(_Error);
+		auto _BiasDelta = _Error.sum1();
 		_Layer._Weights += _Delta;
+		_Layer._Bias += _BiasDelta;
 		
 		_Prev_weights = &_Layer._Weights;
 		_Outputs.push_back(std::move(_Error));
@@ -226,47 +251,86 @@ private:
 	matrix* _Prev_weights = nullptr;
 };
 
+#include <fstream>
 // driver code
-int _main(std::span<std::string_view> args) {
 
+
+
+void normalize_input(host::matrix<float>& _Input, float _MinX, float _MaxX, float _MinY, float _MaxY) {
+	for (size_t i = 0; i < _Input.rows(); ++i) {
+		_Input(i, 0) = (_Input(i, 0) - _MinX) / (_MaxX - _MinX) - 0.5f;
+		_Input(i, 1) = (_Input(i, 1) - _MinY) / (_MaxY - _MinY) - 0.5f;
+	}
+}
+
+void denormalize(host::matrix<float>& _Input, float _MinX, float _MaxX, float _MinY, float _MaxY) {
+	for (size_t i = 0; i < _Input.rows(); ++i) {
+		_Input(i, 0) = (_Input(i, 0) + 0.5f) * (_MaxX - _MinX) + _MinX;
+		_Input(i, 1) = (_Input(i, 1) + 0.5f) * (_MaxY - _MinY) + _MinY;
+	}
+}
+
+int _main(std::span<std::string_view> args) {
 	using value_type = typename settings::value_type;
 	using matrix = typename settings::matrix;
 	using vector = typename settings::vector;
 	
-	neural_network model = {
-		linear(2, 3),
-		sigmoid(),
-		linear(3, 2),
-		sigmoid(),
-		linear(2, 1)
-	};
+	std::ifstream file("input.txt");
 	
+	matrix input(100, 2);
 
-	const size_t batch_size = 4;
-	matrix input(batch_size, 2);
-	matrix output(batch_size, 1);
+	while (!file.eof()) {
+		for (size_t i = 0; i < input.rows(); ++i) {
+			file >> input(i, 0) >> input(i, 1);
+		}
+	}
+	normalize_input(input, -1.5, 2.5, -1, 2);
 
-	// xor
-	for (int i = 0; i < batch_size; ++i) {
-		input.data()[i * 2] = i & 1;
-		input.data()[i * 2 + 1] = (i >> 1) & 1;
-		output.data()[i] = (i & 1) ^ ((i >> 1) & 1);
+	file.close();
+	
+	std::ifstream file2("labels.txt");
+
+	matrix target(100, 1);
+
+	while (!file2.eof()) {
+		for (size_t i = 0; i < target.rows(); ++i) {
+			file2 >> target(i, 0);
+		}
 	}
 
-	cout << input << endl;
-	cout << output << endl;
+	neural_network model(
+		linear(2, 32),
+		relu(),
+		linear(32, 24),
+		relu(),
+		linear(24, 1)
+	);
+	
+	model.train(8000, input, target);
 
-	model.train(5000, input, output);
+	
+	std::ifstream file3("grid.txt");
+	
+	matrix grid(100000, 2);
 
-	matrix test(4, 2);
-	for (int i = 0; i < 4; ++i) {
-		test.data()[i * 2 + 1] = 0;
-		test.data()[i * 2] = (i >> 1) & 1;
+	while (!file3.eof()) {
+		for (size_t i = 0; i < grid.rows(); ++i) {
+			file3 >> grid(i, 0) >> grid(i, 1);
+		}
 	}
-	cout << test << endl;
 
-	cout << model.predict(test) << endl;
+	normalize_input(grid, -1.5, 2.5, -1, 2);
 
+	auto res = model.predict(grid);
+
+	std::ofstream file4("output.txt");
+	
+	for (size_t i = 0; i < res.rows(); ++i) {
+		file4 << res(i, 0) << '\n';
+	}
 	
 	return 0;
 }
+
+// -1.5, 2.5
+// -1, 2

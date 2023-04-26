@@ -135,6 +135,7 @@
     <ClInclude Include="host\algebra\matrix_add_vector.hpp" />
     <ClInclude Include="host\algebra\matrix_mul.hpp" />
     <ClInclude Include="host\algebra\matrix_scalar_mul.hpp" />
+    <ClInclude Include="host\algebra\matrix_sum.hpp" />
     <ClInclude Include="host\algebra\matrix_transpose.hpp" />
     <ClInclude Include="host\algebra\utils.hpp" />
     <ClInclude Include="host\algebra\avx2_algebra.hpp" />

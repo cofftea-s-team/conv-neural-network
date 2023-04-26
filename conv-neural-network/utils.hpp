@@ -12,8 +12,8 @@
 
 namespace utils {
 
-	template <class _Ty, base::allocator_t _Alloc>
-	inline constexpr void generate_normal(base::matrix<_Ty, _Alloc, false>& _Mat) {
+	template <class _Ty, base::allocator_t _Alloc, bool _T>
+	inline constexpr void generate_normal(base::matrix<_Ty, _Alloc, _T>& _Mat) {
 		if constexpr (_Alloc::is_cuda()) {
 			cuda::fill_random<NORMAL>(_Mat);
 		}
