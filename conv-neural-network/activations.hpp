@@ -3,7 +3,7 @@
 #include "device_launch_parameters.h"
 #include <cmath>
 
-namespace base {
+namespace cnn {
 	struct relu {
 		template <class _Ty>
 		__device__ __host__ inline static _Ty forward(_Ty x) {

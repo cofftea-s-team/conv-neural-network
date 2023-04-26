@@ -113,6 +113,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="activations.hpp" />
+    <ClInclude Include="cnn\config.hpp" />
+    <ClInclude Include="cnn\linear.hpp" />
+    <ClInclude Include="cnn\neural_network.hpp" />
     <ClInclude Include="cuda\activations\activation.cuh" />
     <ClInclude Include="cuda\algebra\matrix_add.cuh" />
     <ClInclude Include="cuda\algebra\matrix_add_scalar.cuh" />
