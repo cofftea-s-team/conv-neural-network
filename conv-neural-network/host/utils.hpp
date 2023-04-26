@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../types.hpp"
+#include "../cuda/utils.hpp"
 #include "algebra/avx2_algebra.hpp"
 #include "algebra/matrix_mul.hpp"
 #include "../cuda/utils.hpp"
