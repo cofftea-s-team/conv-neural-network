@@ -27,7 +27,7 @@ namespace cnn {
 		using vector = typename config::vector;
 		using dual_matrix = typename config::dual_matrix;
 
-		value_type learning_rate = 0.00001f;
+		value_type learning_rate = 0.000001f;
 
 		constexpr neural_network(_TLayers&&... _Sequential) noexcept
 			: _Layers(std::forward<_TLayers>(_Sequential)...)
@@ -41,7 +41,6 @@ namespace cnn {
 
 				if (i % 1000 == 0) {
 					_Fn(i, loss(_Output, _Target));
-					learning_rate *= 1.1;
 				}
 			}
 		}

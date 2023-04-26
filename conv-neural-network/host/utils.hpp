@@ -83,7 +83,7 @@ namespace host {
 		using _Ty = typename _Mat::value_type;
 		
 		constexpr double _Mean = (_Min + _Max) / 2.;
-		constexpr double _SD = (_Max - _Mean) / 3.16667; // k=3
+		constexpr double _SD = (_Max - _Mean) / 3; // k=3
 		
 		std::mt19937 gen(std::random_device{}());
 		std::normal_distribution<double> dist(_Mean, _SD);

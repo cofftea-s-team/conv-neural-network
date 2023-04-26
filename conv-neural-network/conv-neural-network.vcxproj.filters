@@ -43,9 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="cuda\memory.cpp">
-      <Filter>cuda</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="types.hpp" />
@@ -155,6 +152,13 @@
     <ClInclude Include="cnn\neural_network.hpp">
       <Filter>cnn</Filter>
     </ClInclude>
+    <ClInclude Include="nn.hpp" />
+    <ClInclude Include="python\python.hpp">
+      <Filter>python</Filter>
+    </ClInclude>
+    <ClInclude Include="python\defines.hpp">
+      <Filter>python</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="cuda">
@@ -174,6 +178,9 @@
     </Filter>
     <Filter Include="cnn">
       <UniqueIdentifier>{6f07eaf4-7243-4db6-bacc-6ce620386c6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="python">
+      <UniqueIdentifier>{23fb0957-da9e-491f-b200-198d9ff005e7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

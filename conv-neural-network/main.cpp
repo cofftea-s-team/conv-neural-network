@@ -1,6 +1,6 @@
 #define DEBUG
 
-#include "python.hpp"
+#include "python/python.hpp"
 
 void main() {
 
