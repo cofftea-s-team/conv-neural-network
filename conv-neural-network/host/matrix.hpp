@@ -1,7 +1,7 @@
 #pragma once
-#include "../matrix.hpp"
 #include "../cuda/utils.hpp"
-#include "../matrix_view.hpp"
+#include "../base/matrix.hpp"
+#include "../base/matrix_view.hpp"
 #include "algebra/matrix_add.hpp"
 #include "algebra/matrix_add_vector.hpp"
 #include "algebra/matrix_scalar_mul.hpp"
@@ -191,6 +191,11 @@ namespace host {
 			host::matrix_sum1(*this, _Res);
 			return _Res;
 		}
+		
+		inline void dropout(_Ty _Dropout_rate) {
+			host::apply_dropout(*this, _Dropout_rate);
+		}
+
 
 		inline auto T() {
 			return base::transposed(*this);

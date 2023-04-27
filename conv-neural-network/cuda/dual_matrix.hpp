@@ -1,5 +1,5 @@
 #pragma once
-#include "../dual_matrix.hpp"
+#include "../base/dual_matrix.hpp"
 
 namespace cuda {
 	template <class _Ty>

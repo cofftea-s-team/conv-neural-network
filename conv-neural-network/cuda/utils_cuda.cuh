@@ -5,6 +5,7 @@
 #include "curand.h"
 #include "curand_kernel.h"
 #include <iostream>
+#include "memory.hpp"
 
 using bfloat16 = nv_bfloat16;
 enum RAND_MODE {
@@ -20,7 +21,7 @@ enum cudaOperationKind {
 };
 
 namespace cuda {
-	
+
 	template <class _Ty>
 	inline _Ty* alloc(size_t _Count) {
 		_Ty* _Allocated_block;

@@ -13,10 +13,11 @@
 #include "algebra/matrix_sum.cuh"
 #include "algebra/range_reduce.cuh"
 #include "activations/activation.cuh"
-#include "../activations.hpp"
-#include "../matrix.hpp"
-#include "../types.hpp"
-#include "../matrix_view.hpp"
+#include "activations/dropout.cuh"
+#include "../cnn/activations.hpp"
+#include "../base/matrix.hpp"
+#include "../base/types.hpp"
+#include "../base/matrix_view.hpp"
 
 namespace host {
 	template <class _Ty, bool>
@@ -216,6 +217,10 @@ namespace cuda {
 			return _Res;
 		}
 
+		inline void dropout(_Ty _Dropout_rate) {
+			cuda::apply_dropout(*this, _Dropout_rate);
+		}
+		
 		inline auto T() {
 			return base::transposed(*this);
 		}

@@ -12,6 +12,7 @@ namespace cnn {
 
 		template <class... _TLayers>
 		friend class neural_network;
+		friend class file;
 
 		inline linear(size_t _InputSize, size_t _OutputSize)
 			: _Weights(_InputSize, _OutputSize), _Bias(_OutputSize)
@@ -25,6 +26,6 @@ namespace cnn {
 		}
 
 		matrix _Weights;
-		host::vector<value_type, true> _Bias;
+		vector _Bias;
 	};
 }

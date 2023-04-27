@@ -16,6 +16,18 @@ namespace cnn {
 		}
 	};
 
+	struct relu1 {
+		template <class _Ty>
+		__device__ __host__ inline static _Ty forward(_Ty x) {
+			return x > 0. ? (x < 1. ? x : 1.) : 0.;
+		}
+
+		template <class _Ty>
+		__device__ __host__ inline static _Ty backward(_Ty x) {
+			return x > 0. ? (x < 1. ? 1. : 0.) : 0.;
+		}
+	};
+
 	struct sigmoid {
 		template <class _Ty>
 		__device__ __host__ inline static _Ty forward(_Ty x) {

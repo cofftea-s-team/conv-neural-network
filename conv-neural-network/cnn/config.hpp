@@ -13,7 +13,7 @@ namespace cnn {
 	struct config {
 		using value_type = float;
 		using matrix = host::matrix<value_type>;
-		using vector = host::vector<value_type>;
+		using vector = host::vector<value_type, true>;
 		using dual_matrix = host::dual_matrix<value_type>;
 	};
 

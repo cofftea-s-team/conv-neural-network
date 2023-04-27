@@ -1,6 +1,6 @@
 #pragma once
-#include "../vector.hpp"
-#include "../vector_view.hpp"
+#include "../base/vector.hpp"
+#include "../base/vector_view.hpp"
 #include "algebra/matrix_add.hpp"
 #include "algebra/matrix_add_vector.hpp"
 #include "algebra/matrix_scalar_mul.hpp"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../types.hpp"
+#include "../base/types.hpp"
 #include "algebra/avx2_algebra.hpp"
 #include "algebra/matrix_mul.hpp"
 #include <random>
@@ -102,6 +102,18 @@ namespace host {
 		for (auto&& _El : _M) {
 			_Ty _Val = std::max((_Ty)_Min, std::min((_Ty)_Max, (_Ty)dist(gen)));
 			_El = _Val;
+		}
+	}
+
+	template <class _Mat, class _Ty = typename _Mat::value_type>
+	inline constexpr void apply_dropout(_Mat& _M, _Ty _Dropout_rate) {
+		std::mt19937 gen(std::random_device{}());
+		std::uniform_real_distribution<_Ty> dist(0.0, 1.0);
+
+		for (auto&& _El : _M) {
+			if (dist(gen) < _Dropout_rate) {
+				_El = 0.f;
+			}
 		}
 	}
 }

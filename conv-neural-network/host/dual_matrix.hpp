@@ -1,4 +1,4 @@
-#include "../dual_matrix.hpp"
+#include "../base/dual_matrix.hpp"
 
 namespace host {
 	template <class _Ty>

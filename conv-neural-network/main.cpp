@@ -3,6 +3,7 @@
 #include "cnn/config.hpp"
 #include "cnn/neural_network.hpp"
 #include "cnn/linear.hpp"
+#include "cnn/dropout.hpp"
 
 #include <iostream>
 #include <iomanip>
@@ -26,6 +27,7 @@ using namespace std::chrono;
 inline void preload() {
 	cout << "Loading...";
 
+	srand(time(NULL));
 	std::ios_base::sync_with_stdio(false);
 	std::cout << std::setprecision(5) << std::fixed;
 	cuda::matrix<float> f(16, 16);
@@ -57,7 +59,6 @@ int main(int argc, const char* const argv[]) {
 #define TIMER_START(x) auto _s##x = high_resolution_clock::now(); auto _1s##x = clock();
 #define TIMER_END(x) auto _s2##x = high_resolution_clock::now(); auto _1s2##x = clock();
 #define TIMER_RESULT(x, pre) auto count1##x = duration_cast<milliseconds>(_s2##x - _s##x).count(); auto count2##x = (_1s2##x - _1s##x); cout << '[' << ##pre << "]\n" << "user time: " << count1##x << "ms\nsys time: " << count2##x << "ms\n" << endl;
-
 
 using namespace cnn;
 
@@ -124,6 +125,7 @@ auto read_test(const std::string& path) {
 
 // driver code
 int _main(std::span<std::string_view> args) {
+
 	using value_type = typename config::value_type;
 	using matrix = typename config::matrix;
 	using vector = typename config::vector;
@@ -131,20 +133,31 @@ int _main(std::span<std::string_view> args) {
 	matrix input = read_input("input.txt");
 	matrix labels = read_labels("labels.txt");
 
-	neural_network model( 
-		linear(2, 30),
-		relu(),
-		linear(30, 20),
-		relu(),
-		linear(20, 1)
+	neural_network model(
+		linear(2, 32),
+		relu1(),
+		linear(32, 64),
+		relu1(),
+		linear(64, 24),
+		relu1(),
+		linear(24, 1)
 	);
 	
-	model.learning_rate = 0.0002;
+	model.learning_rate = 2e-4f;
 
-	model.train(7000, input, labels, [&](size_t i, float loss)->void {
-		cout << "Epoch: " << i << ", loss: " << loss << endl;
+	auto acc = [&](matrix& output, matrix& target) -> value_type {
+		size_t _Total = 0;
+		for (size_t i = 0; i < output.size(); ++i) {
+			if (round(output.data()[i]) == target.data()[i]) {
+				++_Total;
+			}
+		}
+		return static_cast<value_type>(_Total) / output.size() * 100.;
+	};
+
+	model.train(15000, input, labels, [&](size_t i, float loss, matrix& m)->void {
+		cout << "[" << i << "] acc: " << std::setprecision(3) << acc(m, labels) << "%  loss: " << std::setprecision(8) << loss << endl;
 	});
-
 
 	matrix grid = read_test("grid.txt");
 

@@ -94,6 +94,7 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <CudaCompile Include="cuda\activations\dropout.cu" />
     <CudaCompile Include="cuda\algebra\matrix_add_scalar.cu" />
     <CudaCompile Include="cuda\algebra\matrix_add_vector.cu" />
     <CudaCompile Include="cuda\algebra\matrix_mul.cu" />
@@ -112,11 +113,21 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="activations.hpp" />
+    <ClInclude Include="base\dual_matrix.hpp" />
+    <ClInclude Include="base\matrix.hpp" />
+    <ClInclude Include="base\matrix_view.hpp" />
+    <ClInclude Include="base\types.hpp" />
+    <ClInclude Include="base\utils.hpp" />
+    <ClInclude Include="base\vector.hpp" />
+    <ClInclude Include="base\vector_view.hpp" />
+    <ClInclude Include="cnn\activations.hpp" />
     <ClInclude Include="cnn\config.hpp" />
+    <ClInclude Include="cnn\dropout.hpp" />
+    <ClInclude Include="cnn\file.hpp" />
     <ClInclude Include="cnn\linear.hpp" />
     <ClInclude Include="cnn\neural_network.hpp" />
     <ClInclude Include="cuda\activations\activation.cuh" />
+    <ClInclude Include="cuda\activations\dropout.cuh" />
     <ClInclude Include="cuda\algebra\matrix_add.cuh" />
     <ClInclude Include="cuda\algebra\matrix_add_scalar.cuh" />
     <ClInclude Include="cuda\algebra\matrix_add_vector.cuh" />
@@ -133,7 +144,6 @@
     <ClInclude Include="cuda\memory.hpp" />
     <ClInclude Include="cuda\utils.hpp" />
     <ClInclude Include="cuda\utils_cuda.cuh" />
-    <ClInclude Include="dual_matrix.hpp" />
     <ClInclude Include="host\algebra\matrix_add.hpp" />
     <ClInclude Include="host\algebra\matrix_add_vector.hpp" />
     <ClInclude Include="host\algebra\matrix_mul.hpp" />
@@ -146,13 +156,7 @@
     <ClInclude Include="host\matrix.hpp" />
     <ClInclude Include="host\utils.hpp" />
     <ClInclude Include="host\vector.hpp" />
-    <ClInclude Include="matrix_view.hpp" />
-    <ClInclude Include="types.hpp" />
-    <ClInclude Include="matrix.hpp" />
-    <ClInclude Include="utils.hpp" />
     <ClInclude Include="cuda\vector.hpp" />
-    <ClInclude Include="vector.hpp" />
-    <ClInclude Include="vector_view.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

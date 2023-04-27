@@ -1,19 +1,22 @@
 #pragma once
 #include "linear.hpp"
+#include "dropout.hpp"
 #include "config.hpp"
 #include <vector>
 #include <tuple>
 
 namespace cnn {
 
-	enum class _Lt { _None, _Linear, _Activation };
+	enum class _Lt { _None, _Linear, _Activation, _Dropout };
 	
 	template <class _TLayer>
 	consteval _Lt _Select_layer_type() {
 		if constexpr (std::is_same_v<_TLayer, linear>)
 			return _Lt::_Linear;
-		if constexpr (requires(_TLayer) { _TLayer::forward; })
+		else if constexpr (requires(_TLayer) { _TLayer::forward; })
 			return _Lt::_Activation;
+		else if constexpr (std::is_same_v<_TLayer, dropout>)
+			return _Lt::_Dropout;
 		else
 			return _Lt::_None;
 	}
@@ -29,6 +32,8 @@ namespace cnn {
 
 		value_type learning_rate = 0.00001f;
 
+		friend class file;
+
 		constexpr neural_network(_TLayers&&... _Sequential) noexcept
 			: _Layers(std::forward<_TLayers>(_Sequential)...)
 		{ }
@@ -40,12 +45,13 @@ namespace cnn {
 				matrix _Output = predict(_Input);
 
 				if (i % 1000 == 0) {
-					_Fn(i, loss(_Output, _Target));
-					learning_rate *= 1.1;
+					_Fn(i, loss(_Output, _Target), _Output );
+					//learning_rate *= 1.1;
 				}
 			}
 		}
 
+		template <bool _Train = false>
 		inline auto predict(matrix& _Input) {
 			_Outputs.clear();
 			_Outputs.emplace_back(_Input);
@@ -57,6 +63,9 @@ namespace cnn {
 					_Forward_linear(_Layer);
 				else if constexpr (_Sel == _Lt::_Activation)
 					_Forward_activation<_TLayer>();
+				else if constexpr (_Sel == _Lt::_Dropout) {
+					if constexpr (_Train) _Dropout(_Layer);
+				}
 				else
 					static_assert(std::_Always_false<_TLayer>, "Invalid layer type");
 			});
@@ -66,7 +75,7 @@ namespace cnn {
 
 	private:
 		inline void _Train_once(matrix& _Input, matrix& _Target) {
-			predict(_Input);
+			predict<true>(_Input);
 
 			auto _Error = (_Target - _Outputs.back()) * learning_rate;
 			_Outputs.pop_back();
@@ -79,6 +88,8 @@ namespace cnn {
 					_Backward_linear(_Layer);
 				else if constexpr (_Sel == _Lt::_Activation)
 					_Backward_activation<_TLayer>();
+				else if constexpr (_Sel == _Lt::_Dropout)
+				{ }
 				else
 					static_assert(std::_Always_false<_TLayer>, "Invalid layer type");
 
@@ -120,6 +131,10 @@ namespace cnn {
 			_Input.backward<_Act_fn>();
 
 			_Outputs.emplace_back(_Error.mul(_Prev_weights->T()) * _Input);
+		}
+
+		inline void _Dropout(const dropout& _Layer) {
+			_Layer(_Outputs.back());
 		}
 
 		std::tuple<_TLayers...> _Layers;
