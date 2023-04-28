@@ -12,9 +12,9 @@ namespace cnn {
 
 	struct config {
 		using value_type = float;
-		using matrix = host::matrix<value_type>;
-		using vector = host::vector<value_type, true>;
-		using dual_matrix = host::dual_matrix<value_type>;
+		using matrix = cuda::matrix<value_type>;
+		using vector = cuda::vector<value_type, true>;
+		using dual_matrix = cuda::dual_matrix<value_type>;
 	};
 
 	inline auto loss(const typename config::matrix& _Output, const typename config::matrix& _Target) {

@@ -211,9 +211,15 @@ namespace cuda {
 			cuda::backward_apply<_Fn>(*this);
 		}
 
-		inline vector<_Ty> sum0() const {
-			vector<_Ty> _Res(_Mybase::rows());
-			cuda::matrix_sum(*this, _Res);
+		inline auto sum0() const {
+			vector<_Ty, false> _Res(_Mybase::rows());
+			cuda::matrix_sum0(*this, _Res);
+			return _Res;
+		}
+		
+		inline auto sum1() const {
+			vector<_Ty, true> _Res(base::shape(1, _Mybase::cols()));
+			cuda::matrix_sum1(*this, _Res);
 			return _Res;
 		}
 

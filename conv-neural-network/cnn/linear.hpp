@@ -15,7 +15,7 @@ namespace cnn {
 		friend class file;
 
 		inline linear(size_t _InputSize, size_t _OutputSize)
-			: _Weights(_InputSize, _OutputSize), _Bias(_OutputSize)
+			: _Weights(_InputSize, _OutputSize), _Bias(base::shape(1, _OutputSize))
 		{
 			utils::generate_normal(_Weights);
 			utils::generate_normal(_Bias);

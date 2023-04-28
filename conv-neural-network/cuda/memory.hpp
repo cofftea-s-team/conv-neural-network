@@ -2,6 +2,7 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include <exception>
+#include <iostream>
 
 namespace cuda {
 	namespace details {
@@ -18,7 +19,8 @@ namespace cuda {
 	
 	template <class _Ty>
 	inline _Ty* const get_memory(size_t N) {
-		if (N * sizeof(_Ty) > details::max_size * sizeof(double)) {
+		if (N * sizeof(_Ty) > details::max_size * sizeof(void*)) {
+			std::cout << "not enought preallocated memory! (" << N * sizeof(_Ty) << " required, " << details::max_size * sizeof(void*) << " available)" << std::endl;
 			throw std::exception("N is too big");
 		}
 		return reinterpret_cast<_Ty*>(details::_Data);

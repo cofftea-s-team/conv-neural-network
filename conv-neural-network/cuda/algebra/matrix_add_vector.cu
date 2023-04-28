@@ -12,16 +12,16 @@ namespace cuda {
 
 		if (i < M && j < N) {
 			if constexpr (_T1 && _T2) {
-				B[i * N + j] = A[j * M + i] + V[i];
-			}
-			else if constexpr (_T1 && !_T2) {
 				B[i * N + j] = A[j * M + i] + V[j];
 			}
+			else if constexpr (_T1 && !_T2) {
+				B[i * N + j] = A[j * M + i] + V[i];
+			}
 			else if constexpr (!_T1 && _T2) {
-				B[i * N + j] = A[i * N + j] + V[i];
+				B[i * N + j] = A[i * N + j] + V[j];
 			}
 			else {
-				B[i * N + j] = A[i * N + j] + V[j];
+				B[i * N + j] = A[i * N + j] + V[i];
 			}
 		}
 	}

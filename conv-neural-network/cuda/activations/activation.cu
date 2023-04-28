@@ -1,5 +1,7 @@
 #include "activation.cuh"
 
+#define BLOCK_DIM 1024
+
 namespace cuda {
 	
 	template <class _Applier, class _Ty, class... _TArgs>
@@ -19,8 +21,8 @@ namespace cuda {
 		else {
 			using applier = forwarder<_Activation_class>;
 
-			const dim3 threads(512);
-			const dim3 blocks((N + threads.x - 1) / threads.x);
+			const dim3 threads(BLOCK_DIM);
+			const dim3 blocks((N * M + BLOCK_DIM - 1) / BLOCK_DIM);
 
 			activation_apply_kernel<applier>
 				<<<blocks, threads>>>(_Data, N * M);
@@ -31,8 +33,8 @@ namespace cuda {
 	void _backward_apply(_Ty* _Data, size_t N, size_t M) {
 		using applier = backwarder<_Activation_class>;
 
-		const dim3 threads(512);
-		const dim3 blocks((N + threads.x - 1) / threads.x);
+		const dim3 threads(BLOCK_DIM);
+		const dim3 blocks((N * M + BLOCK_DIM - 1) / BLOCK_DIM);
 
 		activation_apply_kernel<applier>
 			<< <blocks, threads >> > (_Data, N * M);
@@ -48,8 +50,8 @@ namespace cuda {
 	template <class _Ty>
 	void _softmax_apply(_Ty* _Data, size_t N, size_t M) {
 
-		const dim3 threads(256);
-		const dim3 blocks((N + threads.x - 1) / threads.x);
+		const dim3 threads(BLOCK_DIM);
+		const dim3 blocks((N * M + BLOCK_DIM - 1) / BLOCK_DIM);
 
 		using exponent = forwarder<_exp>;
 
