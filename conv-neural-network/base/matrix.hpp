@@ -118,9 +118,7 @@ namespace base {
 
 		template <allocator_t _Other_all, bool _T2>
 		inline matrix& operator=(const matrix<_Ty, _Other_all, _T2>& _Other) {
-			if (this == &_Other) {
-				return *this;
-			}
+
 			if (_Rows * _Cols != _Other._Rows * _Other._Cols) {
 				_Al.free(_Data);
 				_Data = _Al.alloc(_Other._Rows * _Other._Cols);
@@ -232,7 +230,7 @@ namespace base {
 	private:
 		template <allocator_t _Other_all, bool _T2>
 		inline void _Copy_matrix(const matrix<_Ty, _Other_all, _T2>& _M) {
-			if constexpr (_M.is_transposed()) {
+			if constexpr (_T2 != _T) {
 				if constexpr (_Al.is_cuda())
 					_Copy_to_cuda_transposed(_M);
 				else

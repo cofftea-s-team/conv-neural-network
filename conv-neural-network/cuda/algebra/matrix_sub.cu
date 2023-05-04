@@ -20,7 +20,7 @@ namespace cuda {
 				C[i * N + j] = A[i * N + j] - B[j * M + i];
 			}
 			else {
-				C[i * N + j] = A[i * N + j] - B[i * N + j];
+				C[j * M + i] = A[j * M + i] - B[j * M + i];
 			}
 		}
 	}

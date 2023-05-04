@@ -31,7 +31,7 @@ namespace base {
 			: _Mybase(_Shape)
 		{ }
 
-		inline vector(size_t _Rows)
+		inline vector(size_t _Rows) requires (!_T)
 			: _Mybase(_Rows, 1)
 		{ }
 

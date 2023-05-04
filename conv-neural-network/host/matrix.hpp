@@ -39,9 +39,7 @@ namespace host {
 		inline matrix(const base::matrix<_Ty, _Other_all, _T2>& _Other)
 			: _Mybase(_Other)
 		{
-			if constexpr (std::is_same_v<_Ty, float>) {
-				assert(_Rows % 16 == 0 && _Cols % 16 == 0);
-			}
+
 		}
 
 		template <base::allocator_t _Other_all, bool _T2>
@@ -187,7 +185,7 @@ namespace host {
 		}
 
 		inline auto sum1() const {
-			vector<_Ty, true> _Res{ base::shape(1, _Cols) };
+			vector<_Ty, true> _Res(base::shape(1, _Cols));
 			host::matrix_sum1(*this, _Res);
 			return _Res;
 		}

@@ -1,3 +1,4 @@
+#pragma once
 #include "../base/dual_matrix.hpp"
 
 namespace host {

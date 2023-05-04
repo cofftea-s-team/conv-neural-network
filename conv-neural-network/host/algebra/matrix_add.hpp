@@ -5,6 +5,7 @@
 namespace host::algebra {
 
 	namespace parallel {
+		
 		template <bool _T1, bool _T2, class _Ty, class _Pred>
 		inline constexpr void matrix_add(const _Ty* A, const _Ty* B, _Ty* C, size_t N, size_t M, _Pred _Fn) {
 			parallel_for(M, [&](size_t i) {
@@ -21,68 +22,6 @@ namespace host::algebra {
 					else {
 						C[i * N + j] = _Fn(A[i * N + j], B[i * N + j]);
 					}
-				}
-			});
-		}
-
-		//
-		// floats
-
-		template <>
-		inline constexpr void matrix_add<false, false, float, std::plus<float>>
-			(const float* A, const float* B, float* C, size_t N, size_t M, std::plus<float>)
-		{
-			parallel_for(M, [&](size_t i) {
-				for (size_t j = 0; j < N; j += 8) { // cols
-					__m256 _Vec_A = _mm256_loadu_ps(&A[i * N + j]);
-					__m256 _Vec_B = _mm256_loadu_ps(&B[i * N + j]);
-					__m256 _Vec_res = _mm256_add_ps(_Vec_A, _Vec_B);
-					_mm256_storeu_ps(&C[i * N + j], _Vec_res);
-				}
-			});
-		}
-
-		template <>
-		inline constexpr void matrix_add<false, false, float, std::minus<float>>
-			(const float* A, const float* B, float* C, size_t N, size_t M, std::minus<float>) 
-		{
-			parallel_for(M, [&](size_t i) {
-				for (size_t j = 0; j < N; j += 8) { // cols
-					__m256 _Vec_A = _mm256_loadu_ps(&A[i * N + j]);
-					__m256 _Vec_B = _mm256_loadu_ps(&B[i * N + j]);
-					__m256 _Vec_res = _mm256_sub_ps(_Vec_A, _Vec_B);
-					_mm256_storeu_ps(&C[i * N + j], _Vec_res);
-				}
-			});
-		}
-
-		//
-		// doubles
-
-		template <>
-		inline constexpr void matrix_add<false, false, double, std::plus<double>>
-			(const double* A, const double* B, double* C, size_t N, size_t M, std::plus<double>)
-		{
-			parallel_for(M, [&](size_t i) {
-				for (size_t j = 0; j < N; j += 8) { // cols
-					__m256d _Vec_A = _mm256_loadu_pd(&A[i * N + j]);
-					__m256d _Vec_B = _mm256_loadu_pd(&B[i * N + j]);
-					__m256d _Vec_res = _mm256_add_pd(_Vec_A, _Vec_B);
-					_mm256_storeu_pd(&C[i * N + j], _Vec_res);
-				}
-			});
-		}
-
-		template <>
-		inline constexpr void matrix_add<false, false, double, std::minus<double>>
-			(const double* A, const double* B, double* C, size_t N, size_t M, std::minus<double>) 
-		{
-			parallel_for(M, [&](size_t i) {
-				for (size_t j = 0; j < N; j += 8) { // cols
-					__m256d _Vec_A = _mm256_loadu_pd(&A[i * N + j]);
-					__m256d _Vec_B = _mm256_loadu_pd(&B[i * N + j]);
-					__m256d _Vec_res = _mm256_sub_pd(_Vec_A, _Vec_B);
-					_mm256_storeu_pd(&C[i * N + j], _Vec_res);
 				}
 			});
 		}
@@ -104,65 +43,6 @@ namespace host::algebra {
 				else {
 					C[i * N + j] = _Fn(A[i * N + j], B[i * N + j]);
 				}
-			}
-		}
-	}
-
-	template <>
-	inline constexpr void matrix_add<false, false, float, std::plus<float>>
-		(const float* A, const float* B, float* C, size_t N, size_t M, std::plus<float>) 
-	{
-		for (size_t i = 0; i < M; ++i) { // rows
-			for (size_t j = 0; j < N; j += 8) { // cols
-				__m256 _Vec_A = _mm256_loadu_ps(&A[i * N + j]);
-				__m256 _Vec_B = _mm256_loadu_ps(&B[i * N + j]);
-				__m256 _Vec_res = _mm256_add_ps(_Vec_A, _Vec_B);
-				_mm256_storeu_ps(&C[i * N + j], _Vec_res);
-			}
-		}
-	}
-
-	template <>
-	inline constexpr void matrix_add<false, false, float, std::minus<float>>
-		(const float* A, const float* B, float* C, size_t N, size_t M, std::minus<float>) 
-	{
-		for (size_t i = 0; i < M; ++i) {
-			for (size_t j = 0; j < N; j += 8) { 
-				__m256 _Vec_A = _mm256_loadu_ps(&A[i * N + j]);
-				__m256 _Vec_B = _mm256_loadu_ps(&B[i * N + j]);
-				__m256 _Vec_res = _mm256_sub_ps(_Vec_A, _Vec_B);
-				_mm256_storeu_ps(&C[i * N + j], _Vec_res);
-			}
-		}
-	}
-
-	//
-	// doubles
-
-	template <>
-	inline constexpr void matrix_add<false, false, double, std::plus<double>>
-		(const double* A, const double* B, double* C, size_t N, size_t M, std::plus<double>)
-	{
-		for (size_t i = 0; i < M; ++i) {
-			for (size_t j = 0; j < N; j += 8) { // cols
-				__m256d _Vec_A = _mm256_loadu_pd(&A[i * N + j]);
-				__m256d _Vec_B = _mm256_loadu_pd(&B[i * N + j]);
-				__m256d _Vec_res = _mm256_add_pd(_Vec_A, _Vec_B);
-				_mm256_storeu_pd(&C[i * N + j], _Vec_res);
-			}
-		}
-	}
-
-	template <>
-	inline constexpr void matrix_add<false, false, double, std::minus<double>>
-		(const double* A, const double* B, double* C, size_t N, size_t M, std::minus<double>) 
-	{
-		for (size_t i = 0; i < M; ++i) {
-			for (size_t j = 0; j < N; j += 8) { // cols
-				__m256d _Vec_A = _mm256_loadu_pd(&A[i * N + j]);
-				__m256d _Vec_B = _mm256_loadu_pd(&B[i * N + j]);
-				__m256d _Vec_res = _mm256_sub_pd(_Vec_A, _Vec_B);
-				_mm256_storeu_pd(&C[i * N + j], _Vec_res);
 			}
 		}
 	}

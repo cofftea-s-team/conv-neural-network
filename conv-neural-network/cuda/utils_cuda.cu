@@ -19,7 +19,7 @@ namespace cuda {
 				_Data[i] = curand_uniform(&_State[i]) * 2 - 1;
 			}
 			else if constexpr (_Mode == NORMAL) {
-				_Data[i] = curand_normal(&_State[i]);
+				_Data[i] = curand_normal(&_State[i]) * 0.1;
 			}
 		}
 	}

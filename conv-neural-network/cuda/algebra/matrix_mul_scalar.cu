@@ -6,11 +6,11 @@ namespace cuda {
 
 	template <class _Ty>
 	__global__ void matrix_mul_scalar_kernel(const _Ty* A, _Ty* B, _Ty C, size_t N, size_t M) {
-		int i = blockIdx.y * BLOCK_DIM + threadIdx.y;
-		int j = blockIdx.x * BLOCK_DIM + threadIdx.x;
+		int i = blockIdx.y * blockDim.y + threadIdx.y;
+		int j = blockIdx.x * blockDim.x + threadIdx.x;
 
-		if (i < N && j < M) {
-			B[i * M + j] = A[i * M + j] * C;
+		if (i < M && j < N) {
+			B[i * N + j] = A[i * N + j] * C;
 		}
 	}
 

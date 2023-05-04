@@ -46,7 +46,6 @@ namespace cnn {
 
 				if (i % 1000 == 0) {
 					_Fn(i, loss(_Output, _Target), _Output );
-					//learning_rate *= 1.1;
 				}
 			}
 		}
@@ -76,7 +75,6 @@ namespace cnn {
 	private:
 		inline void _Train_once(matrix& _Input, matrix& _Target) {
 			predict<true>(_Input);
-
 			auto _Error = (_Target - _Outputs.back()) * learning_rate;
 			_Outputs.pop_back();
 			_Outputs.emplace_back(std::move(_Error));
@@ -102,7 +100,7 @@ namespace cnn {
 			matrix _Result = _Layer(_Input);
 			_Outputs.emplace_back(std::move(_Result));
 		}
-
+			
 		template <activation_fn_t _Act_fn>
 		inline void _Forward_activation() {
 			matrix& _Input = _Outputs.back();
@@ -114,9 +112,8 @@ namespace cnn {
 			_Outputs.pop_back();
 			matrix& _Input = _Outputs.back();
 			matrix _Delta = _Input.T().mul(_Error);
-			auto _BiasDelta = _Error.sum1();
 			_Layer._Weights += _Delta;
-			_Layer._Bias += _BiasDelta;
+			_Layer._Bias += _Error.sum1();
 
 			_Prev_weights = &_Layer._Weights;
 			_Outputs.push_back(std::move(_Error));
