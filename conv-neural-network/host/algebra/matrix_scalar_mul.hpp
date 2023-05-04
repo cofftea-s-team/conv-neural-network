@@ -44,7 +44,7 @@ namespace host::algebra {
 			(const double* A, const double* B, double* C, size_t N, size_t M)
 		{
 			parallel_for(M, [&](size_t i) {
-				for (size_t j = 0; j < N; j += 8) { // cols
+				for (size_t j = 0; j < N; j += 4) { 
 					__m256d _Vec_A = _mm256_loadu_pd(&A[i * N + j]);
 					__m256d _Vec_B = _mm256_loadu_pd(&B[i * N + j]);
 					__m256d _Vec_res = _mm256_mul_pd(_Vec_A, _Vec_B);
@@ -93,7 +93,7 @@ namespace host::algebra {
 		(const double* A, const double* B, double* C, size_t N, size_t M)
 	{
 		for (size_t i = 0; i < M; ++i) {
-			for (size_t j = 0; j < N; j += 8) { // cols
+			for (size_t j = 0; j < N; j += 4) { // cols
 				__m256d _Vec_A = _mm256_loadu_pd(&A[i * N + j]);
 				__m256d _Vec_B = _mm256_loadu_pd(&B[i * N + j]);
 				__m256d _Vec_res = _mm256_mul_pd(_Vec_A, _Vec_B);
