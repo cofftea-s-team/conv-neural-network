@@ -13,10 +13,14 @@ namespace cuda {
 		size_t i = blockIdx.x * (blockDim.x * 2) + threadIdx.x;
 
 		if (i >= N) {
-			return;
+			_Partial_sum[threadIdx.x] = 0.f;
 		}
-		
-		_Partial_sum[threadIdx.x] = _Data[i] + _Data[i + blockDim.x];
+		else {
+			if (i + blockDim.x < N)
+				_Partial_sum[threadIdx.x] = _Data[i] + _Data[i + blockDim.x];
+			else
+				_Partial_sum[threadIdx.x] = _Data[i];
+		}
 
 		__syncthreads();
 

@@ -18,6 +18,7 @@
 #include "../base/matrix.hpp"
 #include "../base/types.hpp"
 #include "../base/matrix_view.hpp"
+#include "dual_matrix.hpp"
 
 namespace host {
 	template <class _Ty, bool>
@@ -69,7 +70,16 @@ namespace cuda {
 			cuda::matrix_multiply(*this, _Other, _Result);
 			return _Result;
 		}
-		
+
+		inline auto mul(cuda::dual_matrix<_Ty>& _Other) {
+#ifdef DEBUG
+			assert(_Mybase::cols() == _Other.rows());
+#endif // DEBUG
+			auto view = base::matrix_view<_Ty, allocator<_Ty>, false>(_Other.cols(), _Rows, _Other.get_result());
+			cuda::matrix_multiply(*this, _Other, view);
+			return view;
+		}
+
 		//
 		// matrix operations
 

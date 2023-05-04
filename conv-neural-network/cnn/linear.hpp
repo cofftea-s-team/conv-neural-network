@@ -17,8 +17,12 @@ namespace cnn {
 		inline linear(size_t _InputSize, size_t _OutputSize)
 			: _Weights(_InputSize, _OutputSize), _Bias(base::shape(1, _OutputSize))
 		{
-			utils::generate_normal(_Weights);
-			utils::generate_normal(_Bias);
+			host::matrix<value_type> _W_tmp(_InputSize, _OutputSize);
+			host::vector<value_type, true> _B_tmp(base::shape(1, _OutputSize));
+			utils::generate_normal(_W_tmp);
+			utils::generate_normal(_B_tmp);
+			_Weights = _W_tmp;
+			_Bias = _B_tmp;
 		}
 
 		inline auto operator()(matrix& _Input) {

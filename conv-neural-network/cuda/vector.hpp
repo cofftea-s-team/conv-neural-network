@@ -24,7 +24,7 @@ namespace cuda {
 #ifdef DEBUG
 			assert(_Mybase::rows() == _Other.rows());
 #endif
-			cuda::matrix_add_vector(*this, _Other.T(), *this);
+			cuda::matrix_add_vector(*this, _Other, *this);
 			return *this;
 		}
 
@@ -44,7 +44,7 @@ namespace cuda {
 			assert(_Mybase::rows() == _Other.rows());
 #endif
 			vector _Result(_Mybase::size());
-			cuda::matrix_add_vector(*this, _Other.T(), _Result);
+			cuda::matrix_add_vector(*this, _Other, _Result);
 			return _Result;
 		}
 
@@ -55,7 +55,7 @@ namespace cuda {
 			assert(_Mybase::rows() == _Other.rows());
 #endif
 			vector _Result(_Mybase::size());
-			cuda::matrix_sub_vector(*this, _Other.T(), _Result);
+			cuda::matrix_sub_vector(*this, _Other, _Result);
 			return _Result;
 		}
 		

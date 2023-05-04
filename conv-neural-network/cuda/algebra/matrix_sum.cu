@@ -1,6 +1,6 @@
 #include "matrix_sum.cuh"
 
-#define BLOCK_DIM 1024
+#define BLOCK_DIM 256
 #define SHMEM_SIZE BLOCK_DIM * 4
 
 namespace cuda {
@@ -10,13 +10,15 @@ namespace cuda {
 
 		__shared__ _Ty _Partial_sum[SHMEM_SIZE];
 
-		size_t i = (blockIdx.x * (blockDim.x * 2) + threadIdx.x) * N;
+		size_t i = (blockIdx.x * (blockDim.x) + threadIdx.x) * N;
 
-		if (i >= M * N) {
-			return;
+		if (i < M * N) {
+			_Partial_sum[threadIdx.x] = _Data[i];//; +_Data[i + blockDim.x * N];
+		}
+		else {
+			_Partial_sum[threadIdx.x] = 0.f;
 		}
 
-		_Partial_sum[threadIdx.x] = _Data[i] + _Data[i + blockDim.x * N];
 
 		__syncthreads();
 
@@ -37,13 +39,16 @@ namespace cuda {
 
 		__shared__ _Ty _Partial_sum[SHMEM_SIZE];
 
-		size_t i = blockIdx.x * (blockDim.x * 2) + threadIdx.x;
+		size_t i = blockIdx.x * (blockDim.x) + threadIdx.x;
 
 		if (i >= N) {
-			return;
+			_Partial_sum[threadIdx.x] = 0.f;
+		}
+		else {
+			_Partial_sum[threadIdx.x] = _Data[i];
 		}
 
-		_Partial_sum[threadIdx.x] = _Data[i] + _Data[i + blockDim.x];
+		_Partial_sum[threadIdx.x] = _Data[i];// +_Data[i + blockDim.x];
 
 		__syncthreads();
 
@@ -59,6 +64,7 @@ namespace cuda {
 		}
 	}
 
+	// causes problems
     template <class _Ty>
     _Ty* reduce_column(const _Ty* _Data, size_t N, size_t M) {
 		_Ty* _Tmp_res = get_memory<_Ty>(N * M * 2);
