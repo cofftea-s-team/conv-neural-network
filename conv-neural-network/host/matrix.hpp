@@ -6,6 +6,7 @@
 #include "algebra/matrix_add_vector.hpp"
 #include "algebra/matrix_scalar_mul.hpp"
 #include "algebra/matrix_sum.hpp"
+#include "algebra/matrix_mul_add_bias.hpp"
 #include "vector.hpp"
 #include "utils.hpp"
 #include <iostream>
@@ -58,6 +59,19 @@ namespace host {
 #endif // !DEBUG
 			matrix<_Ty, false> _Res(_Rows, _Other.cols());
 			host::matrix_multiply(*this, _Other, _Res);
+			return _Res;
+		}
+
+		//
+		// matrix optimized operations
+		
+		template <bool _T, bool _T2>
+		inline matrix<_Ty, false> mul_add_bias(const base::matrix<_Ty, allocator<_Ty>, _T>& _Other, const base::vector<_Ty, allocator<_Ty>, _T2>& _Vec) const {
+#ifdef DEBUG
+			assert(_Cols == _Other.rows());
+#endif // !DEBUG
+			matrix<_Ty, false> _Res(_Rows, _Other.cols());
+			host::matrix_mul_add_bias(*this, _Other, _Vec, _Res);
 			return _Res;
 		}
 

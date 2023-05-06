@@ -16,6 +16,11 @@ namespace cnn {
 		inline void operator()(matrix& _Input) const {
 			_Input.dropout(_Dropout_rate);
 		}
+
+		inline void backward(matrix& _Input) const {
+			
+			
+		}
 	private:
 		const value_type _Dropout_rate;
 	};

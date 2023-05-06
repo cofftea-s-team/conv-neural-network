@@ -43,6 +43,9 @@
     <CudaCompile Include="cuda\activations\dropout.cu">
       <Filter>cuda\activations</Filter>
     </CudaCompile>
+    <CudaCompile Include="cuda\algebra\matrix_mul_add_bias.cu">
+      <Filter>cuda\algebra</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -179,6 +182,12 @@
     </ClInclude>
     <ClInclude Include="cnn\activations.hpp">
       <Filter>cnn</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda\algebra\matrix_mul_add_bias.cuh">
+      <Filter>cuda\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="host\algebra\matrix_mul_add_bias.hpp">
+      <Filter>host\algebra</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

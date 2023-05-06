@@ -55,7 +55,7 @@ namespace cnn {
 			_Outputs.clear();
 			_Outputs.emplace_back(_Input);
 			// forward pass
-			utils::for_each(_Layers, [&]<class _TLayer>(_TLayer & _Layer) {
+			utils::for_each(_Layers, [&]<class _TLayer>(_TLayer& _Layer) {
 				constexpr auto _Sel = _Select_layer_type<_TLayer>();
 
 				if constexpr (_Sel == _Lt::_Linear)
@@ -63,7 +63,7 @@ namespace cnn {
 				else if constexpr (_Sel == _Lt::_Activation)
 					_Forward_activation<_TLayer>();
 				else if constexpr (_Sel == _Lt::_Dropout) {
-					if constexpr (_Train) _Dropout(_Layer);
+					if constexpr (_Train) _Forward_dropout(_Layer);
 				}
 				else
 					static_assert(std::_Always_false<_TLayer>, "Invalid layer type");
@@ -90,9 +90,7 @@ namespace cnn {
 				{ }
 				else
 					static_assert(std::_Always_false<_TLayer>, "Invalid layer type");
-
 			});
-
 		}
 
 		inline void _Forward_linear(linear& _Layer) {
@@ -103,35 +101,37 @@ namespace cnn {
 			
 		template <activation_fn_t _Act_fn>
 		inline void _Forward_activation() {
-			matrix& _Input = _Outputs.back();
+			matrix _Input = _Outputs.back();
 			_Input.activate<_Act_fn>();
+			_Outputs.emplace_back(std::move(_Input));
 		}
 
 		inline void _Backward_linear(linear& _Layer) {
 			matrix _Error = std::move(_Outputs.back());
 			_Outputs.pop_back();
-			matrix& _Input = _Outputs.back();
-			matrix _Delta = _Input.T().mul(_Error);
-			_Layer._Weights += _Delta;
-			_Layer._Bias += _Error.sum1();
-
-			_Prev_weights = &_Layer._Weights;
-			_Outputs.push_back(std::move(_Error));
+			matrix _Input = std::move(_Outputs.back());
+			_Outputs.pop_back();
+			auto _Res = _Layer.backward(_Error, _Input);
+			_Outputs.emplace_back(std::move(_Res));
 		}
 
 		template <activation_fn_t _Act_fn>
 		inline void _Backward_activation() {
 			matrix _Error = std::move(_Outputs.back());
 			_Outputs.pop_back();
-			matrix _Input = std::move(_Outputs.back());
+			matrix _Activated = std::move(_Outputs.back());
 			_Outputs.pop_back();
-			_Input.backward<_Act_fn>();
-
-			_Outputs.emplace_back(_Error.mul(_Prev_weights->T()) * _Input);
+			_Activated.backward<_Act_fn>();
+			_Error *= _Activated;
+			_Outputs.emplace_back(std::move(_Error));			
 		}
 
-		inline void _Dropout(const dropout& _Layer) {
+		inline void _Forward_dropout(const dropout& _Layer) {
 			_Layer(_Outputs.back());
+		}
+
+		inline void _Backward_dropout(const dropout& _Layer) {
+			_Layer.backward(_Outputs.back());
 		}
 
 		std::tuple<_TLayers...> _Layers;

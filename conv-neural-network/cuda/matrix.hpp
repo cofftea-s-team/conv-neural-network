@@ -12,6 +12,7 @@
 #include "algebra/matrix_mul_scalar.cuh"
 #include "algebra/matrix_sum.cuh"
 #include "algebra/range_reduce.cuh"
+#include "algebra/matrix_mul_add_bias.cuh"
 #include "activations/activation.cuh"
 #include "activations/dropout.cuh"
 #include "../cnn/activations.hpp"
@@ -62,7 +63,7 @@ namespace cuda {
 		// matrix multiplication
 		
 		template <bool _T>
-		inline matrix<_Ty, false> mul(const base::matrix<_Ty, cuda::allocator<_Ty>, _T>& _Other) {
+		inline matrix<_Ty, false> mul(const base::matrix<_Ty, allocator<_Ty>, _T>& _Other) {
 #ifdef DEBUG
 			assert(_Mybase::cols() == _Other.rows());
 #endif // DEBUG
@@ -79,6 +80,20 @@ namespace cuda {
 			cuda::matrix_multiply(*this, _Other, view);
 			return view;
 		}
+
+		//
+		// matrix optimized complex operations
+		
+		template <bool _T, bool _T2>
+		inline matrix<_Ty, false> mul_add_bias(const base::matrix<_Ty, allocator<_Ty>, _T>& _Other, const base::vector<_Ty, allocator<_Ty>, _T2>& _Vec) {
+#ifdef DEBUG
+			assert(_Mybase::cols() == _Other.rows() && _Other.cols() == _Vec.size());
+#endif // DEBUG
+			matrix<_Ty, false> _Result(_Mybase::rows(), _Other.cols());
+			cuda::matrix_mul_add_bias(*this, _Other, _Vec, _Result);
+			return _Result;
+		}
+		
 
 		//
 		// matrix operations

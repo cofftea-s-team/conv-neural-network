@@ -143,10 +143,11 @@ int _main(std::span<std::string_view> args) {
 		relu(),
 		linear(64, 24),
 		relu(),
-		linear(24, 1)
+		linear(24, 1),
+		softmax()
 	);
 	
-	model.learning_rate = 2.2e-5f;
+	model.learning_rate = 5e-5f;
 
 	auto acc = [&](matrix& output, matrix& target) -> value_type {
 		host::matrix<value_type> out = output;

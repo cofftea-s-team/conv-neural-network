@@ -1,9 +1,12 @@
 #pragma once
 
+#include <execution>
+#include <algorithm>
 #include "../base/types.hpp"
 #include "algebra/avx2_algebra.hpp"
 #include "algebra/matrix_mul.hpp"
 #include <random>
+#include "../cnn/activations.hpp"
 
 namespace base {
 	template <class _Ty, bool>
@@ -37,10 +40,26 @@ namespace host {
 	}
 
 	template <class _Activ_fn, class _Mat>
-	inline void activation_apply(_Mat& _M) {
+	inline void activation_apply(_Mat& _M) {	
+		if constexpr (std::is_same_v<_Activ_fn, cnn::softmax>) {
+			activation_apply_softmax(_M);
+		}
+		else {
+			auto _Data = _M.data();
+			for (size_t i = 0; i < _M.size(); ++i) {
+				_Data[i] = _Activ_fn::forward(_Data[i]);
+			}
+		}
+	}
+
+	template <class _Mat>
+	inline void activation_apply_softmax(_Mat& _M) {
+		activation_apply<cnn::exp>(_M);
 		auto _Data = _M.data();
-		for (size_t i = 0; i < _M.size(); ++i) {
-			_Data[i] = _Activ_fn::forward(_Data[i]);
+		for (size_t i = 0; i < _M.rows(); ++i) {
+			auto _Sum = std::reduce(std::execution::par_unseq, _Data + i, _Data + i + _M.cols());
+			for (size_t j = 0; j < _M.cols(); ++j)	
+				_Data[i * _M.cols() + j] = cnn::softmax::forward(_Data[i * _M.cols() + j], _Sum);
 		}
 	}
 

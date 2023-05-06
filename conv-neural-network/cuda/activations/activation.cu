@@ -40,29 +40,24 @@ namespace cuda {
 			<< <blocks, threads >> > (_Data, N * M);
 	}
 
-	struct _exp {
-		template <class _Ty>
-		__device__ inline static _Ty forward(_Ty x) {
-			return exp(x);
-		}
-	};
-
 	template <class _Ty>
 	void _softmax_apply(_Ty* _Data, size_t N, size_t M) {
 
 		const dim3 threads(BLOCK_DIM);
 		const dim3 blocks((N * M + BLOCK_DIM - 1) / BLOCK_DIM);
 
-		using exponent = forwarder<_exp>;
+		using exponent = forwarder<cnn::exp>;
 
 		activation_apply_kernel<exponent>
 			<<<blocks, threads>>>(_Data, N * M);
 
-		_Ty sum = _range_reduce(_Data, N, M);
-
 		using applier = forwarder<cnn::softmax>;
-		activation_apply_kernel<applier>
-			<<<blocks, threads>>>(_Data, N * M, sum);
+		for (size_t i = 0; i < M; ++i) {
+			_Ty sum = _range_reduce(_Data + i * N, N, 1);
+
+			activation_apply_kernel<applier>
+				<<<blocks, threads>>>(_Data + i * N, N, sum);
+		}
 	}
 
 #define INSTANTIATE_ONE(_Fn, _Type) \
@@ -81,4 +76,5 @@ namespace cuda {
 	INSTANTIATE_ACTIVATION_APPLY(cnn::softmax);
 	INSTANTIATE_ACTIVATION_APPLY(cnn::leaky_relu);
 	INSTANTIATE_ACTIVATION_APPLY(cnn::log);
+	INSTANTIATE_ACTIVATION_APPLY(cnn::identity);
 }
