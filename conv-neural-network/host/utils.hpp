@@ -95,6 +95,18 @@ namespace host {
 		}
 	}
 
+	template <class _Mat1, class _Mat2, class _Ty>
+	inline constexpr void matrix_div_scalar(const _Mat1& A, _Mat2& B, _Ty _Val) {
+		if constexpr (std::is_same_v<_Ty, bfloat16>) {
+			for (size_t i = 0; i < A.size(); ++i) {
+				B[i] = A[i] / _Val;
+			}
+		}
+		else {
+			avx2_div_scalar(A.data(), B.data(), _Val, A.size());
+		}
+	}
+
 	template <double _Min = -1.0, double _Max = 1.0, class _Mat>
 	inline constexpr void fill_normal_distribution(_Mat& _M) {
 		using _Ty = typename _Mat::value_type;

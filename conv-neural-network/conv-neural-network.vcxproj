@@ -158,6 +158,7 @@
     <ClInclude Include="host\algebra\avx2_algebra.hpp" />
     <ClInclude Include="host\dual_matrix.hpp" />
     <ClInclude Include="host\matrix.hpp" />
+    <ClInclude Include="host\optimizers\adam.hpp" />
     <ClInclude Include="host\utils.hpp" />
     <ClInclude Include="host\vector.hpp" />
     <ClInclude Include="cuda\vector.hpp" />

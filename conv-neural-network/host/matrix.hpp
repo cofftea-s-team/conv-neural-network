@@ -11,6 +11,7 @@
 #include "utils.hpp"
 #include <iostream>
 #include <concepts>
+#include <functional>
 
 namespace cuda {
 	template <class _Ty, bool>
@@ -89,6 +90,12 @@ namespace host {
 			host::matrix_add<std::minus<_Ty>>(*this, _Other, *this);
 			return *this;
 		}
+
+		template <bool _T>
+		inline matrix& operator/=(const base::matrix<_Ty, allocator<_Ty>, _T>& _Other) {
+			host::matrix_add<std::divides<_Ty>>(*this, _Other, *this);
+			return *this;
+		}
 		
 		template <bool _T>
 		inline matrix& operator*=(const base::matrix<_Ty, allocator<_Ty>, _T>& _Other) {
@@ -107,6 +114,13 @@ namespace host {
 		inline matrix<_Ty, false> operator-(const base::matrix<_Ty, allocator<_Ty>, _T>& _Other) const {
 			matrix<_Ty, false> _Res(_Rows, _Cols);
 			host::matrix_add<std::minus<_Ty>>(*this, _Other, _Res);
+			return _Res;
+		}
+
+		template <bool _T>
+		inline matrix<_Ty, false> operator/(const base::matrix<_Ty, allocator<_Ty>, _T>& _Other) const {
+			matrix<_Ty, false> _Res(_Rows, _Cols);
+			host::matrix_add<std::divides<_Ty>>(*this, _Other, _Res);
 			return _Res;
 		}
 
@@ -179,6 +193,12 @@ namespace host {
 		inline matrix<_Ty, false> operator*(const _Ty& _Val) const {
 			matrix<_Ty, false> _Res(_Rows, _Cols);
 			host::matrix_mul_scalar(*this, _Res, _Val);
+			return _Res;
+		}
+
+		inline matrix<_Ty, false> operator/(const _Ty& _Val) const {
+			matrix<_Ty, false> _Res(_Rows, _Cols);
+			host::matrix_div_scalar(*this, _Res, _Val);
 			return _Res;
 		}
 
