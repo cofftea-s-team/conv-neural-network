@@ -26,16 +26,15 @@ namespace cnn {
 		}
 
 		inline auto operator()(matrix& _Input) {
-			//return _Input.mul(_Weights) + _Bias;
 			return _Input.mul_add_bias(_Weights, _Bias);
 		}
 
-		inline auto backward(matrix& _Error, matrix& _Input) {
-			_Weights += _Input.T().mul(_Error);
-			_Bias += _Error.sum1();
+		template <class _Optimizer>
+		inline auto backward(matrix& _Error, matrix& _Input, _Optimizer& _Opt) {
+			_Opt.step(_Weights, _Input.T().mul(_Error));
+			_Opt.step(_Bias, _Error.sum1());
 			return _Error.mul(_Weights.T());
 		}
-
 		
 		matrix _Weights;
 		vector _Bias;

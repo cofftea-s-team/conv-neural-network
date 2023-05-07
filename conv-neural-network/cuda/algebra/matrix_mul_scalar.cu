@@ -19,7 +19,7 @@ namespace cuda {
 		const dim3 threads(BLOCK_DIM, BLOCK_DIM);
 		const dim3 blocks((N - 1) / BLOCK_DIM + 1, (M - 1) / BLOCK_DIM + 1);
 
-		matrix_mul_scalar_kernel << <blocks, threads >> > (A, B, _Val, N, M);
+		matrix_mul_scalar_kernel<<<blocks, threads>>>(A, B, _Val, N, M);
 	}
 
 	template void _matrix_mul_scalar<bfloat16>(const bfloat16*, bfloat16*, bfloat16, size_t, size_t);

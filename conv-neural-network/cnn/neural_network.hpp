@@ -31,6 +31,7 @@ namespace cnn {
 		using dual_matrix = typename config::dual_matrix;
 
 		value_type learning_rate = 0.00001f;
+		static constexpr size_t linear_count = _Count_linears<_TLayers...>::value;
 
 		friend class file;
 
@@ -38,14 +39,14 @@ namespace cnn {
 			: _Layers(std::forward<_TLayers>(_Sequential)...)
 		{ }
 
-		template <class _Lambda>
-		inline void train(size_t _Epochs, matrix& _Input, matrix& _Target, _Lambda _Fn) {
+		template <class _Optimizer, class _Lambda>
+		inline void train(_Optimizer& _Opt, size_t _Epochs, matrix& _Input, matrix& _Target, _Lambda _Fn) {
 			for (size_t i = 0; i < _Epochs; ++i) {
-				_Train_once(_Input, _Target);
+				_Train_once(_Input, _Target, _Opt);
 				matrix _Output = predict(_Input);
-
+				//learning_rate *= 0.999f;
 				if (i % 1000 == 0) {
-					_Fn(i, loss(_Output, _Target), _Output );
+					_Fn(i, loss(_Output, _Target), _Output, _Opt.learning_rate());
 				}
 			}
 		}
@@ -73,9 +74,11 @@ namespace cnn {
 		}
 
 	private:
-		inline void _Train_once(matrix& _Input, matrix& _Target) {
+		template <class _Optimizer>
+		inline void _Train_once(matrix& _Input, matrix& _Target, _Optimizer& _Opt) {
 			predict<true>(_Input);
-			auto _Error = (_Target - _Outputs.back()) * learning_rate;
+			auto _Error = (_Target - _Outputs.back());
+			//std::cout << _Outputs.back()  << std::endl;
 			_Outputs.pop_back();
 			_Outputs.emplace_back(std::move(_Error));
 
@@ -83,7 +86,7 @@ namespace cnn {
 				constexpr auto _Sel = _Select_layer_type<_TLayer>();
 
 				if constexpr (_Sel == _Lt::_Linear)
-					_Backward_linear(_Layer);
+					_Backward_linear(_Layer, _Opt);
 				else if constexpr (_Sel == _Lt::_Activation)
 					_Backward_activation<_TLayer>();
 				else if constexpr (_Sel == _Lt::_Dropout)
@@ -106,12 +109,13 @@ namespace cnn {
 			_Outputs.emplace_back(std::move(_Input));
 		}
 
-		inline void _Backward_linear(linear& _Layer) {
+		template <class _Optimizer>
+		inline void _Backward_linear(linear& _Layer, _Optimizer& _Opt) {
 			matrix _Error = std::move(_Outputs.back());
 			_Outputs.pop_back();
 			matrix _Input = std::move(_Outputs.back());
 			_Outputs.pop_back();
-			auto _Res = _Layer.backward(_Error, _Input);
+			auto _Res = _Layer.backward(_Error, _Input, _Opt);
 			_Outputs.emplace_back(std::move(_Res));
 		}
 

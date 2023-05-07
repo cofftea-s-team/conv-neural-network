@@ -13,7 +13,7 @@ namespace cuda {
 			return _Data;
 		}
 
-		constexpr size_t max_size = 8144 * 8144;
+		constexpr size_t max_size = 8144 * 8144 / 4;
 		void* const _Data = _Alloc<void*, max_size>();
 	}
 	

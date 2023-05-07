@@ -101,9 +101,6 @@
     <CudaCompile Include="cuda\algebra\matrix_mul.cu" />
     <CudaCompile Include="cuda\algebra\matrix_mul_add_bias.cu" />
     <CudaCompile Include="cuda\algebra\matrix_mul_scalar.cu" />
-    <CudaCompile Include="cuda\algebra\matrix_scalar_mul.cu" />
-    <CudaCompile Include="cuda\algebra\matrix_sub.cu" />
-    <CudaCompile Include="cuda\algebra\matrix_sub_vector.cu" />
     <CudaCompile Include="cuda\algebra\matrix_sum.cu" />
     <CudaCompile Include="cuda\algebra\matrix_transpose.cu" />
     <CudaCompile Include="cuda\activations\activation.cu" />
@@ -128,6 +125,8 @@
     <ClInclude Include="cnn\file.hpp" />
     <ClInclude Include="cnn\linear.hpp" />
     <ClInclude Include="cnn\neural_network.hpp" />
+    <ClInclude Include="cnn\optimizers.hpp" />
+    <ClInclude Include="cnn\optimizers\adam.hpp" />
     <ClInclude Include="cuda\activations\activation.cuh" />
     <ClInclude Include="cuda\activations\dropout.cuh" />
     <ClInclude Include="cuda\algebra\matrix_add.cuh" />
@@ -135,9 +134,6 @@
     <ClInclude Include="cuda\algebra\matrix_add_vector.cuh" />
     <ClInclude Include="cuda\algebra\matrix_mul_add_bias.cuh" />
     <ClInclude Include="cuda\algebra\matrix_mul_scalar.cuh" />
-    <ClInclude Include="cuda\algebra\matrix_scalar_mul.cuh" />
-    <ClInclude Include="cuda\algebra\matrix_sub.cuh" />
-    <ClInclude Include="cuda\algebra\matrix_sub_vector.cuh" />
     <ClInclude Include="cuda\algebra\matrix_sum.cuh" />
     <ClInclude Include="cuda\algebra\range_reduce.cuh" />
     <ClInclude Include="cuda\dual_matrix.hpp" />
@@ -158,7 +154,6 @@
     <ClInclude Include="host\algebra\avx2_algebra.hpp" />
     <ClInclude Include="host\dual_matrix.hpp" />
     <ClInclude Include="host\matrix.hpp" />
-    <ClInclude Include="host\optimizers\adam.hpp" />
     <ClInclude Include="host\utils.hpp" />
     <ClInclude Include="host\vector.hpp" />
     <ClInclude Include="cuda\vector.hpp" />

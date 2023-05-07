@@ -61,6 +61,34 @@ namespace cuda {
 	}
 
 	template <class _Ty>
+	struct plus {
+		__device__ inline _Ty operator()(const _Ty& _Left, const _Ty& _Right) const {
+			return _Left + _Right;
+		}
+	};
+
+	template <class _Ty>
+	struct minus {
+		__device__ inline _Ty operator()(const _Ty& _Left, const _Ty& _Right) const {
+			return _Left - _Right;
+		}
+	};
+
+	template <class _Ty>
+	struct multiplies {
+		__device__ inline _Ty operator()(const _Ty& _Left, const _Ty& _Right) const {
+			return _Left * _Right;
+		}
+	};
+
+	template <class _Ty>
+	struct divides {
+		__device__ inline _Ty operator()(const _Ty& _Left, const _Ty& _Right) const {
+			return _Left / _Right;
+		}
+	};
+
+	template <class _Ty>
 	struct cuda_to_host_matrix_iterator {
 		struct element {
 			inline element(_Ty* _Ptr)

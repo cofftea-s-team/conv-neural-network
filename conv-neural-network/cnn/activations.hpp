@@ -100,6 +100,18 @@ namespace cnn {
 		}
 	};
 
+	struct sqrt {
+		template <class _Ty>
+		__device__ __host__ inline static _Ty forward(_Ty x) {
+			return ::sqrt(x);
+		}
+
+		template <class _Ty>
+		__device__ __host__ inline static _Ty backward(_Ty x) {
+			return 1. / (2. * ::sqrt(x));
+		}
+	};
+
 	struct identity {
 		template <class _Ty>
 		__device__ __host__ inline static _Ty forward(_Ty x) {

@@ -99,7 +99,7 @@ namespace host {
 		
 		template <bool _T>
 		inline matrix& operator*=(const base::matrix<_Ty, allocator<_Ty>, _T>& _Other) {
-			host::matrix_scalar_mul(*this, _Other, *this);
+			host::matrix_add<std::multiplies<_Ty>>(*this, _Other, *this);
 			return *this;
 		}
 
@@ -127,7 +127,7 @@ namespace host {
 		template <bool _T>
 		inline matrix<_Ty, false> operator*(const base::matrix<_Ty, allocator<_Ty>, _T>& _Other) const {
 			matrix<_Ty, false> _Res(_Rows, _Cols);
-			host::matrix_scalar_mul(*this, _Other, _Res);
+			host::matrix_add<std::multiplies<_Ty>>(*this, _Other, _Res);
 			return _Res;
 		}
 
@@ -147,19 +147,26 @@ namespace host {
 		}
 
 		template <bool _T>
-		inline matrix<_Ty, false> operator+(const base::vector<_Ty, host::allocator<_Ty>, _T>& _Other) {
+		inline matrix<_Ty, false> operator+(const base::vector<_Ty, host::allocator<_Ty>, _T>& _Other) const {
 			matrix<_Ty, false> _Res(_Mybase::shape());
 			host::matrix_add_vector<std::plus<_Ty>>(*this, _Other, _Res);
 			return _Res;
 		}
 
 		template <bool _T>
-		inline matrix<_Ty, false> operator-(const base::vector<_Ty, host::allocator<_Ty>, _T>& _Other) {
+		inline matrix<_Ty, false> operator-(const base::vector<_Ty, host::allocator<_Ty>, _T>& _Other) const {
 			matrix<_Ty, false> _Res(_Mybase::shape());
 			host::matrix_add_vector<std::minus<_Ty>>(*this, _Other, _Res);
 			return _Res;
 		}
 
+		template <bool _T>
+		inline matrix<_Ty, false> operator*(const base::vector<_Ty, host::allocator<_Ty>, _T>& _Other) const {
+			matrix<_Ty, false> _Res(_Mybase::shape());
+			host::matrix_add_vector<std::multiplies<_Ty>>(*this, _Other, _Res);
+			return _Res;
+		}
+		
 		// 
 		// scalar operations
 

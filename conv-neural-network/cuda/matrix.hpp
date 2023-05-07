@@ -4,10 +4,7 @@
 #include "vector.hpp"
 #include "algebra/matrix_mul.cuh"
 #include "algebra/matrix_add.cuh"
-#include "algebra/matrix_sub.cuh"
-#include "algebra/matrix_scalar_mul.cuh"
 #include "algebra/matrix_add_vector.cuh"
-#include "algebra/matrix_sub_vector.cuh"
 #include "algebra/matrix_add_scalar.cuh"
 #include "algebra/matrix_mul_scalar.cuh"
 #include "algebra/matrix_sum.cuh"
@@ -93,7 +90,6 @@ namespace cuda {
 			cuda::matrix_mul_add_bias(*this, _Other, _Vec, _Result);
 			return _Result;
 		}
-		
 
 		//
 		// matrix operations
@@ -103,7 +99,7 @@ namespace cuda {
 #ifdef DEBUG
 			assert(_Mybase::cols() == _Other.cols() && _Mybase::rows() == _Other.rows());
 #endif // DEBUG
-			cuda::matrix_add(*this, _Other, *this);
+			cuda::matrix_add<cuda::plus<_Ty>>(*this, _Other, *this);
 			return *this;
 		}
 
@@ -112,7 +108,7 @@ namespace cuda {
 #ifdef DEBUG
 			assert(_Mybase::cols() == _Other.cols() && _Mybase::rows() == _Other.rows());
 #endif // DEBUG
-			cuda::matrix_sub(*this, _Other, *this);
+			cuda::matrix_add<cuda::minus<_Ty>>(*this, _Other, *this);
 			return *this;
 		}
 
@@ -121,7 +117,16 @@ namespace cuda {
 #ifdef DEBUG
 			assert(_Mybase::cols() == _Other.cols() && _Mybase::rows() == _Other.rows());
 #endif // DEBUG
-			cuda::matrix_scalar_mul(*this, _Other, *this);
+			cuda::matrix_add<cuda::multiplies<_Ty>>(*this, _Other, *this);
+			return *this;
+		}
+
+		template <bool _T>
+		inline matrix& operator/=(const base::matrix<_Ty, cuda::allocator<_Ty>, _T>& _Other) {
+#ifdef DEBUG
+			assert(_Mybase::cols() == _Other.cols() && _Mybase::rows() == _Other.rows());
+#endif // DEBUG
+			cuda::matrix_add<cuda::divides<_Ty>>(*this, _Other, *this);
 			return *this;
 		}
 
@@ -131,7 +136,7 @@ namespace cuda {
 			assert(_Mybase::cols() == _Other.cols() && _Mybase::rows() == _Other.rows());
 #endif // DEBUG
 			matrix<_Ty, false> _Res(_Mybase::shape());
-			cuda::matrix_add(*this, _Other, _Res);
+			cuda::matrix_add<cuda::plus<_Ty>>(*this, _Other, _Res);
 			return _Res;
 		}
 
@@ -141,7 +146,7 @@ namespace cuda {
 			assert(_Mybase::cols() == _Other.cols() && _Mybase::rows() == _Other.rows());
 #endif // DEBUG
 			matrix<_Ty, false> _Res(_Mybase::shape());
-			cuda::matrix_sub(*this, _Other, _Res);
+			cuda::matrix_add<cuda::minus<_Ty>>(*this, _Other, _Res);
 			return _Res;
 		}
 		
@@ -151,7 +156,17 @@ namespace cuda {
 			assert(_Mybase::cols() == _Other.cols() && _Mybase::rows() == _Other.rows());
 #endif // DEBUG
 			matrix<_Ty, false> _Res(_Mybase::shape());
-			cuda::matrix_scalar_mul(*this, _Other, _Res);
+			cuda::matrix_add<cuda::multiplies<_Ty>>(*this, _Other, _Res);
+			return _Res;
+		}
+
+		template <bool _T>
+		inline matrix<_Ty, false> operator/(const base::matrix<_Ty, cuda::allocator<_Ty>, _T>& _Other) const {
+#ifdef DEBUG
+			assert(_Mybase::cols() == _Other.cols() && _Mybase::rows() == _Other.rows());
+#endif // DEBUG
+			matrix<_Ty, false> _Res(_Mybase::shape());
+			cuda::matrix_add<cuda::divides<_Ty>>(*this, _Other, _Res);
 			return _Res;
 		}
 
@@ -160,13 +175,25 @@ namespace cuda {
 		
 		template <bool _T>
 		inline matrix& operator+=(const base::vector<_Ty, cuda::allocator<_Ty>, _T>& _Other) {
-			cuda::matrix_add_vector(*this, _Other, *this);
+			cuda::matrix_add_vector<cuda::plus<_Ty>>(*this, _Other, *this);
 			return *this;
 		}
 
 		template <bool _T>
 		inline matrix& operator-=(const base::vector<_Ty, cuda::allocator<_Ty>, _T>& _Other) {
-			cuda::matrix_sub_vector(*this, _Other, *this);
+			cuda::matrix_add_vector<cuda::minus<_Ty>>(*this, _Other, *this);
+			return *this;
+		}
+
+		template <bool _T>
+		inline matrix& operator*=(const base::vector<_Ty, cuda::allocator<_Ty>, _T>& _Other) {
+			cuda::matrix_add_vector<cuda::multiplies<_Ty>>(*this, _Other, *this);
+			return *this;
+		}
+		
+		template <bool _T>
+		inline matrix& operator/=(const base::vector<_Ty, cuda::allocator<_Ty>, _T>& _Other) {
+			cuda::matrix_add_vector<cuda::divides<_Ty>>(*this, _Other, *this);
 			return *this;
 		}
 
@@ -176,7 +203,7 @@ namespace cuda {
 			assert(_Mybase::cols() == _Other.size() || _Mybase::rows() == _Other.size());
 #endif // DEBUG
 			matrix<_Ty, false> _Res(_Mybase::shape());
-			cuda::matrix_add_vector(*this, _Other, _Res);
+			cuda::matrix_add_vector<cuda::plus<_Ty>>(*this, _Other, _Res);
 			return _Res;
 		}
 
@@ -186,7 +213,27 @@ namespace cuda {
 			assert(_Mybase::cols() == _Other.size() || _Mybase::rows() == _Other.size());
 #endif // DEBUG
 			matrix<_Ty, false> _Res(_Mybase::shape());
-			cuda::matrix_sub_vector(*this, _Other, _Res);
+			cuda::matrix_add_vector<cuda::minus<_Ty>>(*this, _Other, _Res);
+			return _Res;
+		}
+
+		template <bool _T>
+		inline matrix<_Ty, false> operator*(const base::vector<_Ty, cuda::allocator<_Ty>, _T>& _Other) const {
+#ifdef DEBUG
+			assert(_Mybase::cols() == _Other.size() || _Mybase::rows() == _Other.size());
+#endif // DEBUG
+			matrix<_Ty, false> _Res(_Mybase::shape());
+			cuda::matrix_add_vector<cuda::multiplies<_Ty>>(*this, _Other, _Res);
+			return _Res;
+		}
+
+		template <bool _T>
+		inline matrix<_Ty, false> operator/(const base::vector<_Ty, cuda::allocator<_Ty>, _T>& _Other) const {
+#ifdef DEBUG
+			assert(_Mybase::cols() == _Other.size() || _Mybase::rows() == _Other.size());
+#endif // DEBUG
+			matrix<_Ty, false> _Res(_Mybase::shape());
+			cuda::matrix_add_vector<cuda::divides<_Ty>>(*this, _Other, _Res);
 			return _Res;
 		}
 
@@ -208,6 +255,11 @@ namespace cuda {
 			return *this;
 		}
 
+		inline matrix& operator/=(const _Ty& _Val) {
+			cuda::matrix_mul_scalar(*this, *this, (_Ty)1. / _Val);
+			return *this;
+		}
+
 		inline matrix<_Ty, false> operator+(const _Ty& _Val) const {
 			matrix<_Ty, false> _Res(_Mybase::shape());
 			cuda::matrix_add_scalar(*this, _Res, _Val);
@@ -223,6 +275,12 @@ namespace cuda {
 		inline matrix<_Ty, false> operator*(const _Ty& _Val) const {
 			matrix<_Ty, false> _Res(_Mybase::shape());
 			cuda::matrix_mul_scalar(*this, _Res, _Val);
+			return _Res;
+		}
+
+		inline matrix<_Ty, false> operator/(const _Ty& _Val) const {
+			matrix<_Ty, false> _Res(_Mybase::shape());
+			cuda::matrix_mul_scalar(*this, _Res, (_Ty)1. / _Val);
 			return _Res;
 		}
 
