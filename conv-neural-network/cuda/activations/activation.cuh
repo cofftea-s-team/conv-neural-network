@@ -3,7 +3,7 @@
 #include "device_launch_parameters.h"
 #include "cuda_bf16.h"
 #include "../algebra/range_reduce.cuh"
-#include "../../activations.hpp"
+#include "../../cnn/activations.hpp"
 //#include "../../utils.hpp"
 
 using bfloat16 = nv_bfloat16;

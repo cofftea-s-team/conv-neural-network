@@ -4,5 +4,6 @@
 
 void main() {
 
-
+	std::ifstream file(path);
+	return 0;
 }

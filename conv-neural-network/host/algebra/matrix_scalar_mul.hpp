@@ -24,34 +24,6 @@ namespace host::algebra {
 				}
 			});
 		}
-
-		template <>
-		inline constexpr void matrix_scalar_mul<false, false, float>
-			(const float* A, const float* B, float* C, size_t N, size_t M)
-		{
-			parallel_for(M, [&](size_t i) {
-				for (size_t j = 0; j < N; j += 8) { // cols
-					__m256 _Vec_A = _mm256_loadu_ps(&A[i * N + j]);
-					__m256 _Vec_B = _mm256_loadu_ps(&B[i * N + j]);
-					__m256 _Vec_res = _mm256_mul_ps(_Vec_A, _Vec_B);
-					_mm256_storeu_ps(&C[i * N + j], _Vec_res);
-				}
-			});
-		}
-
-		template <>
-		inline constexpr void matrix_scalar_mul<false, false, double>
-			(const double* A, const double* B, double* C, size_t N, size_t M)
-		{
-			parallel_for(M, [&](size_t i) {
-				for (size_t j = 0; j < N; j += 8) { // cols
-					__m256d _Vec_A = _mm256_loadu_pd(&A[i * N + j]);
-					__m256d _Vec_B = _mm256_loadu_pd(&B[i * N + j]);
-					__m256d _Vec_res = _mm256_mul_pd(_Vec_A, _Vec_B);
-					_mm256_storeu_pd(&C[i * N + j], _Vec_res);
-				}
-			});
-		}
 	}
 
 	template <bool _T1, bool _T2, class _Ty>
@@ -70,34 +42,6 @@ namespace host::algebra {
 				else {
 					C[i * N + j] = A[i * N + j] * B[i * N + j];
 				}
-			}
-		}
-	}
-
-	template <>
-	inline constexpr void matrix_scalar_mul<false, false, float>
-		(const float* A, const float* B, float* C, size_t N, size_t M)
-	{
-		for (size_t i = 0; i < M; ++i) { // rows
-			for (size_t j = 0; j < N; j += 8) { // cols
-				__m256 _Vec_A = _mm256_loadu_ps(&A[i * N + j]);
-				__m256 _Vec_B = _mm256_loadu_ps(&B[i * N + j]);
-				__m256 _Vec_res = _mm256_mul_ps(_Vec_A, _Vec_B);
-				_mm256_storeu_ps(&C[i * N + j], _Vec_res);
-			}
-		}
-	}
-
-	template <>
-	inline constexpr void matrix_scalar_mul<false, false, double>
-		(const double* A, const double* B, double* C, size_t N, size_t M)
-	{
-		for (size_t i = 0; i < M; ++i) {
-			for (size_t j = 0; j < N; j += 8) { // cols
-				__m256d _Vec_A = _mm256_loadu_pd(&A[i * N + j]);
-				__m256d _Vec_B = _mm256_loadu_pd(&B[i * N + j]);
-				__m256d _Vec_res = _mm256_mul_pd(_Vec_A, _Vec_B);
-				_mm256_storeu_pd(&C[i * N + j], _Vec_res);
 			}
 		}
 	}

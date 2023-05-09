@@ -1,9 +1,10 @@
 #pragma once
-#include "../vector.hpp"
-#include "../vector_view.hpp"
+#include "../base/vector.hpp"
+#include "../base/vector_view.hpp"
 #include "algebra/matrix_add.hpp"
 #include "algebra/matrix_add_vector.hpp"
 #include "algebra/matrix_scalar_mul.hpp"
+#include <functional>
 
 namespace host {
 	
@@ -38,11 +39,27 @@ namespace host {
 			return *this;
 		}
 
+		inline vector& operator*=(const vector& _Other) {
+#ifdef DEBUG
+			assert(_Mybase::rows() == _Other.rows());
+#endif
+			host::matrix_add_vector<std::multiplies<_Ty>>(*this, _Other, *this);
+			return *this;
+		}
+
+		inline vector& operator/=(const vector& _Other) {
+#ifdef DEBUG
+			assert(_Mybase::rows() == _Other.rows());
+#endif
+			host::matrix_add_vector<std::divides<_Ty>>(*this, _Other, *this);
+			return *this;
+		}
+
 		inline vector operator+(const vector& _Other) const {
 #ifdef DEBUG
 			assert(_Mybase::rows() == _Other.rows());
 #endif
-			vector _Result(_Mybase::size());
+			vector _Result(_Mybase::shape());
 			host::matrix_add_vector<std::plus<_Ty>>(*this, _Other, _Result);
 			return _Result;
 		}
@@ -51,8 +68,26 @@ namespace host {
 #ifdef DEBUG
 			assert(_Mybase::rows() == _Other.rows());
 #endif
-			vector _Result(_Mybase::size());
+			vector _Result(_Mybase::shape());
 			host::matrix_add_vector<std::minus<_Ty>>(*this, _Other, _Result);
+			return _Result;
+		}
+
+		inline vector operator*(const vector& _Other) const {
+#ifdef DEBUG
+			assert(_Mybase::rows() == _Other.rows());
+#endif
+			vector _Result(_Mybase::shape());
+			host::matrix_add_vector<std::multiplies<_Ty>>(*this, _Other, _Result);
+			return _Result;
+		}
+
+		inline vector operator/(const vector& _Other) const {
+#ifdef DEBUG
+			assert(_Mybase::rows() == _Other.rows());
+#endif
+			vector _Result(_Mybase::shape());
+			host::matrix_add_vector<std::divides<_Ty>>(*this, _Other, _Result);
 			return _Result;
 		}
 
@@ -70,23 +105,39 @@ namespace host {
 			host::matrix_mul_scalar(*this, *this, _Scalar);
 			return *this;
 		}
+
+		inline vector& operator/=(const _Ty& _Scalar) {
+			host::matrix_div_scalar(*this, *this, _Scalar);
+			return *this;
+		}
 		
-		inline vector operator+(const _Ty& _Scalar) {
+		inline vector operator+(const _Ty& _Scalar) const {
 			vector _Result(_Mybase::shape());
 			host::matrix_add_scalar(*this, _Result, _Scalar);
 			return _Result;
 		}
 		
-		inline vector operator-(const _Ty& _Scalar) {
+		inline vector operator-(const _Ty& _Scalar) const {
 			vector _Result(_Mybase::shape());
 			host::matrix_add_scalar(*this, _Result, -_Scalar);
 			return _Result;
 		}
 
-		inline vector operator*(const _Ty& _Scalar) {
+		inline vector operator*(const _Ty& _Scalar) const {
 			vector _Result(_Mybase::shape());
 			host::matrix_mul_scalar(*this, _Result, _Scalar);
 			return _Result;
+		}
+
+		inline vector operator/(const _Ty& _Scalar) const {
+			vector _Result(_Mybase::shape());
+			host::matrix_div_scalar(*this, _Result, _Scalar);
+			return _Result;
+		}
+
+		template <activation_fn_t _Fn>
+		inline void activate() {
+			host::activation_apply<_Fn>(*this);
 		}
 
 		inline friend std::ostream& operator<<(std::ostream& _Os, const vector& _V) {

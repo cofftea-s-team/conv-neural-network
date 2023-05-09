@@ -9,12 +9,26 @@
 
 
 namespace cnn {
+	struct linear;
 
 	struct config {
 		using value_type = float;
 		using matrix = host::matrix<value_type>;
-		using vector = host::vector<value_type>;
+		using vector = host::vector<value_type, true>;
 		using dual_matrix = host::dual_matrix<value_type>;
+	};
+
+	template <class... _TLayers>
+	struct _Count_linears;
+
+	template <>
+	struct _Count_linears<> {
+		static constexpr size_t value = 0;
+	};
+
+	template <class _TLayer, class... _TLayers>
+	struct _Count_linears<_TLayer, _TLayers...> {
+		static constexpr size_t value = _Count_linears<_TLayers...>::value + std::is_same_v<_TLayer, cnn::linear>;
 	};
 
 	inline auto loss(const typename config::matrix& _Output, const typename config::matrix& _Target) {
@@ -28,7 +42,7 @@ namespace cnn {
 		for (auto&& e : _Error) {
 			loss += e;
 		}
-
+		
 		return loss / _Output.size();
 	}
 }

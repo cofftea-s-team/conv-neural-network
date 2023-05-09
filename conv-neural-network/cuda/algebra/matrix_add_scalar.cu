@@ -9,8 +9,8 @@ namespace cuda {
 		int i = blockIdx.y * BLOCK_DIM + threadIdx.y;
 		int j = blockIdx.x * BLOCK_DIM + threadIdx.x;
 		
-		if (i < N && j < M) {
-			B[i * M + j] = A[i * M + j] + C;
+		if (i < M && j < N) {
+			B[i * N + j] = A[i * N + j] + C;
 		}
 	}
 	

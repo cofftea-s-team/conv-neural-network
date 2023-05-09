@@ -3,7 +3,7 @@
 #include "device_launch_parameters.h"
 #include "cuda_bf16.h"
 #include "../memory.hpp"
-
+#include "../utils_cuda.cuh"
 using bfloat16 = nv_bfloat16;
 
 namespace cuda {

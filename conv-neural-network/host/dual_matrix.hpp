@@ -1,4 +1,5 @@
-#include "../dual_matrix.hpp"
+#pragma once
+#include "../base/dual_matrix.hpp"
 
 namespace host {
 	template <class _Ty>

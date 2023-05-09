@@ -13,19 +13,10 @@
     <CudaCompile Include="cuda\algebra\matrix_add.cu">
       <Filter>cuda\algebra</Filter>
     </CudaCompile>
-    <CudaCompile Include="cuda\algebra\matrix_sub.cu">
-      <Filter>cuda\algebra</Filter>
-    </CudaCompile>
     <CudaCompile Include="cuda\utils_cuda.cu">
       <Filter>cuda</Filter>
     </CudaCompile>
     <CudaCompile Include="cuda\algebra\matrix_add_vector.cu">
-      <Filter>cuda\algebra</Filter>
-    </CudaCompile>
-    <CudaCompile Include="cuda\algebra\matrix_sub_vector.cu">
-      <Filter>cuda\algebra</Filter>
-    </CudaCompile>
-    <CudaCompile Include="cuda\algebra\matrix_scalar_mul.cu">
       <Filter>cuda\algebra</Filter>
     </CudaCompile>
     <CudaCompile Include="cuda\algebra\matrix_add_scalar.cu">
@@ -40,13 +31,17 @@
     <CudaCompile Include="cuda\algebra\matrix_sum.cu">
       <Filter>cuda\algebra</Filter>
     </CudaCompile>
+    <CudaCompile Include="cuda\activations\dropout.cu">
+      <Filter>cuda\activations</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda\algebra\matrix_mul_add_bias.cu">
+      <Filter>cuda\algebra</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="types.hpp" />
-    <ClInclude Include="matrix.hpp" />
     <ClInclude Include="cuda\utils.hpp">
       <Filter>cuda</Filter>
     </ClInclude>
@@ -65,15 +60,10 @@
     <ClInclude Include="cuda\algebra\matrix_mul.cuh">
       <Filter>cuda\algebra</Filter>
     </ClInclude>
-    <ClInclude Include="utils.hpp" />
     <ClInclude Include="cuda\activations\activation.cuh">
       <Filter>cuda\activations</Filter>
     </ClInclude>
-    <ClInclude Include="activations.hpp" />
     <ClInclude Include="cuda\algebra\matrix_add.cuh">
-      <Filter>cuda\algebra</Filter>
-    </ClInclude>
-    <ClInclude Include="cuda\algebra\matrix_sub.cuh">
       <Filter>cuda\algebra</Filter>
     </ClInclude>
     <ClInclude Include="cuda\utils_cuda.cuh">
@@ -82,25 +72,16 @@
     <ClInclude Include="cuda\dual_matrix.hpp">
       <Filter>cuda</Filter>
     </ClInclude>
-    <ClInclude Include="matrix_view.hpp" />
     <ClInclude Include="cuda\vector.hpp">
       <Filter>cuda</Filter>
     </ClInclude>
-    <ClInclude Include="vector.hpp" />
     <ClInclude Include="cuda\algebra\matrix_add_vector.cuh">
       <Filter>cuda\algebra</Filter>
     </ClInclude>
     <ClInclude Include="host\vector.hpp">
       <Filter>host</Filter>
     </ClInclude>
-    <ClInclude Include="vector_view.hpp" />
-    <ClInclude Include="cuda\algebra\matrix_sub_vector.cuh">
-      <Filter>cuda\algebra</Filter>
-    </ClInclude>
     <ClInclude Include="cuda\algebra\matrix_add_scalar.cuh">
-      <Filter>cuda\algebra</Filter>
-    </ClInclude>
-    <ClInclude Include="cuda\algebra\matrix_scalar_mul.cuh">
       <Filter>cuda\algebra</Filter>
     </ClInclude>
     <ClInclude Include="host\algebra\matrix_mul.hpp">
@@ -115,7 +96,6 @@
     <ClInclude Include="host\dual_matrix.hpp">
       <Filter>host</Filter>
     </ClInclude>
-    <ClInclude Include="dual_matrix.hpp" />
     <ClInclude Include="cuda\algebra\range_reduce.cuh">
       <Filter>cuda\algebra</Filter>
     </ClInclude>
@@ -152,6 +132,51 @@
     <ClInclude Include="cnn\neural_network.hpp">
       <Filter>cnn</Filter>
     </ClInclude>
+    <ClInclude Include="base\dual_matrix.hpp">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\matrix.hpp">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\matrix_view.hpp">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\types.hpp">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\utils.hpp">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\vector.hpp">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\vector_view.hpp">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="cnn\dropout.hpp">
+      <Filter>cnn</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda\activations\dropout.cuh">
+      <Filter>cuda\activations</Filter>
+    </ClInclude>
+    <ClInclude Include="cnn\file.hpp">
+      <Filter>cnn</Filter>
+    </ClInclude>
+    <ClInclude Include="cnn\activations.hpp">
+      <Filter>cnn</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda\algebra\matrix_mul_add_bias.cuh">
+      <Filter>cuda\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="host\algebra\matrix_mul_add_bias.hpp">
+      <Filter>host\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="cnn\optimizers.hpp">
+      <Filter>cnn</Filter>
+    </ClInclude>
+    <ClInclude Include="cnn\optimizers\adam.hpp">
+      <Filter>cnn\optimizers</Filter>
+    </ClInclude>
     <ClInclude Include="nn.hpp" />
     <ClInclude Include="python\python.hpp">
       <Filter>python</Filter>
@@ -178,6 +203,12 @@
     </Filter>
     <Filter Include="cnn">
       <UniqueIdentifier>{6f07eaf4-7243-4db6-bacc-6ce620386c6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="base">
+      <UniqueIdentifier>{585e0ce2-646d-4b6d-9cc1-c23f871e9558}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cnn\optimizers">
+      <UniqueIdentifier>{c413fbb1-77b1-423a-a344-0576e899d344}</UniqueIdentifier>
     </Filter>
     <Filter Include="python">
       <UniqueIdentifier>{23fb0957-da9e-491f-b200-198d9ff005e7}</UniqueIdentifier>
