@@ -365,3 +365,8 @@ FodyWeavers.xsd
 /multest/DataStructures
 /multest/.vscode
 /multest/msvcp140d.dll
+/train-labels.txt
+/train-images.txt
+/test-labels.txt
+/test-images.txt
+/5.txt

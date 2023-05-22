@@ -140,12 +140,10 @@ int _main(std::span<std::string_view> args) {
 	neural_network model(
 		linear(2, 32),
 		relu(),
-		linear(32, 64),
-		relu(),
-		linear(64, 24),
+		linear(32, 24),
 		relu(),
 		linear(24, 1),
-		relu()
+		relu1()
 	);
 	
 	auto acc = [&](matrix& output, matrix& target) -> value_type {
@@ -163,12 +161,12 @@ int _main(std::span<std::string_view> args) {
 	matrix in = inputs;
 	matrix out = labels;
 
-	auto progress = [&](size_t i, value_type loss, matrix& m, value_type lr)->void {
-		cout << "[" << i << "] acc: " << std::setprecision(3) << acc(m, out) << "%  loss: " << std::setprecision(8) << loss << "  lr: " << lr << endl;
+	auto progress = [&](size_t i, value_type loss, matrix& m, auto& opt)->void {
+		if (i % 1000 == 0)
+			cout << "[" << i << "] acc: " << std::setprecision(3) << acc(m, out) << "%  loss: " << std::setprecision(8) << loss << "  " << opt << endl;
 	};
-
-	cnn::adam optimizer(model.linear_count, 3e-4);
-	model.train(optimizer, 5001, in, out, progress);
+	cnn::adam optimizer(model.linear_count);
+	model.train(optimizer, 2001, in, out, progress);
 
 	auto grid = read_test("grid.txt");
 

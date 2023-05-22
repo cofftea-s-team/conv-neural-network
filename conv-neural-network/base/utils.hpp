@@ -1,10 +1,10 @@
 #pragma once
 
-#include "cuda/utils.hpp"
-#include "cuda/matrix.hpp"
+#include "../cuda/utils.hpp"
+#include "../cuda/matrix.hpp"
 
-#include "host/utils.hpp"
-#include "host/matrix.hpp"
+#include "../host/utils.hpp"
+#include "../host/matrix.hpp"
 
 #include "matrix_view.hpp"
 #include "matrix.hpp"
@@ -42,22 +42,22 @@ namespace utils {
 	}
 
 	template<class _Lambda, size_t I = 0, class... _TArgs>
-	inline constexpr std::enable_if_t<I == sizeof...(_TArgs), void> for_each(std::tuple<_TArgs...>& _T, _Lambda _Fn)
+	inline constexpr void for_each(std::tuple<_TArgs...>& _T, _Lambda _Fn) requires (I == sizeof...(_TArgs))
 	{ }
 
 	template<class _Lambda, size_t I = 0, class... _TArgs>
-	inline constexpr std::enable_if_t<I < sizeof...(_TArgs), void> for_each(std::tuple<_TArgs...>& _T, _Lambda _Fn) {
+	inline constexpr void for_each(std::tuple<_TArgs...>& _T, _Lambda _Fn) requires (I < sizeof...(_TArgs)) {
 		_Fn(std::get<I>(_T));
 		utils::for_each<_Lambda, I + 1, _TArgs...>(_T, _Fn);
 	}
 
-	template<int N, class _Lambda, int I = N - 1, class... _TArgs>
-	inline constexpr std::enable_if_t<I == -1, void> rfor_each(std::tuple<_TArgs...>& _T, _Lambda _Fn)
+	template<class _Lambda, size_t I = 0, class... _TArgs>
+	inline constexpr void rfor_each(std::tuple<_TArgs...>& _T, _Lambda _Fn) requires (I == sizeof...(_TArgs))
 	{ }
 
-	template<int N, class _Lambda, int I = N - 1, class... _TArgs>
-	inline constexpr std::enable_if_t<I >= 0, void> rfor_each(std::tuple<_TArgs...>& _T, _Lambda _Fn) {
-		_Fn(std::get<I>(_T));
-		utils::rfor_each<N, _Lambda, I - 1, _TArgs...>(_T, _Fn);
+	template<class _Lambda, size_t I = 0, class... _TArgs>
+	inline constexpr void rfor_each(std::tuple<_TArgs...>& _T, _Lambda _Fn) requires (I < sizeof...(_TArgs)) {
+		_Fn(std::get<sizeof...(_TArgs) - I - 1>(_T));
+		utils::rfor_each<_Lambda, I + 1, _TArgs...>(_T, _Fn);
 	}
 }

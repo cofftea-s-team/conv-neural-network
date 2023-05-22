@@ -37,6 +37,12 @@
     <CudaCompile Include="cuda\algebra\matrix_mul_add_bias.cu">
       <Filter>cuda\algebra</Filter>
     </CudaCompile>
+    <CudaCompile Include="cuda\optimizers\adam_update.cu">
+      <Filter>cuda\optimizers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda\algebra\matrix_fill.cu">
+      <Filter>cuda\algebra</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -177,6 +183,18 @@
     <ClInclude Include="cnn\optimizers\adam.hpp">
       <Filter>cnn\optimizers</Filter>
     </ClInclude>
+    <ClInclude Include="host\optimizers\adam_update.hpp">
+      <Filter>host\optimizers</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda\optimizers\adam_update.cuh">
+      <Filter>cuda\optimizers</Filter>
+    </ClInclude>
+    <ClInclude Include="cnn\optimizers\sgd.hpp">
+      <Filter>cnn\optimizers</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda\algebra\matrix_fill.cuh">
+      <Filter>cuda\algebra</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="cuda">
@@ -202,6 +220,12 @@
     </Filter>
     <Filter Include="cnn\optimizers">
       <UniqueIdentifier>{c413fbb1-77b1-423a-a344-0576e899d344}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="host\optimizers">
+      <UniqueIdentifier>{dec290e8-ff9d-4196-96f8-e0512061a9a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cuda\optimizers">
+      <UniqueIdentifier>{d88188d3-9eb2-43f9-aca3-393f0fbd73bc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

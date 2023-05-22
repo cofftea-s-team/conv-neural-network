@@ -31,8 +31,7 @@ namespace cnn {
 
 		template <class _Optimizer>
 		inline auto backward(matrix& _Error, matrix& _Input, _Optimizer& _Opt) {
-			_Opt.step(_Weights, _Input.T().mul(_Error));
-			_Opt.step(_Bias, _Error.sum1());
+			_Opt.step(_Weights, _Input.T().mul(_Error), _Bias, _Error.sum1());
 			return _Error.mul(_Weights.T());
 		}
 		

@@ -1,9 +1,10 @@
 #pragma once
 #include <iostream>
-#include "cuda/algebra/matrix_transpose.cuh"
-#include "host/algebra/matrix_transpose.hpp"
-#include "cuda/utils.hpp"
-#include "host/utils.hpp"
+#include "../cuda/algebra/matrix_transpose.cuh"
+#include "../host/algebra/matrix_transpose.hpp"
+#include "../cuda/algebra/matrix_fill.cuh"
+#include "../cuda/utils.hpp"
+#include "../host/utils.hpp"
 
 namespace base {
 	struct shape
@@ -64,6 +65,7 @@ namespace base {
 			: _Rows(_M), _Cols(_N) 
 		{
 			_Data = _Al.alloc(_N * _M);
+			this->fill(static_cast<_Ty>(0.0));
 		}
 
 		inline matrix(const shape& _Shape)
@@ -218,6 +220,13 @@ namespace base {
 
 		constexpr static bool is_transposed() {
 			return _T;
+		}
+
+		inline void fill(const _Ty& _Val) {
+			if constexpr (!_Al.is_cuda())
+				std::fill(_Data, _Data + _Rows * _Cols, _Val);
+			else
+				cuda::matrix_fill(*this, _Val);
 		}
 		
 	protected:

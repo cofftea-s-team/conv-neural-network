@@ -56,10 +56,11 @@ namespace host {
 	inline void activation_apply_softmax(_Mat& _M) {
 		activation_apply<cnn::exp>(_M);
 		auto _Data = _M.data();
+		size_t N = _M.cols();
 		for (size_t i = 0; i < _M.rows(); ++i) {
-			auto _Sum = std::reduce(std::execution::par_unseq, _Data + i, _Data + i + _M.cols());
-			for (size_t j = 0; j < _M.cols(); ++j)	
-				_Data[i * _M.cols() + j] = cnn::softmax::forward(_Data[i * _M.cols() + j], _Sum);
+			auto _Sum = std::reduce(std::execution::par_unseq, _Data + i * N, _Data + i * N + N);
+			for (size_t j = 0; j < N; ++j)	
+				_Data[i * N + j] = cnn::softmax::forward(_Data[i * N + j], _Sum);
 		}
 	}
 
@@ -107,18 +108,17 @@ namespace host {
 		}
 	}
 
-	template <double _Min = -1.0, double _Max = 1.0, class _Mat>
+	template <class _Mat>
 	inline constexpr void fill_normal_distribution(_Mat& _M) {
 		using _Ty = typename _Mat::value_type;
 		
-		constexpr double _Mean = (_Min + _Max) / 2.;
-		constexpr double _SD = (_Max - _Mean) / 3.16667; // k=3
-		
+		const double _Mean = 0.0;
+		const double _SD = 0.3;// std::sqrt(2.0 / _M.rows());
 		std::mt19937 gen(std::random_device{}());
 		std::normal_distribution<double> dist(_Mean, _SD);
 		
 		for (auto&& _El : _M) {
-			_Ty _Val = std::max((_Ty)_Min, std::min((_Ty)_Max, (_Ty)dist(gen)));
+			_Ty _Val = std::max((_Ty)-1.0, std::min((_Ty)1.0, (_Ty)dist(gen)));
 			_El = _Val;
 		}
 	}

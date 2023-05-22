@@ -2,6 +2,7 @@
 #include "linear.hpp"
 #include "dropout.hpp"
 #include "config.hpp"
+#include "optimizers.hpp"
 #include <vector>
 #include <tuple>
 
@@ -30,7 +31,6 @@ namespace cnn {
 		using vector = typename config::vector;
 		using dual_matrix = typename config::dual_matrix;
 
-		value_type learning_rate = 0.00001f;
 		static constexpr size_t linear_count = _Count_linears<_TLayers...>::value;
 
 		friend class file;
@@ -39,15 +39,14 @@ namespace cnn {
 			: _Layers(std::forward<_TLayers>(_Sequential)...)
 		{ }
 
-		template <class _Optimizer, class _Lambda>
+		template <optimizer _Optimizer, class _Lambda>
 		inline void train(_Optimizer& _Opt, size_t _Epochs, matrix& _Input, matrix& _Target, _Lambda _Fn) {
 			for (size_t i = 0; i < _Epochs; ++i) {
 				_Train_once(_Input, _Target, _Opt);
 				matrix _Output = predict(_Input);
-				//learning_rate *= 0.999f;
-				if (i % 1000 == 0) {
-					_Fn(i, loss(_Output, _Target), _Output, _Opt.learning_rate());
-				}
+
+				_Fn(i, loss(_Output, _Target), _Output, _Opt);
+
 			}
 		}
 
@@ -58,7 +57,7 @@ namespace cnn {
 			// forward pass
 			utils::for_each(_Layers, [&]<class _TLayer>(_TLayer& _Layer) {
 				constexpr auto _Sel = _Select_layer_type<_TLayer>();
-
+				
 				if constexpr (_Sel == _Lt::_Linear)
 					_Forward_linear(_Layer);
 				else if constexpr (_Sel == _Lt::_Activation)
@@ -77,12 +76,12 @@ namespace cnn {
 		template <class _Optimizer>
 		inline void _Train_once(matrix& _Input, matrix& _Target, _Optimizer& _Opt) {
 			predict<true>(_Input);
-			auto _Error = (_Target - _Outputs.back());
-			//std::cout << _Outputs.back()  << std::endl;
+			auto _Error = (_Outputs.back() - _Target);
+
 			_Outputs.pop_back();
 			_Outputs.emplace_back(std::move(_Error));
 
-			utils::rfor_each<sizeof...(_TLayers)>(_Layers, [&]<class _TLayer>(_TLayer & _Layer) {
+			utils::rfor_each(_Layers, [&]<class _TLayer>(_TLayer & _Layer) {
 				constexpr auto _Sel = _Select_layer_type<_TLayer>();
 
 				if constexpr (_Sel == _Lt::_Linear)
@@ -124,8 +123,10 @@ namespace cnn {
 			matrix _Error = std::move(_Outputs.back());
 			_Outputs.pop_back();
 			matrix _Activated = std::move(_Outputs.back());
+			//std::cout << _Activated << std::endl;
 			_Outputs.pop_back();
 			_Activated.backward<_Act_fn>();
+			//std::cout << _Activated << std::endl;
 			_Error *= _Activated;
 			_Outputs.emplace_back(std::move(_Error));			
 		}
@@ -140,6 +141,5 @@ namespace cnn {
 
 		std::tuple<_TLayers...> _Layers;
 		std::vector<matrix> _Outputs;
-		matrix* _Prev_weights = nullptr;
 	};
 }

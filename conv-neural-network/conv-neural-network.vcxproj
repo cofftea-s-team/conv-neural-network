@@ -98,6 +98,7 @@
     <CudaCompile Include="cuda\activations\dropout.cu" />
     <CudaCompile Include="cuda\algebra\matrix_add_scalar.cu" />
     <CudaCompile Include="cuda\algebra\matrix_add_vector.cu" />
+    <CudaCompile Include="cuda\algebra\matrix_fill.cu" />
     <CudaCompile Include="cuda\algebra\matrix_mul.cu" />
     <CudaCompile Include="cuda\algebra\matrix_mul_add_bias.cu" />
     <CudaCompile Include="cuda\algebra\matrix_mul_scalar.cu" />
@@ -106,6 +107,7 @@
     <CudaCompile Include="cuda\activations\activation.cu" />
     <CudaCompile Include="cuda\algebra\matrix_add.cu" />
     <CudaCompile Include="cuda\algebra\range_reduce.cu" />
+    <CudaCompile Include="cuda\optimizers\adam_update.cu" />
     <CudaCompile Include="cuda\utils_cuda.cu" />
   </ItemGroup>
   <ItemGroup>
@@ -127,11 +129,13 @@
     <ClInclude Include="cnn\neural_network.hpp" />
     <ClInclude Include="cnn\optimizers.hpp" />
     <ClInclude Include="cnn\optimizers\adam.hpp" />
+    <ClInclude Include="cnn\optimizers\sgd.hpp" />
     <ClInclude Include="cuda\activations\activation.cuh" />
     <ClInclude Include="cuda\activations\dropout.cuh" />
     <ClInclude Include="cuda\algebra\matrix_add.cuh" />
     <ClInclude Include="cuda\algebra\matrix_add_scalar.cuh" />
     <ClInclude Include="cuda\algebra\matrix_add_vector.cuh" />
+    <ClInclude Include="cuda\algebra\matrix_fill.cuh" />
     <ClInclude Include="cuda\algebra\matrix_mul_add_bias.cuh" />
     <ClInclude Include="cuda\algebra\matrix_mul_scalar.cuh" />
     <ClInclude Include="cuda\algebra\matrix_sum.cuh" />
@@ -141,6 +145,7 @@
     <ClInclude Include="cuda\algebra\matrix_mul.cuh" />
     <ClInclude Include="cuda\algebra\matrix_transpose.cuh" />
     <ClInclude Include="cuda\memory.hpp" />
+    <ClInclude Include="cuda\optimizers\adam_update.cuh" />
     <ClInclude Include="cuda\utils.hpp" />
     <ClInclude Include="cuda\utils_cuda.cuh" />
     <ClInclude Include="host\algebra\matrix_add.hpp" />
@@ -154,6 +159,7 @@
     <ClInclude Include="host\algebra\avx2_algebra.hpp" />
     <ClInclude Include="host\dual_matrix.hpp" />
     <ClInclude Include="host\matrix.hpp" />
+    <ClInclude Include="host\optimizers\adam_update.hpp" />
     <ClInclude Include="host\utils.hpp" />
     <ClInclude Include="host\vector.hpp" />
     <ClInclude Include="cuda\vector.hpp" />
