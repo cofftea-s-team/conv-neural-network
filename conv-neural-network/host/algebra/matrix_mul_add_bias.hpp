@@ -12,7 +12,7 @@ namespace host::algebra {
 				for (size_t j = 0; j < N2; ++j) {
 					C[i * N2 + j] = V[j] + host::algebra::dot_product<false, false>(A, B, C, N, M, N2, i, j);
 				}
-				});
+			});
 		}
 	}
 
@@ -34,7 +34,7 @@ namespace host {
 		size_t M = A.rows();
 		size_t N2 = B.cols();
 
-		if (N * N2 <= 2048 || M < 32) {
+		if (N * N2 <= 2048 || M < 16) {
 			algebra::matrix_mul_add_bias(A.data(), B.data(), V.data(), C.data(), N, M, N2);
 		}
 		else {

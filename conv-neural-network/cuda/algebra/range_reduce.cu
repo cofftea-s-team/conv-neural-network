@@ -37,7 +37,7 @@ namespace cuda {
 	}
 
 	template <class _Ty>
-	_Ty _range_reduce(const _Ty* _Data, size_t N, size_t M) {
+	_Ty* _range_reduce(const _Ty* _Data, size_t N, size_t M) {
 		_Ty* _Tmp_res = get_memory<_Ty>(N * M * 2);
 
 		const dim3 threads(BLOCK_DIM);
@@ -45,14 +45,11 @@ namespace cuda {
 
 		sum_reduction<<<blocks, threads >>>(_Data, _Tmp_res, N * M);
 		sum_reduction<<<1, threads>>>(_Tmp_res, _Tmp_res, N * M );
-		
-		_Ty _Res;
-		cuda::memcpy(_Tmp_res, &_Res, 1, DeviceToHost);
 
-		return _Res;
+		return &_Tmp_res[0];
 	}
 
-	template double _range_reduce<double>(const double*, size_t, size_t);
-	template float _range_reduce<float>(const float*, size_t, size_t);
-	template bfloat16 _range_reduce<bfloat16>(const bfloat16*, size_t, size_t);
+	template double* _range_reduce<double>(const double*, size_t, size_t);
+	template float* _range_reduce<float>(const float*, size_t, size_t);
+	template bfloat16* _range_reduce<bfloat16>(const bfloat16*, size_t, size_t);
 }

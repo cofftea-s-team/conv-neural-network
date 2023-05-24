@@ -7,7 +7,7 @@ namespace host::algebra {
 		namespace details {
 			template <size_t N>
 			constexpr auto range() {
-				std::array<size_t, N> _Array;
+				std::array<uint32_t, N> _Array;
 				std::iota(_Array.begin(), _Array.end(), 0);
 				return _Array;
 			}

@@ -51,8 +51,8 @@ namespace host {
 
 	template <class _Mat1, class _Mat2, class _Mat3>
 	inline constexpr void matrix_scalar_mul(const _Mat1& A, const _Mat2& B, _Mat3& C) {
-		constexpr bool _T1 = A.is_transposed();
-		constexpr bool _T2 = B.is_transposed();
+		static constexpr bool _T1 = A.is_transposed();
+		static constexpr bool _T2 = B.is_transposed();
 		size_t N = A.cols();
 		size_t M = A.rows();
 

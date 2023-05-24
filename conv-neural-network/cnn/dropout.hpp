@@ -19,8 +19,8 @@ namespace cnn {
 
 		inline void backward(matrix& _Input) const {
 			
-			
 		}
+		
 	private:
 		const value_type _Dropout_rate;
 	};

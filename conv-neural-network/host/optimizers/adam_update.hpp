@@ -19,7 +19,7 @@ namespace host::optimizers {
 
 					_Ty _F_m_hat = _F_m[_Idx] / (1.0 - _Current_beta1);
 					_Ty _S_m_hat = _S_m[_Idx] / (1.0 - _Current_beta2);
-					_Weights[_Idx] -= _Current_lr * (_F_m_hat / (std::sqrt(_S_m_hat) + _Hp.epsilon));
+					_Weights[_Idx] += _Current_lr * (_F_m_hat / (std::sqrt(_S_m_hat) + _Hp.epsilon));
 				}
 			});
 		}
@@ -37,11 +37,7 @@ namespace host::optimizers {
 			_Ty _F_m_hat = _F_m[i] / (1.0 - _Current_beta1);
 			_Ty _S_m_hat = _S_m[i] / (1.0 - _Current_beta2);
 
-			_Weights[i] -= _Current_lr * (_F_m_hat / (std::sqrt(_S_m_hat) + _Hp.epsilon));
-			
-			if (std::isnan(_Weights[i])) {
-				_Weights[i] = 0.0;
-			}
+			_Weights[i] += _Current_lr * (_F_m_hat / (std::sqrt(_S_m_hat) + _Hp.epsilon));
 		}
 	}
 
@@ -50,7 +46,7 @@ namespace host::optimizers {
 namespace host {
 	
 	template <cnn::matrix_t _Mat1, cnn::matrix_t _Mat2, class _Ty, class _Params>
-	inline void adam_update(_Mat1& _Weights, const _Mat1& _Gradients, _Mat2& _F_m, _Mat2& _S_m, 
+	inline void adam_update(_Mat1& _Weights, const _Mat2& _Gradients, _Mat2& _F_m, _Mat2& _S_m, 
 		const _Params& _Hp, _Ty _Current_lr, _Ty _Current_beta1, _Ty _Current_beta2)
 	{
 		size_t N = _Weights.cols();

@@ -12,8 +12,8 @@ namespace cuda {
 
 	template <class _Pred, class _Mat, class _Mat2, class _Mat3>
 	inline void matrix_add(const _Mat& _Src1, const _Mat2& _Src2, _Mat3& _Dst) {
-		constexpr bool _T1 = _Src1.is_transposed();
-		constexpr bool _T2 = _Src2.is_transposed();
+		static constexpr bool _T1 = _Src1.is_transposed();
+		static constexpr bool _T2 = _Src2.is_transposed();
 
 		size_t N = _Src1.cols();
 		size_t M = _Src1.rows();

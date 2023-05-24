@@ -15,7 +15,7 @@ namespace host::algebra {
 			}
 			else {
 				if constexpr (_T1)
-					_Sum = _Sum + A[k * M + i] * B[k * N2 + j];
+					_Sum += A[k * M + i] * B[k * N2 + j];
 				else
 					_Sum = _Sum + A[i * N + k] * B[k * N2 + j];
 			}
@@ -49,13 +49,13 @@ namespace host {
 	
 	template <class _Mat, class _Mat2, class _Mat3>
 	inline constexpr void matrix_multiply(const _Mat& A, const _Mat2& B, _Mat3& C) {
-		constexpr bool _T1 = A.is_transposed();
-		constexpr bool _T2 = B.is_transposed();
+		static constexpr bool _T1 = A.is_transposed();
+		static constexpr bool _T2 = B.is_transposed();
 		size_t N = A.cols();
 		size_t M = A.rows();
 		size_t N2 = B.cols();
 
-		if (N * N2 <= 2048 || M < 32) {
+		if (N * N2 < 2048 || M < 32) {
 			algebra::matrix_multiply<_T1, _T2>(A.data(), B.data(), C.data(), N, M, N2);
 		}
 		else {

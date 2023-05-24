@@ -18,9 +18,9 @@ namespace cuda {
 		_Ty _S_m_hat = _S_m[i] / (1.0 - _Current_beta2);
 		
 		if constexpr (!std::is_same_v<_Ty, bfloat16>) 
-			_Weights[i] -= _Lr * (_F_m_hat / (sqrt(_S_m_hat) + _Epsilon));
+			_Weights[i] += _Lr * (_F_m_hat / (sqrt(_S_m_hat) + _Epsilon));
 		else
-			_Weights[i] = _Weights[i] - _Lr * (_F_m_hat / (sqrt(_S_m_hat) + _Epsilon));
+			_Weights[i] = _Weights[i] + _Lr * (_F_m_hat / (sqrt(_S_m_hat) + _Epsilon));
 	}
 
 	template <class _Ty>

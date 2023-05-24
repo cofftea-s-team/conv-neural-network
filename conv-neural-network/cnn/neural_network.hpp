@@ -1,8 +1,10 @@
 #pragma once
+#include "logger.hpp"
 #include "linear.hpp"
 #include "dropout.hpp"
 #include "config.hpp"
 #include "optimizers.hpp"
+#include "loss.hpp"
 #include <vector>
 #include <tuple>
 
@@ -39,14 +41,15 @@ namespace cnn {
 			: _Layers(std::forward<_TLayers>(_Sequential)...)
 		{ }
 
-		template <optimizer _Optimizer, class _Lambda>
-		inline void train(_Optimizer& _Opt, size_t _Epochs, matrix& _Input, matrix& _Target, _Lambda _Fn) {
+		template <loss_fn _TLoss, optimizer _TOptimizer>
+		inline void train(size_t _Epochs, matrix& _Input, matrix& _Target, _TOptimizer& _Opt, logger& _Logger) {
+			_TLoss _Loss_obj{};
 			for (size_t i = 0; i < _Epochs; ++i) {
-				_Train_once(_Input, _Target, _Opt);
+				_Train_once<_TLoss>(_Input, _Target, _Opt);
 				matrix _Output = predict(_Input);
 
-				_Fn(i, loss(_Output, _Target), _Output, _Opt);
-
+				//_Fn(i, loss(_Output, _Target), _Output, _Opt);
+				_Logger.log<_TLoss>(i, _Output, _Target);
 			}
 		}
 
@@ -62,36 +65,37 @@ namespace cnn {
 					_Forward_linear(_Layer);
 				else if constexpr (_Sel == _Lt::_Activation)
 					_Forward_activation<_TLayer>();
-				else if constexpr (_Sel == _Lt::_Dropout) {
-					if constexpr (_Train) _Forward_dropout(_Layer);
-				}
+				else if constexpr (_Sel == _Lt::_Dropout) 
+					_Forward_dropout<_Train>(_Layer);
 				else
 					static_assert(std::_Always_false<_TLayer>, "Invalid layer type");
+				//std::cout << "out: " << _Outputs.back() << std::endl;
 			});
 
 			return _Outputs.back();
 		}
 
 	private:
-		template <class _Optimizer>
-		inline void _Train_once(matrix& _Input, matrix& _Target, _Optimizer& _Opt) {
+		template <class _TLoss, class _TOptimizer>
+		inline void _Train_once(matrix& _Input, matrix& _Target, _TOptimizer& _Opt) {
 			predict<true>(_Input);
-			auto _Error = (_Outputs.back() - _Target);
+			auto _Error = _TLoss::derivative(_Outputs.back(), _Target);
 
 			_Outputs.pop_back();
 			_Outputs.emplace_back(std::move(_Error));
 
-			utils::rfor_each(_Layers, [&]<class _TLayer>(_TLayer & _Layer) {
+			utils::rfor_each(_Layers, [&]<class _TLayer>(_TLayer& _Layer) {
 				constexpr auto _Sel = _Select_layer_type<_TLayer>();
-
+			
 				if constexpr (_Sel == _Lt::_Linear)
 					_Backward_linear(_Layer, _Opt);
 				else if constexpr (_Sel == _Lt::_Activation)
 					_Backward_activation<_TLayer>();
 				else if constexpr (_Sel == _Lt::_Dropout)
-				{ }
+					_Backward_dropout<true>(_Layer);
 				else
 					static_assert(std::_Always_false<_TLayer>, "Invalid layer type");
+				
 			});
 		}
 
@@ -131,12 +135,16 @@ namespace cnn {
 			_Outputs.emplace_back(std::move(_Error));			
 		}
 
+		template <bool _Train>
 		inline void _Forward_dropout(const dropout& _Layer) {
-			_Layer(_Outputs.back());
+			if constexpr (_Train)
+				_Layer(_Outputs.back());
 		}
 
+		template <bool _Train>
 		inline void _Backward_dropout(const dropout& _Layer) {
-			_Layer.backward(_Outputs.back());
+			if constexpr (_Train)
+				_Layer.backward(_Outputs.back());
 		}
 
 		std::tuple<_TLayers...> _Layers;

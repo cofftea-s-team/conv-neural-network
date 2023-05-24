@@ -81,8 +81,7 @@ namespace cuda {
 	template <bool _T1, bool _T2, class _Ty>
 	void _matrix_sum0(const _Ty* A, _Ty* V, size_t N, size_t M) {
 		for (size_t i = 0; i < M; ++i) {
-			_Ty _S = cuda::_range_reduce(&A[i * N], N, 1);
-			cuda::memcpy(&_S, &V[i], 1, HostToDevice);
+			cuda::memcpy(cuda::_range_reduce(&A[i * N], N, 1), &V[i], 1, DeviceToDevice);
 		}
 	}
 
@@ -107,3 +106,5 @@ namespace cuda {
 	INSTANTIATE(float);
 	//INSTANTIATE(bfloat16);
 }
+
+

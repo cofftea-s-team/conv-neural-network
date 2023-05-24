@@ -8,6 +8,9 @@
 #include "../cuda/dual_matrix.hpp"
 #include "../cuda/vector.hpp"
 
+#include <algorithm>
+#include <ranges>
+#include <execution>
 
 namespace cnn {
 	struct linear;
@@ -19,7 +22,7 @@ namespace cnn {
 	
 	struct config {
 		using value_type = float;
-		static constexpr device_type device = device_type::cpu;
+		static constexpr device_type device = device_type::cuda;
 		
 		using matrix = std::conditional_t<device == device_type::cpu, host::matrix<value_type>, cuda::matrix<value_type>>;
 		using vector = std::conditional_t<device == device_type::cpu, host::vector<value_type, true>, cuda::vector<value_type, true>>;
@@ -27,8 +30,23 @@ namespace cnn {
 	};
 
 	template <class _Ty>
-	concept matrix_t = std::is_same_v<_Ty, config::matrix> || 
-		std::is_same_v<_Ty, config::dual_matrix> || std::is_same_v<_Ty, config::vector>;
+	concept matrix_t = cuda_matrix<_Ty> || host_matrix<_Ty>;
+
+	template <class _Ty>
+	concept cuda_matrix = std::is_same_v<_Ty, cuda::matrix<config::value_type>> ||
+		std::is_same_v<_Ty, cuda::dual_matrix<config::value_type>> ||
+		std::is_same_v<_Ty, cuda::vector<config::value_type, true>>;
+
+	template <class _Ty>
+	concept host_matrix = std::is_same_v<_Ty, host::matrix<config::value_type>> ||
+		std::is_same_v<_Ty, host::dual_matrix<config::value_type>> ||
+		std::is_same_v<_Ty, host::vector<config::value_type, true>>;
+
+	template <class _Ty>
+	concept loss_fn = requires () {
+		_Ty::loss;
+		_Ty::derivative;
+	};
 
 	template <class... _TLayers>
 	struct _Count_linears;
@@ -49,24 +67,40 @@ namespace cnn {
 		struct hyperparameters;
 	}
 
-	inline auto loss(const typename config::matrix& _Output, const typename config::matrix& _Target) {
-		typename config::value_type loss = 0.f;
-
-		using value_type = typename config::value_type;
-
-		host::matrix<value_type> _Error = _Output - _Target;
-		_Error *= _Error;
-
-		for (auto&& e : _Error) {
-			loss += e;
+	inline size_t _Argmax_helper(const config::value_type* _Data, size_t N) {
+		size_t index = 0;
+		auto max = _Data[0];
+		for (size_t i = 1; i < N; ++i) {
+			if (_Data[i] > max) {
+				max = _Data[i];
+				index = i;
+			}
 		}
-		
-		return loss / _Output.size();
+		return index;
 	}
 
-	inline auto crossentropy_loss(const typename config::matrix& _Output, const typename config::matrix& _Target) {
-		using value_type = typename config::value_type;
-
+	inline std::vector<size_t> argmax(const host::matrix<config::value_type>& _Output) {
+		size_t N = _Output.cols();
+		size_t M = _Output.rows();
+		auto* _Data = _Output.data();
 		
+		std::vector<size_t> _Res(M);
+		for (size_t i = 0; i < M; ++i) {
+			_Res[i] = _Argmax_helper(&_Data[i * N], N);
+		}
+
+		return _Res;
+	}
+
+	template <matrix_t _TMatrix>
+	inline auto accuracy(const _TMatrix& _Preds, const _TMatrix& _Labels) {
+		using value_type = config::value_type;
+		
+		host::matrix<value_type> _Res = _Preds * _Labels;
+		value_type _Sum = 0;
+		for (size_t i = 0; i < _Res.size(); ++i) {
+			_Sum += round(_Res.data()[i]);
+		}
+		return _Sum / _Preds.rows();
 	}
 }

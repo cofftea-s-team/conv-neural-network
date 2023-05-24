@@ -1,12 +1,13 @@
 #pragma once
 
-#include <execution>
-#include <algorithm>
 #include "../base/types.hpp"
+#include "../cnn/activations.hpp"
 #include "algebra/avx2_algebra.hpp"
 #include "algebra/matrix_mul.hpp"
+#include "activations/softmax.hpp"
+#include <execution>
+#include <algorithm>
 #include <random>
-#include "../cnn/activations.hpp"
 
 namespace base {
 	template <class _Ty, bool>
@@ -49,18 +50,6 @@ namespace host {
 			for (size_t i = 0; i < _M.size(); ++i) {
 				_Data[i] = _Activ_fn::forward(_Data[i]);
 			}
-		}
-	}
-
-	template <class _Mat>
-	inline void activation_apply_softmax(_Mat& _M) {
-		activation_apply<cnn::exp>(_M);
-		auto _Data = _M.data();
-		size_t N = _M.cols();
-		for (size_t i = 0; i < _M.rows(); ++i) {
-			auto _Sum = std::reduce(std::execution::par_unseq, _Data + i * N, _Data + i * N + N);
-			for (size_t j = 0; j < N; ++j)	
-				_Data[i * N + j] = cnn::softmax::forward(_Data[i * N + j], _Sum);
 		}
 	}
 

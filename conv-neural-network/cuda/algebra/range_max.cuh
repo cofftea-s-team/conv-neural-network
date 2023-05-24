@@ -9,17 +9,13 @@ using bfloat16 = nv_bfloat16;
 namespace cuda {
 
 	template <class _Ty>
-	_Ty* _range_reduce(const _Ty* _Data, size_t N, size_t M);
+	_Ty _range_max(const _Ty* _Data, size_t N);
 
 	template <class _Mat>
-	inline auto range_reduce(const _Mat& _Data) {
-		using _Ty = typename _Mat::value_type;
+	inline auto range_max(const _Mat& _Data) {
 		size_t N = _Data.cols();
 		size_t M = _Data.rows();
 
-		_Ty _Res;
-		_Ty* _Out = _range_reduce(_Data.data(), N, M);
-		cuda::memcpy(_Out, &_Res, 1, DeviceToHost);
-		return _Res;
+		return _range_reduce(_Data.data(), _Data.size());
 	}
 }

@@ -3,6 +3,8 @@
 #include "device_launch_parameters.h"
 #include "cuda_bf16.h"
 #include "../algebra/range_reduce.cuh"
+#include "../algebra/range_max.cuh"
+#include "../algebra/matrix_add_scalar.cuh"
 #include "../../cnn/activations.hpp"
 //#include "../../utils.hpp"
 

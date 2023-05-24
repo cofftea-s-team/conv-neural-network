@@ -44,7 +44,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\Users\Kuose\source\repos\CoffteaNeuralNetwork\multest\DataStructures;$(IncludePath)</IncludePath>
-    <TargetExt>.pyd</TargetExt>
+    <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(IncludePath)</IncludePath>
@@ -106,6 +106,7 @@
     <CudaCompile Include="cuda\algebra\matrix_transpose.cu" />
     <CudaCompile Include="cuda\activations\activation.cu" />
     <CudaCompile Include="cuda\algebra\matrix_add.cu" />
+    <CudaCompile Include="cuda\algebra\range_max.cu" />
     <CudaCompile Include="cuda\algebra\range_reduce.cu" />
     <CudaCompile Include="cuda\optimizers\adam_update.cu" />
     <CudaCompile Include="cuda\utils_cuda.cu" />
@@ -126,6 +127,8 @@
     <ClInclude Include="cnn\dropout.hpp" />
     <ClInclude Include="cnn\file.hpp" />
     <ClInclude Include="cnn\linear.hpp" />
+    <ClInclude Include="cnn\logger.hpp" />
+    <ClInclude Include="cnn\loss.hpp" />
     <ClInclude Include="cnn\neural_network.hpp" />
     <ClInclude Include="cnn\optimizers.hpp" />
     <ClInclude Include="cnn\optimizers\adam.hpp" />
@@ -139,6 +142,7 @@
     <ClInclude Include="cuda\algebra\matrix_mul_add_bias.cuh" />
     <ClInclude Include="cuda\algebra\matrix_mul_scalar.cuh" />
     <ClInclude Include="cuda\algebra\matrix_sum.cuh" />
+    <ClInclude Include="cuda\algebra\range_max.cuh" />
     <ClInclude Include="cuda\algebra\range_reduce.cuh" />
     <ClInclude Include="cuda\dual_matrix.hpp" />
     <ClInclude Include="cuda\matrix.hpp" />
@@ -148,6 +152,7 @@
     <ClInclude Include="cuda\optimizers\adam_update.cuh" />
     <ClInclude Include="cuda\utils.hpp" />
     <ClInclude Include="cuda\utils_cuda.cuh" />
+    <ClInclude Include="host\activations\softmax.hpp" />
     <ClInclude Include="host\algebra\matrix_add.hpp" />
     <ClInclude Include="host\algebra\matrix_add_vector.hpp" />
     <ClInclude Include="host\algebra\matrix_mul.hpp" />

@@ -76,6 +76,16 @@ namespace host {
 			return _Res;
 		}
 
+		template <bool _T, bool _T2>
+		inline auto mul_add_bias(const base::matrix<_Ty, allocator<_Ty>, _T>& _Other, const base::vector<_Ty, allocator<_Ty>, _T2>& _Vec, _Ty* _Res) {
+#ifdef DEBUG
+			assert(_Mybase::cols() == _Other.rows() && _Other.cols() == _Vec.size());
+#endif // DEBUG
+			base::matrix_view<_Ty, allocator<_Ty>, false> _Result(_Other.cols(), _Mybase::rows(), _Res);
+			cuda::matrix_mul_add_bias(*this, _Other, _Vec, _Result);
+			return _Result;
+		}
+
 		//
 		// matrix operations
 		
@@ -182,6 +192,11 @@ namespace host {
 
 		inline matrix& operator*=(const _Ty& _Val) {
 			host::matrix_mul_scalar(*this, *this, _Val);
+			return *this;
+		}
+
+		inline matrix& operator/=(const _Ty& _Val) {
+			host::matrix_div_scalar(*this, *this, _Val);
 			return *this;
 		}
 

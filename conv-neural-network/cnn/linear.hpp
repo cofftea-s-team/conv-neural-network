@@ -1,7 +1,7 @@
 #pragma once
 
 #include "config.hpp"
-
+#include "../base/utils.hpp"
 namespace cnn {
 	
 	class linear {
@@ -9,7 +9,8 @@ namespace cnn {
 		using value_type = typename config::value_type;
 		using matrix = typename config::matrix;
 		using vector = typename config::vector;
-
+		using dual_matrix = typename config::dual_matrix;
+		
 		template <class... _TLayers>
 		friend class neural_network;
 		friend class file;
@@ -21,12 +22,14 @@ namespace cnn {
 			host::vector<value_type, true> _B_tmp(base::shape(1, _OutputSize));
 			utils::generate_normal(_W_tmp);
 			utils::generate_normal(_B_tmp);
-			_Weights = _W_tmp;
-			_Bias = _B_tmp;
+			_Weights = std::move(_W_tmp);
+			_Bias = std::move(_B_tmp);
 		}
 
 		inline auto operator()(matrix& _Input) {
-			return _Input.mul_add_bias(_Weights, _Bias);
+			if (_Weights.get_result() == nullptr) 
+				_Weights.alloc_result(utils::get_mul_shape(_Input, _Weights));
+			return _Input.mul_add_bias(_Weights, _Bias, _Weights.get_result());
 		}
 
 		template <class _Optimizer>
@@ -35,7 +38,7 @@ namespace cnn {
 			return _Error.mul(_Weights.T());
 		}
 		
-		matrix _Weights;
+		dual_matrix _Weights;
 		vector _Bias;
 	};
 }

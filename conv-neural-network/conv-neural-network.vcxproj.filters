@@ -43,6 +43,9 @@
     <CudaCompile Include="cuda\algebra\matrix_fill.cu">
       <Filter>cuda\algebra</Filter>
     </CudaCompile>
+    <CudaCompile Include="cuda\algebra\range_max.cu">
+      <Filter>cuda\algebra</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -195,6 +198,18 @@
     <ClInclude Include="cuda\algebra\matrix_fill.cuh">
       <Filter>cuda\algebra</Filter>
     </ClInclude>
+    <ClInclude Include="cuda\algebra\range_max.cuh">
+      <Filter>cuda\algebra</Filter>
+    </ClInclude>
+    <ClInclude Include="host\activations\softmax.hpp">
+      <Filter>host\activations</Filter>
+    </ClInclude>
+    <ClInclude Include="cnn\loss.hpp">
+      <Filter>cnn</Filter>
+    </ClInclude>
+    <ClInclude Include="cnn\logger.hpp">
+      <Filter>cnn</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="cuda">
@@ -226,6 +241,9 @@
     </Filter>
     <Filter Include="cuda\optimizers">
       <UniqueIdentifier>{d88188d3-9eb2-43f9-aca3-393f0fbd73bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="host\activations">
+      <UniqueIdentifier>{b5082563-91e1-43c9-b871-ce21945769cc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

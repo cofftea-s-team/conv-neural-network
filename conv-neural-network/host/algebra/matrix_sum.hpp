@@ -67,7 +67,7 @@ namespace host {
 
 	template <class _Mat, class _Vec>
 	inline constexpr void matrix_sum0(const _Mat& A, _Vec& V) {
-		constexpr bool _T = A.is_transposed();
+		static constexpr bool _T = A.is_transposed();
 		size_t N = A.cols();
 		size_t M = A.rows();
 
@@ -81,7 +81,7 @@ namespace host {
 
 	template <class _Mat, class _Vec>
 	inline constexpr void matrix_sum1(const _Mat& A, _Vec& V) {
-		constexpr bool _T = A.is_transposed();
+		static constexpr bool _T = A.is_transposed();
 		size_t N = A.cols();
 		size_t M = A.rows();
 
