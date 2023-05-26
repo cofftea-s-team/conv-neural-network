@@ -30,9 +30,6 @@ namespace cnn {
 	};
 
 	template <class _Ty>
-	concept matrix_t = cuda_matrix<_Ty> || host_matrix<_Ty>;
-
-	template <class _Ty>
 	concept cuda_matrix = std::is_same_v<_Ty, cuda::matrix<config::value_type>> ||
 		std::is_same_v<_Ty, cuda::dual_matrix<config::value_type>> ||
 		std::is_same_v<_Ty, cuda::vector<config::value_type, true>>;
@@ -41,6 +38,9 @@ namespace cnn {
 	concept host_matrix = std::is_same_v<_Ty, host::matrix<config::value_type>> ||
 		std::is_same_v<_Ty, host::dual_matrix<config::value_type>> ||
 		std::is_same_v<_Ty, host::vector<config::value_type, true>>;
+
+	template <class _Ty, class... _TArgs>
+	concept matrix_t = cuda_matrix<_Ty> || host_matrix<_Ty>;
 
 	template <class _Ty>
 	concept loss_fn = requires () {

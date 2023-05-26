@@ -156,7 +156,7 @@ int _main(std::span<std::string_view> args) {
 	const std::string_view test_label_file = "../train-labels.txt";
 
 	static constexpr size_t batch_size = 1024;
-	static constexpr size_t data_count = 8144;
+	static constexpr size_t data_count = 8144 * 2;
 	static constexpr size_t N = ((data_count - 1) | (batch_size - 1)) + 1;
 
 	static constexpr size_t iterations = 100;
@@ -175,14 +175,14 @@ int _main(std::span<std::string_view> args) {
 	);
 	
 	hyperparameters<adam> params = {
-		.learning_rate = 0.001,
-		.beta1 = 0.9,
-		.beta2 = 0.999,
+		.learning_rate = 0.01,
+		.beta1 = 0.93,
+		.beta2 = 0.9991,
 	};
 	
 	adam optimizer(nn.linear_count, params);
 
-	for (size_t epoch = 0; epoch < 5; ++epoch) {	
+	for (size_t epoch = 0; epoch < 7; ++epoch) {	
 		
 		for (size_t i = 0; i < batch_count; ++i) {
 			matrix batch = create_batch(inputs, i * batch_size, batch_size);
