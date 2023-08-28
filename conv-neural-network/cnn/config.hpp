@@ -43,9 +43,9 @@ namespace cnn {
 	concept matrix_t = cuda_matrix<_Ty> || host_matrix<_Ty>;
 
 	template <class _Ty>
-	concept loss_fn = requires () {
-		_Ty::loss;
-		_Ty::derivative;
+	concept loss_fn = requires (typename cnn::config::matrix _M) {
+		_Ty::loss(_M, _M);
+		_Ty::derivative(_M, _M);
 	};
 
 	template <class... _TLayers>

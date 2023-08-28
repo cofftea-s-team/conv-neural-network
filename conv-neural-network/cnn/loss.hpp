@@ -30,7 +30,7 @@ namespace cnn {
 		}
 	};
 
-	struct cross_entropy {
+	struct cross_entropy	 {
 		using value_type = config::value_type;
 		
 		template <matrix_t _TMatrix>

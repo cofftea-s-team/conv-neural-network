@@ -16,7 +16,9 @@ namespace cnn {
 	consteval _Lt _Select_layer_type() {
 		if constexpr (std::is_same_v<_TLayer, linear>)
 			return _Lt::_Linear;
-		else if constexpr (requires(_TLayer) { _TLayer::forward; })
+		else if constexpr (requires(_TLayer, float x) { _TLayer::forward(x); })
+			return _Lt::_Activation;
+		else if constexpr (requires(_TLayer, float x) { _TLayer::forward(x, x); })
 			return _Lt::_Activation;
 		else if constexpr (std::is_same_v<_TLayer, dropout>)
 			return _Lt::_Dropout;
@@ -41,9 +43,8 @@ namespace cnn {
 			: _Layers(std::forward<_TLayers>(_Sequential)...)
 		{ }
 
-		template <loss_fn _TLoss, optimizer _TOptimizer>
+		template <class _TLoss, class _TOptimizer>
 		inline void train(size_t _Epochs, matrix& _Input, matrix& _Target, _TOptimizer& _Opt, logger& _Logger) {
-			_TLoss _Loss_obj{};
 			for (size_t i = 0; i < _Epochs; ++i) {
 				_Train_once<_TLoss>(_Input, _Target, _Opt);
 				matrix _Output = predict(_Input);
@@ -59,7 +60,7 @@ namespace cnn {
 			_Outputs.emplace_back(_Input);
 			// forward pass
 			utils::for_each(_Layers, [&]<class _TLayer>(_TLayer& _Layer) {
-				constexpr auto _Sel = _Select_layer_type<_TLayer>();
+				static constexpr auto _Sel = _Select_layer_type<_TLayer>();
 				
 				if constexpr (_Sel == _Lt::_Linear)
 					_Forward_linear(_Layer);
@@ -85,7 +86,7 @@ namespace cnn {
 			_Outputs.emplace_back(std::move(_Error));
 
 			utils::rfor_each(_Layers, [&]<class _TLayer>(_TLayer& _Layer) {
-				constexpr auto _Sel = _Select_layer_type<_TLayer>();
+				static constexpr auto _Sel = _Select_layer_type<_TLayer>();
 			
 				if constexpr (_Sel == _Lt::_Linear)
 					_Backward_linear(_Layer, _Opt);
