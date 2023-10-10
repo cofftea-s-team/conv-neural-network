@@ -143,7 +143,7 @@ int _main(std::span<std::string_view> args) {
 		linear(32, 24),
 		relu(),
 		linear(24, 1),
-		relu1()
+		relu()
 	);
 	
 	auto acc = [&](matrix& output, matrix& target) -> value_type {
@@ -161,12 +161,21 @@ int _main(std::span<std::string_view> args) {
 	matrix in = inputs;
 	matrix out = labels;
 
-	auto progress = [&](size_t i, value_type loss, matrix& m, auto& opt)->void {
+	auto progress = [=](size_t i, value_type loss, value_type)->void {
 		if (i % 1000 == 0)
-			cout << "[" << i << "] acc: " << std::setprecision(3) << acc(m, out) << "%  loss: " << std::setprecision(8) << loss << "  " << opt << endl;
+			cout << "[" << i << "] loss: " << std::setprecision(8) << loss << endl;
 	};
-	cnn::adam optimizer(model.linear_count);
-	model.train(optimizer, 2001, in, out, progress);
+	logger log(1000, progress);
+	
+	hyperparameters<adam> params = {
+		.learning_rate = 0.001,
+		.beta1 = 0.9,
+		.beta2 = 0.999,
+	};
+
+	adam optimizer(model.linear_count, params);
+	
+	model.train<mse>(4001, in, out, optimizer, log);
 
 	auto grid = read_test("grid.txt");
 

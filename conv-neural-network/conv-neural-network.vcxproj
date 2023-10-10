@@ -126,6 +126,8 @@
     <ClInclude Include="cnn\dropout.hpp" />
     <ClInclude Include="cnn\file.hpp" />
     <ClInclude Include="cnn\linear.hpp" />
+    <ClInclude Include="cnn\logger.hpp" />
+    <ClInclude Include="cnn\loss.hpp" />
     <ClInclude Include="cnn\neural_network.hpp" />
     <ClInclude Include="cnn\optimizers.hpp" />
     <ClInclude Include="cnn\optimizers\adam.hpp" />
